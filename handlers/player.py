@@ -43,14 +43,14 @@ class PlayerHandler(object):
 
 		return True
 
-	def start(self, location):
-		self.stop()
-		self.open(location)
-		self.play()
-
 	def open(self, url):
 		self.url = self.instance.media_new_location(url)
 		self.player.set_media(self.url)
+		self.play()
+
+	def close(self):
+		self.url = None
+		self.stop()
 
 	def play(self):
 		self.player.play()

@@ -1,9 +1,15 @@
 import gi
+import threading
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 
 from gi.repository import Gtk, Gdk, GObject
+from handlers.crests import CrestHandler
+from apis.football import FootballApi
+from apis.livescore import LivescoreApi
+from apis.streamsports import StreamsportsApi
+from apis.livefootball import LivefootballApi
 
 
 class EventHandler:
@@ -20,28 +26,29 @@ class EventHandler:
 
 		GObject.timeout_add(3000, self.player_toolbar_toggle, True)
 
-	def player_fullscreen_toggle(self):
-		stack = self.builder.get_object('stack_main')
+	def focused_stack_child(self, stack):
+		stack = self.builder.get_object(stack)
 		visible = Gtk.Buildable.get_name(stack.get_visible_child())
 
-		if visible != 'overlay_player':
-			return
+		return visible
 
-		enable = self.builder.get_object('header_fullscreen_button')
-		disable = self.builder.get_object('header_unfullscreen_button')
+	def player_fullscreen_toggle(self):
+		if self.focused_stack_child('stack_main') == 'overlay_player':
+			enable = self.builder.get_object('header_fullscreen_button')
+			disable = self.builder.get_object('header_unfullscreen_button')
 
-		if self.is_fullscreen:
-			disable.hide()
-			enable.show()
-			self.window.unfullscreen()
+			if self.is_fullscreen:
+				disable.hide()
+				enable.show()
+				self.window.unfullscreen()
 
-			self.is_fullscreen = False
-		else:
-			enable.hide()
-			disable.show()
-			self.window.fullscreen()
+				self.is_fullscreen = False
+			else:
+				enable.hide()
+				disable.show()
+				self.window.fullscreen()
 
-			self.is_fullscreen = True
+				self.is_fullscreen = True
 
 	def player_toolbar_toggle(self, timer=True):
 		toolbar = self.builder.get_object('toolbar_player')
@@ -119,8 +126,57 @@ class EventHandler:
 		else:
 			button.hide()
 
+	def update_events(self):
+		football = FootballApi()
+		football.save_fixtures()
+
+		crests = CrestHandler()
+		crests.load_all_crests()
+
+		livescore = LivescoreApi()
+		livescore.update_fixtures()
+
+		# streamsports = StreamsportsApi()
+		# streamsports.save_events()
+
+		GObject.idle_add(self.refresh_events_stack)
+
+	def refresh_events_stack(self):
+		listbox = self.builder.get_object('list_box_events_filters')
+		self.app.widget_remove_children(listbox)
+		self.app.add_events_filters()
+
+		flowbox = self.builder.get_object('flow_box_events_list')
+		self.app.widget_remove_children(flowbox)
+		self.app.add_events_list()
+
+	def update_channels(self):
+		livefootball = LivefootballApi()
+		livefootball.save_channels()
+		livefootball.save_streams()
+
+		GObject.idle_add(self.refresh_channels_stack)
+
+	def refresh_channels_stack(self):
+		listbox = self.builder.get_object('list_box_channels_filters')
+		self.app.widget_remove_children(listbox)
+		self.app.add_channels_filters()
+
+		flowbox = self.builder.get_object('flow_box_channels_list')
+		self.app.widget_remove_children(flowbox)
+		self.app.add_channels_list()
+
+	def refresh_event_stack(self, data):
+		box = self.builder.get_object('box_event_teams')
+		self.app.widget_remove_children(box)
+		self.app.add_event_teams(box, data)
+
+		listbox = self.builder.get_object('list_box_event_streams')
+		self.app.widget_remove_children(listbox)
+		self.app.add_event_streams(listbox, data.events)
+
 	def on_window_main_destroy(self, _event):
-		self.player.stop()
+		self.player.close()
 		self.stream.close()
 		self.app.quit()
 
@@ -145,7 +201,7 @@ class EventHandler:
 	def on_button_stop_clicked(self, _event):
 		if not self.stream.loading:
 			self.player.stop()
-			self.stream.close_stream()
+			self.stream.close()
 			GObject.idle_add(self.player_set_status)
 
 	def on_button_volume_value_changed(self, _event, value):
@@ -183,17 +239,21 @@ class EventHandler:
 		self.header_button_back_toggle(False)
 		self.events_stack_set_focus('events')
 
+	def on_header_reload_button_clicked(self, _event):
+		if self.focused_stack_child('stack_main') == 'box_channels':
+			thread = threading.Thread(target=self.update_channels)
+			thread.start()
+
+		if self.focused_stack_child('stack_main') == 'stack_events':
+			if self.focused_stack_child('stack_events') == 'box_events':
+				thread = threading.Thread(target=self.update_events)
+				thread.start()
+
 	def on_event_details_button_clicked(self, _widget, data):
+		self.refresh_event_stack(data)
+
 		self.events_stack_set_focus('event')
 		self.header_button_back_toggle(True)
-
-		box = self.builder.get_object('box_event_teams')
-		self.app.widget_remove_children(box)
-		self.app.add_event_teams(box, data)
-
-		listbox = self.builder.get_object('list_box_event_streams')
-		self.app.widget_remove_children(listbox)
-		self.app.add_event_streams(listbox, data.events)
 
 	def on_stream_play_button_clicked(self, _widget, url):
 		self.main_stack_set_focus('player')

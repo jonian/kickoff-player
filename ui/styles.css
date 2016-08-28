@@ -66,6 +66,7 @@
 .channel-item {
 	margin: 0;
 	padding: 0;
+	min-width: 300px;
 	background: @theme_base_color;
 	border: 1px solid @borders;
 }

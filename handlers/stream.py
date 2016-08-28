@@ -40,6 +40,7 @@ class StreamHandler:
 		self.stop_sopcast()
 
 	def open_stream(self, url):
+		self.player.close()
 		self.notify('starting')
 
 		if url.startswith('acestream://'):
@@ -49,7 +50,7 @@ class StreamHandler:
 			self.start_sopcast(url)
 
 		if not self.url is None:
-			self.player.start(self.url)
+			self.player.open(self.url)
 
 		self.loading = False
 
@@ -73,6 +74,9 @@ class StreamHandler:
 	def stop_acestream(self):
 		if not self.acestream is None:
 			self.acestream.kill()
+
+		if not self.session is None:
+			self.session.close()
 
 	def start_acestream_session(self, pid):
 		product_key = 'n51LvQoTlJzNGaFxseRK-uvnvX-sD4Vm5Axwmc4UcoD-jruxmKsuJaH0eVgE'
@@ -128,6 +132,9 @@ class StreamHandler:
 	def stop_sopcast(self):
 		if not self.sopcast is None:
 			self.sopcast.kill()
+
+		if not self.session is None:
+			self.session.close()
 
 	def start_sopcast_session(self, port):
 		session = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

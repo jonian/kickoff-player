@@ -1,29 +1,20 @@
-import requests
-
 from lxml import html
 from fuzzywuzzy import fuzz
 from operator import itemgetter
-from handlers.cache import CacheHandler
+from helpers.utils import cached_request
 
 
 class WikipediaApi:
 
 	def __init__(self):
-		self.base_url = 'https://en.wikipedia.org/w/api.php'
-		self.cache = CacheHandler()
+		self.api_url = 'https://en.wikipedia.org/w/api.php'
 
 	def search_term(self, term):
 		try:
-			cache_key = self.term_cache_key(term)
-			result = self.cache.load(cache_key)
-
-			if result is None:
-				params = { 'action': 'opensearch', 'search': term }
-				result = requests.get(self.base_url, params=params)
-				self.cache.save(cache_key, result.content, 604800)
-
-			result = result.json()[-1][0]
-		except Exception:
+			params = { 'action': 'opensearch', 'search': term }
+			result = cached_request(url=self.api_url, ttl=604800, params=params, json=True)
+			result = result[-1][0]
+		except IndexError:
 			result = None
 
 		return result
@@ -33,22 +24,6 @@ class WikipediaApi:
 		term = term.replace(' II', '')
 
 		return term
-
-	def term_cache_key(self, term):
-		key = term.replace('.', '')
-		key = key.replace(' ', '_')
-		key = 'WikiSearch:' + key.strip()
-
-		return key
-
-	def url_cache_key(self, url):
-		key = url.replace('http://', '')
-		key = key.replace('https://', '')
-		key = key.replace('en.wikipedia.org/wiki/', '')
-		key = key.replace('.', '')
-		key = 'WikiPage:' + key.strip()
-
-		return key
 
 	def term_variations(self, term):
 		variations = [term]
@@ -74,16 +49,9 @@ class WikipediaApi:
 		return acronyms
 
 	def get_page_content(self, url):
-		try:
-			cache_key = self.url_cache_key(url)
-			result = self.cache.load(cache_key)
-
-			if result is None:
-				result = requests.get(url)
-				self.cache.save(cache_key, result.content, 604800)
-
-			result = result.content
-		except Exception:
+		if url is not None:
+			result = cached_request(url=url, ttl=604800)
+		else:
 			result = None
 
 		return result
@@ -181,8 +149,8 @@ class WikipediaApi:
 						results.append({ 'image': image, 'ratio': ratio })
 
 		if len(results) > 0:
-			sort = sorted(results, key=itemgetter('ratio'), reverse=True)
-			return 'http:' + sort[0]['image']
+			sort = sorted(results, key=itemgetter('ratio'), reverse=True)[0]
+			return 'http:' + sort['image']
 
 		return None
 
@@ -193,5 +161,6 @@ class WikipediaApi:
 			ratio = fuzz.ratio(match, item)
 			results.append(ratio)
 
-		sort = sorted(results, reverse=True)
-		return sort[0]
+		sort = sorted(results, reverse=True)[0]
+
+		return sort

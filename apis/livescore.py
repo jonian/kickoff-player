@@ -107,9 +107,10 @@ class LivescoreApi:
 
 			items.append({ 'ratio-1': ratio[0], 'ratio-2': ratio[1], 'event': event })
 
-		sort = sorted(items, key=itemgetter('ratio-1'), reverse=True)[0]
+		if len(items) > 0:
+			sort = sorted(items, key=itemgetter('ratio-1'), reverse=True)[0]
 
-		if sort['ratio-1'] > 80 and sort['ratio-2'] > 70:
-			return sort['event']
+			if sort['ratio-1'] > 80 and sort['ratio-2'] > 70:
+				return sort['event']
 
 		return None

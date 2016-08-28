@@ -1,19 +1,15 @@
 import html
-import requests
 
-from handlers.cache import CacheHandler
 from handlers.data import DataHandler
-from helpers.utils import localize_datetime
+from helpers.utils import localize_datetime, cached_request
 
 
 class FootballApi:
 
 	def __init__(self):
-		self.cache = CacheHandler()
 		self.data = DataHandler()
 
-		self.schema = 'https://'
-		self.base_uri = 'api.football-data.org/v1/'
+		self.api_url = 'api.football-data.org/v1'
 		self.headers = {
 			'X-Auth-Token': '1a4a7a5690244642917ca2e6c7b163c5',
 			'X-Response-Control': 'minified'
@@ -23,11 +19,6 @@ class FootballApi:
 		self.save_competitions()
 		self.save_teams()
 		self.save_fixtures(True)
-
-	def resource_cache_key(self, resource):
-		key = 'FootballData:' + resource
-
-		return key
 
 	def parse_competition_name(self, item):
 		captions = {
@@ -44,22 +35,15 @@ class FootballApi:
 
 		return name
 
+	def extract_api_id(self, item, key='self'):
+		api_id = item['_links'][key]['href'].split('/')[-1]
+		api_id = int(api_id)
+
+		return api_id
+
 	def get(self, resource):
-		resource = resource.split('://')[-1].replace(self.base_uri, '')
-		cache_key = self.resource_cache_key(resource)
-
-		try:
-			response = self.cache.load(cache_key)
-
-			if response is None:
-				response = requests.get(self.schema + self.base_uri + resource, headers=self.headers)
-
-				if response.status_code == 200:
-					self.cache.save(cache_key, response.content, 3600)
-
-			response = response.json()
-		except Exception:
-			response = {}
+		response = cached_request(url=resource, base_url=self.api_url, json=True, ttl=3600)
+		response = response if response is not None else {}
 
 		return response
 
@@ -79,10 +63,10 @@ class FootballApi:
 				'total_teams': item['numberOfTeams'],
 				'total_games': item['numberOfGames'],
 				'year': item['year'],
-				'api_id': item['id']
+				'api_id': self.extract_api_id(item)
 			})
 
-		self.data.set_multiple('competition', items)
+		self.data.set_multiple('competition', items, 'api_id')
 
 	def get_teams(self, competition_id):
 		teams = self.get('competitions/' + str(competition_id) + '/teams')
@@ -99,10 +83,10 @@ class FootballApi:
 					'name': html.unescape(str(item['name'])),
 					'short_name': html.unescape(str(item['shortName'])),
 					'crest_url': item['crestUrl'],
-					'api_id': item['id']
+					'api_id': self.extract_api_id(item)
 				})
 
-		self.data.set_multiple('team', items)
+		self.data.set_multiple('team', items, 'api_id')
 
 	def get_fixtures(self, competition_id=None):
 		if competition_id is None:
@@ -126,9 +110,14 @@ class FootballApi:
 				fixtures = fixtures + data
 
 		for item in fixtures:
-			competition = self.data.get_competition({ 'api_id': item['competitionId'] })
-			home_team = self.data.get_team({ 'api_id': item['homeTeamId'] })
-			away_team = self.data.get_team({ 'api_id': item['awayTeamId'] })
+			comp_api_id = self.extract_api_id(item, 'competition')
+			competition = self.data.get_competition({ 'api_id': comp_api_id })
+
+			home_api_id = self.extract_api_id(item, 'homeTeam')
+			home_team = self.data.get_team({ 'api_id': home_api_id })
+
+			away_api_id = self.extract_api_id(item, 'awayTeam')
+			away_team = self.data.get_team({ 'api_id': away_api_id })
 
 			items.append({
 				'date': localize_datetime(item['date']),
@@ -137,7 +126,7 @@ class FootballApi:
 				'away_team': away_team.id,
 				'away_team_goals': item['result']['goalsAwayTeam'],
 				'competition': competition.id,
-				'api_id': item['id']
+				'api_id': self.extract_api_id(item)
 			})
 
-		self.data.set_multiple('fixture', items)
+		self.data.set_multiple('fixture', items, 'api_id')

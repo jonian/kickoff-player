@@ -1,49 +1,19 @@
-import requests
-
 from lxml import html
 from fuzzywuzzy import fuzz
 from operator import itemgetter
 from handlers.data import DataHandler
-from handlers.cache import CacheHandler
+from helpers.utils import cached_request
 
 
 class StreamsportsApi:
 
 	def __init__(self):
-		self.cache = CacheHandler()
 		self.data = DataHandler()
-
-		self.headers = { 'User-Agent': 'Mozilla/5.0' }
-		self.base_url = 'http://www.streamsports.co'
 		self.fixtures = self.data.load_today_fixtures()
 
-	def cache_key(self, url):
-		if not url:
-			url = 'home'
-
-		key = url.replace(self.base_url + '/', '')
-		key = key.strip('/').strip('-')
-		key = 'StreamSports:' + key
-
-		return key
-
 	def get(self, url=''):
-		cache_key = self.cache_key(url)
-
-		try:
-			response = self.cache.load(cache_key)
-
-			if response is None:
-				response = requests.get(self.base_url + '/' + url, headers=self.headers)
-
-				if response.status_code == 200:
-					self.cache.save(cache_key, response.content, 300)
-
-			response = response.content
-		except Exception:
-			response = '<html><body></body></html>'
-
-		response = html.fromstring(response)
+		response = cached_request(url=url, base_url='streamsports.co', ttl=300)
+		response = response if response is None else html.fromstring(response)
 
 		return response
 
@@ -68,9 +38,12 @@ class StreamsportsApi:
 			rate = stream.xpath('.//td[2]')[0].text_content().strip()
 			host = stream.xpath('.//td[3]')[0].text_content().split(' ')[0].strip()
 			lang = stream.xpath('.//td[4]')[0].text_content().split(' ')[0].strip()
-			link = stream.xpath('.//td[6]//a')[0].attrib['href'].strip()
+			link = stream.xpath('.//td[6]//a')[0].attrib['href']
 
-			if link:
+			if link and rate and host and lang:
+				lang = str(lang)[:3].upper()
+				rate = int(rate.replace('Kbps', ''))
+
 				items.append({ 'host': host, 'rate': rate, 'language': lang, 'url': link })
 
 		return items
@@ -84,12 +57,17 @@ class StreamsportsApi:
 			if not data is None:
 				streams = self.get_event_streams(data['url'])
 
-				for item in streams:
-					item['fixture'] = fixture.id
-					items.append(item)
+				for stream in streams:
+					stream = self.data.set_single('stream', stream, 'url')
+
+					items.append({
+						'fs_id': str(fixture.id) + '_' + str(stream.id),
+						'fixture': fixture.id,
+						'stream': stream.id,
+					})
 
 		if len(items) > 0:
-			self.data.set_multiple('event', items, 'url')
+			self.data.set_multiple('event', items, 'fs_id')
 
 	def get_fixture_match(self, fixture):
 		items = []
@@ -109,9 +87,10 @@ class StreamsportsApi:
 
 			items.append({ 'ratio-1': ratio[0], 'ratio-2': ratio[1], 'event': event })
 
-		sort = sorted(items, key=itemgetter('ratio-1'), reverse=True)[0]
+		if len(items) > 0:
+			sort = sorted(items, key=itemgetter('ratio-1'), reverse=True)[0]
 
-		if sort['ratio-1'] > 80 and sort['ratio-2'] > 70:
-			return sort['event']
+			if sort['ratio-1'] > 80 and sort['ratio-2'] > 70:
+				return sort['event']
 
 		return None

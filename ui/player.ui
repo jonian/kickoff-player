@@ -210,7 +210,7 @@
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">False</property>
                                         <property name="halign">start</property>
-                                        <property name="label" translatable="yes">If there are no streams for this event. Check back later. Usually 30 minutes before the event starts.</property>
+                                        <property name="label" translatable="yes">If there are no streams for this event, check back later. Usually 30 minutes before the event starts.</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -611,6 +611,25 @@ audio-volume-medium-symbolic</property>
             <property name="can_focus">False</property>
             <property name="stack">stack_main</property>
           </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="header_reload_button">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <signal name="clicked" handler="on_header_reload_button_clicked" swapped="no"/>
+            <child>
+              <object class="GtkImage">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="icon_name">view-refresh-symbolic</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="pack_type">end</property>
+            <property name="position">2</property>
+          </packing>
         </child>
       </object>
     </child>

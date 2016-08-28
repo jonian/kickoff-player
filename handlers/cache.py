@@ -37,14 +37,14 @@ class CacheHandler:
 		return item
 
 	def create(self, key, value, ttl=0):
-		value = value.decode('utf8').strip()
+		value = value.strip()
 		item = Cacheable.create(key=key, value=value, ttl=ttl)
 
 		return item
 
 	def update(self, item, value, ttl=0):
 		kwargs = {
-			'value': value.decode('utf8').strip(),
+			'value': value.strip(),
 			'ttl': ttl,
 			'updated': datetime.now()
 		}
@@ -75,8 +75,8 @@ class CacheHandler:
 	def is_valid(self, item):
 		try:
 			now = datetime.now()
-			created = item.created
-			diff = int(abs((created - now).total_seconds()))
+			updated = item.updated
+			diff = int(abs((updated - now).total_seconds()))
 			ttl = int(abs(item.ttl))
 
 			if diff < ttl:
@@ -100,12 +100,15 @@ class Cacheable(Model):
 
 	@property
 
-	def content(self):
-		data = self.value
+	def text(self):
+		data = '' if self.value is None else str(self.value)
 
 		return data
 
+	@property
+
 	def json(self):
-		data = json.loads(self.value)
+		data = '[]' if self.value is None else str(self.value)
+		data = json.loads(data)
 
 		return data

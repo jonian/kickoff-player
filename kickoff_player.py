@@ -92,8 +92,7 @@ class KickoffPlayer:
 		for competition in competitions:
 			if competition.has_fixtures:
 				position = position + 1
-				timeout = 1 * position
-				GObject.timeout_add(timeout, self.add_events_filters_item, competition, position)
+				self.add_events_filters_item(competition, position)
 
 	def add_events_filters_item(self, data, position):
 		label_args = {
@@ -119,8 +118,7 @@ class KickoffPlayer:
 
 		for fixture in fixtures:
 			position = position + 1
-			timeout = 1 * position
-			GObject.timeout_add(timeout, self.add_events_list_item, fixture, position)
+			self.add_events_list_item(fixture, position)
 
 	def add_events_list_item(self, data, position):
 		teams = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, homogeneous=True)
@@ -219,15 +217,14 @@ class KickoffPlayer:
 
 		box.show_all()
 
-	def add_event_streams(self, listbox, streams):
+	def add_event_streams(self, listbox, events):
 		position = 0
 
-		for stream in streams:
+		for event in events:
 			position = position + 1
-			timeout = 1 * position
-			GObject.timeout_add(timeout, self.add_event_stream_item, listbox, stream, position)
+			self.add_event_stream_item(listbox, event, position)
 
-	def add_event_stream_item(self, listbox, stream, position):
+	def add_event_stream_item(self, listbox, event, position):
 		row = Gtk.ListBoxRow()
 		listbox.insert(row, position)
 		self.widget_add_class(row, 'stream-item')
@@ -235,32 +232,32 @@ class KickoffPlayer:
 		item = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
 		row.add(item)
 
-		label = Gtk.Label(stream.language, halign=Gtk.Align.START, margin_right=10)
+		label = Gtk.Label(event.stream.language, halign=Gtk.Align.START, margin_right=10)
 		item.pack_start(label, False, False, 0)
 		self.widget_add_class(label, 'stream-language')
 
-		image = self.image_from_path(stream.host_logo, 16)
+		image = self.image_from_path(event.stream.logo, 16)
 		image.set_halign(Gtk.Align.START)
 		item.pack_start(image, False, False, 1)
 		self.widget_add_class(image, 'stream-image')
 
-		if stream.name is None:
+		if event.stream.channel is None:
 			label = Gtk.Label('Unknown Channel', halign=Gtk.Align.START, margin_left=10)
 			self.widget_add_class(label, 'stream-unknown')
 		else:
-			label = Gtk.Label(stream.name, halign=Gtk.Align.START, margin_left=10)
+			label = Gtk.Label(event.stream.channel.name, halign=Gtk.Align.START, margin_left=10)
 			self.widget_add_class(label, 'stream-name')
 
 		item.pack_start(label, False, False, 2)
 
-		label = Gtk.Label(stream.rate, halign=Gtk.Align.END, margin_right=10)
+		label = Gtk.Label(str(event.stream.rate) + 'Kbps', halign=Gtk.Align.END, margin_right=10)
 		item.pack_start(label, True, True, 3)
 		self.widget_add_class(label, 'stream-rate')
 
 		button = Gtk.Button.new_from_icon_name(icon_name='media-playback-start-symbolic', size=Gtk.IconSize.BUTTON)
 		item.pack_start(button, False, False, 4)
 		self.widget_add_class(button, 'stream-play')
-		button.connect('clicked', self.events.on_stream_play_button_clicked, stream.url)
+		button.connect('clicked', self.events.on_stream_play_button_clicked, event.stream.url)
 
 		row.show_all()
 
@@ -271,7 +268,7 @@ class KickoffPlayer:
 
 		for language in languages:
 			position = position + 1
-			GObject.idle_add(self.add_channels_filters_item, language, position)
+			self.add_channels_filters_item(language, position)
 
 	def add_channels_filters_item(self, data, position):
 		lang_id = str(data).split()[0].lower()
@@ -299,16 +296,12 @@ class KickoffPlayer:
 		channels = self.data.load_channels()
 
 		for channel in channels:
-			position = position + 1
-			timeout = 1 * position
-			GObject.timeout_add(timeout, self.add_channels_list_item, channel, position)
+			if channel.has_streams:
+				position = position + 1
+				self.add_channels_list_item(channel, position)
 
 	def add_channels_list_item(self, data, position):
-		streams = data[1]
-		chan_nm = str(data[0])
-		chan_lg = streams[0].logo
-		lang_nm = str(streams[0].language).title()
-		lang_id = str(streams[0].language).split()[0].lower()
+		lang_id = data.language.split()[0].lower()
 
 		box_args = {
 			'orientation': Gtk.Orientation.VERTICAL,
@@ -321,20 +314,20 @@ class KickoffPlayer:
 
 		name = Gtk.Box(**box_args)
 
-		image = self.image_from_path(chan_lg)
+		image = self.image_from_path(data.logo)
 		name.pack_start(image, False, False, 0)
 
-		label = Gtk.Label(chan_nm, halign=Gtk.Align.CENTER)
+		label = Gtk.Label(data.name, halign=Gtk.Align.CENTER)
 		name.pack_start(label, True, True, 0)
 		self.widget_add_class(label, 'channel-name')
 
-		label = Gtk.Label(lang_nm, halign=Gtk.Align.CENTER)
+		label = Gtk.Label(data.language, halign=Gtk.Align.CENTER)
 		name.pack_start(label, True, True, 1)
 		self.widget_add_class(label, 'channel-language')
 
 		strbox = Gtk.Box()
 		self.widget_add_class(strbox, 'channel-streams')
-		self.add_channel_streams(strbox, streams)
+		self.add_channel_streams(strbox, data.streams)
 
 		outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 		outer.pack_start(name, True, True, 0)
@@ -353,17 +346,17 @@ class KickoffPlayer:
 
 		for stream in streams:
 			position = position + 1
-			GObject.idle_add(self.add_channel_stream_item, box, stream, position)
+			self.add_channel_stream_item(box, stream, position)
 
 	def add_channel_stream_item(self, box, stream, position):
 		item = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
 		box.pack_start(item, True, True, position)
 		self.widget_add_class(item, 'channel-stream-item')
 
-		image = self.image_from_path(stream.host_logo, 16)
+		image = self.image_from_path(stream.logo, 16)
 		item.pack_start(image, False, False, 0)
 
-		label = Gtk.Label(stream.rate, halign=Gtk.Align.START, margin_left=10, margin_right=30)
+		label = Gtk.Label(str(stream.rate) + 'Kbps', halign=Gtk.Align.START, margin_left=10, margin_right=10)
 		item.pack_start(label, True, True, 1)
 		self.widget_add_class(label, 'stream-rate')
 

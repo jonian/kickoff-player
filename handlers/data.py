@@ -2,7 +2,6 @@ import os
 
 from os.path import expanduser
 from datetime import datetime
-from itertools import groupby
 from helpers.utils import query_date_range
 from peewee import Model, CharField, DateTimeField, IntegerField, ForeignKeyField
 from playhouse.sqlite_ext import SqliteExtDatabase
@@ -26,14 +25,19 @@ class DataHandler:
 			open(self.path, 'w+')
 
 	def register_models(self):
-		tables = [Competition, Team, Fixture, Event, Channel]
+		tables = [Competition, Team, Fixture, Channel, Stream, Event]
 
 		self.db.connect()
 		self.db.create_tables(tables, safe=True)
 
 	def set_single(self, model, kwargs, main_key='api_id'):
+		key = kwargs.get(main_key, None)
+
+		if key is None:
+			return None
+
 		get_item = getattr(self, 'get_' + model)
-		item = get_item({ main_key: kwargs.get(main_key, 0) })
+		item = get_item({ main_key: key })
 
 		if item is None:
 			create_item = getattr(self, 'create_' + model)
@@ -140,26 +144,6 @@ class DataHandler:
 
 		return item
 
-	def get_event(self, kwargs):
-		try:
-			item = Event.get(**kwargs)
-		except Event.DoesNotExist:
-			item = None
-
-		return item
-
-	def create_event(self, kwargs):
-		item = Event.create(**kwargs)
-
-		return item
-
-	def update_event(self, item, kwargs):
-		kwargs['updated'] = datetime.now()
-		query = Event.update(**kwargs).where(Event.url == item.url)
-		query.execute()
-
-		return item
-
 	def load_channel_languages(self):
 		channels = Channel.select(Channel.language)
 		channels = channels.distinct(Channel.language).tuples()
@@ -169,12 +153,8 @@ class DataHandler:
 
 	def load_channels(self):
 		channels = Channel.select().order_by(Channel.name)
-		schedule = list()
 
-		for k, v in groupby(channels, lambda x: x.name):
-			schedule.append([k, list(v)])
-
-		return schedule
+		return channels
 
 	def get_channel(self, kwargs):
 		try:
@@ -191,7 +171,47 @@ class DataHandler:
 
 	def update_channel(self, item, kwargs):
 		kwargs['updated'] = datetime.now()
-		query = Channel.update(**kwargs).where(Channel.url == item.url)
+		query = Channel.update(**kwargs).where(Channel.name == item.name)
+		query.execute()
+
+		return item
+
+	def get_stream(self, kwargs):
+		try:
+			item = Stream.get(**kwargs)
+		except Stream.DoesNotExist:
+			item = None
+
+		return item
+
+	def create_stream(self, kwargs):
+		item = Stream.create(**kwargs)
+
+		return item
+
+	def update_stream(self, item, kwargs):
+		kwargs['updated'] = datetime.now()
+		query = Stream.update(**kwargs).where(Stream.url == item.url)
+		query.execute()
+
+		return item
+
+	def get_event(self, kwargs):
+		try:
+			item = Event.get(**kwargs)
+		except Event.DoesNotExist:
+			item = None
+
+		return item
+
+	def create_event(self, kwargs):
+		item = Event.create(**kwargs)
+
+		return item
+
+	def update_event(self, item, kwargs):
+		kwargs['updated'] = datetime.now()
+		query = Event.update(**kwargs).where(Event.fs_id == item.fs_id)
 		query.execute()
 
 		return item
@@ -294,7 +314,7 @@ class Team(BasicModel):
 	def label_name(self):
 		name = self.name
 
-		if self.short_name is not None and len(name) > 20:
+		if self.short_name != 'None' and len(name) > 20:
 			name = self.short_name
 
 		return name
@@ -316,7 +336,6 @@ class Fixture(BasicModel):
 
 	def events(self):
 		events = Event.select().where(Event.fixture == self)
-		events = events.order_by(Event.language)
 
 		return events
 
@@ -368,53 +387,13 @@ class Fixture(BasicModel):
 		return local
 
 
-class Event(BasicModel):
-	host = CharField()
-	rate = CharField()
-	language = CharField()
-	url = CharField(unique=True)
-	fixture = ForeignKeyField(Fixture, related_name='fixture')
-	created = DateTimeField(default=datetime.now)
-	updated = DateTimeField(default=datetime.now)
-
-	@property
-
-	def name(self):
-		channel = Channel.select().where(Channel.url == self.url).limit(1)
-
-		if len(list(channel)) > 0:
-			name = channel[0].name
-		else:
-			name = None
-
-		return name
-
-	@property
-
-	def host_logo(self):
-		image = 'images/' + str(self.host.lower()) + '.svg'
-
-		return image
-
-
 class Channel(BasicModel):
-	name = CharField()
-	host = CharField()
-	rate = CharField()
+	name = CharField(unique=True)
 	language = CharField()
-	url = CharField(unique=True)
 	logo_url = CharField(null=True)
 	logo_path = CharField(null=True)
-	watched = DateTimeField(null=True)
 	created = DateTimeField(default=datetime.now)
 	updated = DateTimeField(default=datetime.now)
-
-	@property
-
-	def host_logo(self):
-		image = 'images/' + str(self.host.lower()) + '.svg'
-
-		return image
 
 	@property
 
@@ -425,3 +404,46 @@ class Channel(BasicModel):
 			path = 'images/channel-logo.svg'
 
 		return path
+
+	@property
+
+	def streams(self):
+		streams = Stream.select().where(Stream.channel == self)
+
+		return streams
+
+	@property
+
+	def has_streams(self):
+		exist = Stream.select().where(Stream.channel == self).exists()
+
+		if exist:
+			return True
+
+		return False
+
+
+class Stream(BasicModel):
+	host = CharField()
+	rate = IntegerField()
+	language = CharField()
+	url = CharField(unique=True)
+	channel = ForeignKeyField(Channel, related_name='channel', null=True)
+	watched = DateTimeField(null=True)
+	created = DateTimeField(default=datetime.now)
+	updated = DateTimeField(default=datetime.now)
+
+	@property
+
+	def logo(self):
+		image = 'images/' + str(self.host).lower() + '.svg'
+
+		return image
+
+
+class Event(BasicModel):
+	fs_id = CharField(unique=True)
+	fixture = ForeignKeyField(Fixture, related_name='fixture')
+	stream = ForeignKeyField(Stream, related_name='stream')
+	created = DateTimeField(default=datetime.now)
+	updated = DateTimeField(default=datetime.now)
