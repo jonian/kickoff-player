@@ -98,10 +98,13 @@ class KickoffPlayer:
 		label_args = {
 			'justify': Gtk.Justification.LEFT,
 			'halign': Gtk.Align.START,
+			'max-width-chars': 25,
+			'ellipsize': 'PANGO_ELLIPSIZE_END',
 			'margin_top': 10,
 			'margin_bottom': 10,
 			'margin_left': 10,
-			'margin_right': 10
+			'margin_right': 10,
+			'tooltip-text': data.name
 		}
 
 		label = Gtk.Label(data.name, **label_args)
@@ -171,9 +174,8 @@ class KickoffPlayer:
 		}
 
 		label_args = {
-			'max-width-chars': 1,
+			'max-width-chars': 25,
 			'ellipsize': 'PANGO_ELLIPSIZE_MIDDLE',
-			'hexpand': True,
 			'margin-left': 5,
 			'margin-right': 5
 		}

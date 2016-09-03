@@ -79,9 +79,11 @@ class OnefootballApi:
 		self.data.set_multiple('team', items, 'api_id')
 
 	def get_matches(self):
+		comp_ids = [12, 20, 5, 21, 7, 6, 9, 27, 17, 1, 2, 4, 13, 30, 19, 10, 28, 18, 23, 29, 33, 56, 126]
+		comp_ids = ','.join(map(str, comp_ids))
 		currdate = time.strftime('%Y-%m-%d')
 		tzoffset = time.strftime('%z')
-		separams = { 'competitions': '56,126,5,7,9,10,1', 'since': currdate, 'utc_offset': tzoffset }
+		separams = { 'competitions': comp_ids, 'since': currdate, 'utc_offset': tzoffset }
 		response = self.get(url='en/search/matchdays', base_url=self.score_url, params=separams, ttl=60)
 		response = response['data']['matchdays'] if response is not None else []
 		combined = []
@@ -89,6 +91,8 @@ class OnefootballApi:
 		for item in response:
 			for group in item['groups']:
 				combined = combined + group['matches']
+
+		print(combined)
 
 		return combined
 

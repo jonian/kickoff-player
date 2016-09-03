@@ -317,7 +317,7 @@ class Fixture(BasicModel):
 	@property
 
 	def live(self):
-		if self.period not in ['PreMatch', 'FullTime']:
+		if self.period not in ['PreMatch', 'FullTime', 'Postponed']:
 			return True
 
 		return False
@@ -346,6 +346,7 @@ class Fixture(BasicModel):
 		score = str(self.score_home) + ' - ' + str(self.score_away)
 		score = times if self.period == 'PreMatch' else score
 		score = score if self.today or self.past else dates
+		score = 'Postponed' if self.period == 'Postponed' else score
 
 		return score
 
