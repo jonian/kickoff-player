@@ -2,7 +2,7 @@ import socket
 import requests
 import dateutil.parser
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from handlers.cache import CacheHandler
 
 
@@ -20,6 +20,7 @@ def format_date(date, date_format='%Y-%m-%d %H:%M:%S.%f'):
 
 def parse_date(date):
 	date = dateutil.parser.parse(date)
+	date = date.replace(tzinfo=timezone.utc).astimezone(tz=None)
 
 	return date
 
