@@ -92,8 +92,6 @@ class OnefootballApi:
 			for group in item['groups']:
 				combined = combined + group['matches']
 
-		print(combined)
-
 		return combined
 
 	def save_matches(self):
