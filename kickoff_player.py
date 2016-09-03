@@ -87,12 +87,11 @@ class KickoffPlayer:
 		self.add_events_filters_item(default, 0)
 
 		position = 0
-		competitions = self.data.load_competitions()
+		competitions = self.data.load_competitions(True)
 
 		for competition in competitions:
-			if competition.has_fixtures:
-				position = position + 1
-				self.add_events_filters_item(competition, position)
+			position = position + 1
+			self.add_events_filters_item(competition, position)
 
 	def add_events_filters_item(self, data, position):
 		label_args = {
@@ -117,7 +116,7 @@ class KickoffPlayer:
 
 	def add_events_list(self):
 		position = 0
-		fixtures = self.data.load_fixtures()
+		fixtures = self.data.load_fixtures(True)
 
 		for fixture in fixtures:
 			position = position + 1
@@ -269,7 +268,7 @@ class KickoffPlayer:
 
 	def add_channels_filters(self):
 		position = 0
-		languages = self.data.load_channel_languages()
+		languages = self.data.load_languages()
 		languages = ['All Languages'] + languages
 
 		for language in languages:
@@ -299,12 +298,11 @@ class KickoffPlayer:
 
 	def add_channels_list(self):
 		position = 0
-		channels = self.data.load_channels()
+		channels = self.data.load_channels(True)
 
 		for channel in channels:
-			if channel.has_streams:
-				position = position + 1
-				self.add_channels_list_item(channel, position)
+			position = position + 1
+			self.add_channels_list_item(channel, position)
 
 	def add_channels_list_item(self, data, position):
 		lang_id = data.language.split()[0].lower()

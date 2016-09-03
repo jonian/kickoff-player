@@ -138,7 +138,7 @@ class OnefootballApi:
 				'api_id': item['id']
 			})
 
-		self.data.set_multiple('fixture', items, 'api_id')
+		self.data.set_multiple('fixture', items, 'api_id', True)
 
 	def save_crests(self):
 		teams = self.data.load_teams()

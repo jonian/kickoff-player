@@ -18,6 +18,9 @@ class DataHandler:
 		self.db = db_conn
 		self.register_models()
 
+		self.fx_limit = query_date_range({ 'days': 10 })
+		self.fx_query = (Fixture.date > self.fx_limit[0]) & (Fixture.date < self.fx_limit[1])
+
 	def create_db(self):
 		if not os.path.exists(self.path):
 			open(self.path, 'w+')
@@ -28,7 +31,7 @@ class DataHandler:
 		self.db.connect()
 		self.db.create_tables(tables, safe=True)
 
-	def set_single(self, model, kwargs, main_key):
+	def set_single(self, model, kwargs, main_key, update=False):
 		key = kwargs.get(main_key, None)
 
 		if key is None:
@@ -37,22 +40,24 @@ class DataHandler:
 		get_item = getattr(self, 'get_' + model)
 		item = get_item({ main_key: key })
 
-		if item is None:
+		if item is None and not update:
 			create_item = getattr(self, 'create_' + model)
 			item = create_item(kwargs)
-		else:
+		elif item is not None:
 			update_item = getattr(self, 'update_' + model)
 			update_item(item, kwargs)
 
 		return item
 
-	def set_multiple(self, model, items, main_key):
+	def set_multiple(self, model, items, main_key, update=False):
 		with self.db.atomic():
 			for item in items:
-				self.set_single(model, item, main_key)
+				self.set_single(model, item, main_key, update)
 
-	def load_competitions(self):
+	def load_competitions(self, current=False):
 		items = Competition.select()
+		items = items if not current else items.join(Fixture).where(self.fx_query)
+		items = items.distinct()
 
 		return items
 
@@ -101,24 +106,10 @@ class DataHandler:
 
 		return item
 
-	def load_fixtures(self):
-		limit = query_date_range({ 'days': 10 })
-		query = (Fixture.date > limit[0]) & (Fixture.date < limit[1])
-		items = Fixture.select().where(query).order_by(Fixture.date, Fixture.competition)
-
-		return items
-
-	def load_today_fixtures(self):
-		limit = query_date_range({ 'hours': 24 })
-		query = (Fixture.date > limit[0]) & (Fixture.date < limit[1])
-		items = Fixture.select().where(query).order_by(Fixture.date)
-
-		return items
-
-	def load_live_fixtures(self):
-		limit = query_date_range({ 'hours': 0 })
-		query = (Fixture.date > limit[0]) & (Fixture.date < limit[1])
-		items = Fixture.select().where(query).order_by(Fixture.date)
+	def load_fixtures(self, current=False):
+		items = Fixture.select()
+		items = items if not current else items.where(self.fx_query)
+		items = items.order_by(Fixture.date, Fixture.competition).distinct()
 
 		return items
 
@@ -142,17 +133,19 @@ class DataHandler:
 
 		return item
 
-	def load_channel_languages(self):
-		channels = Channel.select(Channel.language)
-		channels = channels.distinct(Channel.language).tuples()
-		language = sorted(list(set(sum(channels, ()))))
+	def load_languages(self):
+		items = Channel.select(Channel.language).join(Stream)
+		items = items.distinct(Channel.language).tuples()
+		items = sorted(list(set(sum(items, ()))))
 
-		return language
+		return items
 
-	def load_channels(self):
-		channels = Channel.select().order_by(Channel.name)
+	def load_channels(self, active=False):
+		items = Channel.select()
+		items = items if not active else items.join(Stream)
+		items = items.order_by(Channel.name).distinct()
 
-		return channels
+		return items
 
 	def get_channel(self, kwargs):
 		try:
@@ -247,15 +240,6 @@ class Competition(BasicModel):
 		fixtures = Fixture.select().where((Fixture.competition == self))
 
 		return fixtures
-
-	@property
-
-	def has_fixtures(self):
-		limit = query_date_range({ 'days': 10 })
-		query = (Fixture.competition == self) & (Fixture.date > limit[0]) & (Fixture.date < limit[1])
-		exist = Fixture.select().where(query).exists()
-
-		return exist
 
 
 class Team(BasicModel):
@@ -374,13 +358,6 @@ class Channel(BasicModel):
 		streams = Stream.select().where(Stream.channel == self)
 
 		return streams
-
-	@property
-
-	def has_streams(self):
-		exist = Stream.select().where(Stream.channel == self).exists()
-
-		return exist
 
 
 class Stream(BasicModel):
