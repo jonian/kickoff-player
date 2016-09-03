@@ -341,12 +341,13 @@ class Fixture(BasicModel):
 	@property
 
 	def score(self):
+		posts = format_date(self.date, "%d/%m/%Y\nPostponed")
 		times = format_date(self.date, "%H:%M")
 		dates = format_date(self.date, "%d/%m/%Y\n%H:%M")
 		score = str(self.score_home) + ' - ' + str(self.score_away)
 		score = times if self.period == 'PreMatch' else score
 		score = score if self.today or self.past else dates
-		score = 'Postponed' if self.period == 'Postponed' else score
+		score = posts if self.period == 'Postponed' else score
 
 		return score
 
