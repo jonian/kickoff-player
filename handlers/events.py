@@ -5,10 +5,7 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 
 from gi.repository import Gtk, Gdk, GObject
-from handlers.crests import CrestHandler
-from apis.football import FootballApi
-from apis.livescore import LivescoreApi
-from apis.streamsports import StreamsportsApi
+from apis.onefootball import OnefootballApi
 from apis.livefootball import LivefootballApi
 
 
@@ -127,17 +124,11 @@ class EventHandler:
 			button.hide()
 
 	def update_events(self):
-		football = FootballApi()
-		football.save_fixtures()
+		onefootball = OnefootballApi()
+		onefootball.save_matches()
 
-		crests = CrestHandler()
-		crests.load_all_crests()
-
-		livescore = LivescoreApi()
-		livescore.update_fixtures()
-
-		# streamsports = StreamsportsApi()
-		# streamsports.save_events()
+		livefootball = LivefootballApi()
+		livefootball.save_events()
 
 		GObject.idle_add(self.refresh_events_stack)
 
@@ -153,7 +144,6 @@ class EventHandler:
 	def update_channels(self):
 		livefootball = LivefootballApi()
 		livefootball.save_channels()
-		livefootball.save_streams()
 
 		GObject.idle_add(self.refresh_channels_stack)
 
@@ -250,10 +240,10 @@ class EventHandler:
 				thread.start()
 
 	def on_event_details_button_clicked(self, _widget, data):
-		self.refresh_event_stack(data)
-
 		self.events_stack_set_focus('event')
 		self.header_button_back_toggle(True)
+
+		self.refresh_event_stack(data)
 
 	def on_stream_play_button_clicked(self, _widget, url):
 		self.main_stack_set_focus('player')

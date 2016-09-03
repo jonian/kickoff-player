@@ -170,17 +170,25 @@ class KickoffPlayer:
 			'margin_right': 10
 		}
 
-		home = Gtk.Box(**box_args)
+		label_args = {
+			'max-width-chars': 1,
+			'ellipsize': 'PANGO_ELLIPSIZE_MIDDLE',
+			'hexpand': True,
+			'margin-left': 5,
+			'margin-right': 5
+		}
+
+		home = Gtk.Box(**box_args, tooltip_text=data.home_team.name)
 		image = self.image_from_path(data.home_team.crest)
-		label = Gtk.Label(data.home_team.label_name)
+		label = Gtk.Label(data.home_team.name, **label_args)
 		self.widget_add_class(image, 'team-emblem')
 		self.widget_add_class(label, 'team-name')
 		home.pack_start(image, True, True, 0)
 		home.pack_start(label, True, True, 1)
 
-		away = Gtk.Box(**box_args)
+		away = Gtk.Box(**box_args, tooltip_text=data.away_team.name)
 		image = self.image_from_path(data.away_team.crest)
-		label = Gtk.Label(data.away_team.label_name)
+		label = Gtk.Label(data.away_team.name, **label_args)
 		self.widget_add_class(image, 'team-emblem')
 		self.widget_add_class(label, 'team-name')
 		away.pack_start(image, True, True, 0)
@@ -192,21 +200,17 @@ class KickoffPlayer:
 			'valign': Gtk.Align.CENTER
 		}
 
-		if data.score is None:
-			if data.today:
-				date = data.local_time
-				label = Gtk.Label(date, **label_args)
-				self.widget_add_class(label, 'event-today')
-			else:
-				date = data.local_date + '\n' + data.local_time
-				label = Gtk.Label(date, **label_args)
-				self.widget_add_class(label, 'event-date')
-		else:
-			label = Gtk.Label(data.score, **label_args)
+		label = Gtk.Label(data.score, **label_args)
+		self.widget_add_class(label, 'event-date')
+
+		if data.past:
 			self.widget_add_class(label, 'event-score')
 
-			if data.live:
-				self.widget_add_class(label, 'event-live')
+		if data.today:
+			self.widget_add_class(label, 'event-today')
+
+		if data.live:
+			self.widget_add_class(label, 'event-live')
 
 		score = Gtk.Box(**box_args)
 		score.pack_start(label, True, True, 0)

@@ -118,3 +118,6 @@ class LivefootballApi:
 
 		if len(items) > 0:
 			self.data.set_multiple('stream', items, 'url')
+
+	def save_events(self):
+		pass

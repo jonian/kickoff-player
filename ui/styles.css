@@ -36,6 +36,10 @@
 	min-height: 48px;
 }
 
+.event-item .team-name {
+	font-size: 85%;
+}
+
 .event-item-streams {
 	margin: 0;
 	padding: 8px 10px 7px 12px;

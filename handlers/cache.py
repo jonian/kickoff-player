@@ -1,13 +1,11 @@
 import os
 import json
 
-from os.path import expanduser
 from datetime import datetime
 from peewee import Model, CharField, DateTimeField, IntegerField
 from playhouse.sqlite_ext import SqliteExtDatabase
 
-
-db_path = expanduser('~') + '/.kickoff-player/cache.db'
+db_path = os.path.expanduser('~') + '/.kickoff-player/cache.db'
 db_conn = SqliteExtDatabase(db_path)
 
 

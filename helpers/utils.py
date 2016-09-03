@@ -1,9 +1,8 @@
-import time
 import socket
 import requests
 import dateutil.parser
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 from handlers.cache import CacheHandler
 
 
@@ -12,16 +11,15 @@ class Struct:
 		self.__dict__ = d
 
 
-def timezone_offset(minutes=True):
-	offset = time.localtime().tm_gmtoff
-	offset = offset if not minutes else int(offset / 60)
+def format_date(date, date_format='%Y-%m-%d %H:%M:%S.%f'):
+	date = parse_date(date)
+	date = datetime.strftime(date, date_format)
 
-	return offset
+	return date
 
-def localize_datetime(date):
+
+def parse_date(date):
 	date = dateutil.parser.parse(date)
-	date = date.replace(tzinfo=timezone.utc).astimezone(tz=None)
-	date = datetime.strftime(date, '%Y-%m-%d %H:%M:%S.%f')
 
 	return date
 
@@ -38,7 +36,7 @@ def query_date_range(kwargs):
 def cached_request(url, base_url=None, ttl=300, json=False, params=None, callback=None):
 	url = parse_url(url, base_url)
 	cache = CacheHandler()
-	cache_key = cache_key_from_url(url, params)
+	cache_key = cache_key_from_url(url)
 	headers = { 'User-Agent': 'Mozilla/5.0' }
 	response = cache.load(cache_key)
 
@@ -60,13 +58,8 @@ def cached_request(url, base_url=None, ttl=300, json=False, params=None, callbac
 		return response.text
 
 
-def cache_key_from_url(url, params=None):
+def cache_key_from_url(url):
 	key = url.split('://')[1]
-
-	if params is not None:
-		for name, value in params.items():
-			key = key + ':' + name + ':' + value
-
 	key = key.replace('www.', '')
 	key = key.replace('.html', '')
 	key = key.replace('.php', '')
@@ -94,3 +87,18 @@ def parse_url(url, base_url=None):
 		url = host + '://' + path
 
 	return url
+
+
+def download_file(url, path, stream=False):
+	try:
+		response = requests.get(url, stream=stream)
+
+		if response.status_code != 200:
+			return None
+
+		with open(path, 'wb') as f:
+			f.write(response.content)
+	except socket.error:
+		return None
+
+	return path

@@ -1,13 +1,11 @@
 import os
 
-from os.path import expanduser
 from datetime import datetime
-from helpers.utils import query_date_range
-from peewee import Model, CharField, DateTimeField, IntegerField, ForeignKeyField
+from helpers.utils import query_date_range, parse_date, format_date
+from peewee import Model, CharField, DateTimeField, IntegerField, BooleanField, ForeignKeyField
 from playhouse.sqlite_ext import SqliteExtDatabase
 
-
-db_path = expanduser('~') + '/.kickoff-player/data.db'
+db_path = os.path.expanduser('~') + '/.kickoff-player/data.db'
 db_conn = SqliteExtDatabase(db_path)
 
 
@@ -30,7 +28,7 @@ class DataHandler:
 		self.db.connect()
 		self.db.create_tables(tables, safe=True)
 
-	def set_single(self, model, kwargs, main_key='api_id'):
+	def set_single(self, model, kwargs, main_key):
 		key = kwargs.get(main_key, None)
 
 		if key is None:
@@ -48,7 +46,7 @@ class DataHandler:
 
 		return item
 
-	def set_multiple(self, model, items, main_key='api_id'):
+	def set_multiple(self, model, items, main_key):
 		with self.db.atomic():
 			for item in items:
 				self.set_single(model, item, main_key)
@@ -104,7 +102,7 @@ class DataHandler:
 		return item
 
 	def load_fixtures(self):
-		limit = query_date_range({ 'days': 7 })
+		limit = query_date_range({ 'days': 10 })
 		query = (Fixture.date > limit[0]) & (Fixture.date < limit[1])
 		items = Fixture.select().where(query).order_by(Fixture.date, Fixture.competition)
 
@@ -225,11 +223,10 @@ class BasicModel(Model):
 
 class Competition(BasicModel):
 	name = CharField()
-	caption = CharField()
-	league = CharField(unique=True)
-	total_teams = IntegerField(null=True)
-	total_games = IntegerField(null=True)
-	year = CharField(null=True)
+	short_name = CharField()
+	section_code = CharField()
+	section_name = CharField()
+	season_id = IntegerField()
 	api_id = IntegerField(unique=True)
 	created = DateTimeField(default=datetime.now)
 	updated = DateTimeField(default=datetime.now)
@@ -254,21 +251,18 @@ class Competition(BasicModel):
 	@property
 
 	def has_fixtures(self):
-		limit = query_date_range({ 'days': 7 })
+		limit = query_date_range({ 'days': 10 })
 		query = (Fixture.competition == self) & (Fixture.date > limit[0]) & (Fixture.date < limit[1])
 		exist = Fixture.select().where(query).exists()
 
-		if exist:
-			return True
-
-		return False
+		return exist
 
 
 class Team(BasicModel):
 	name = CharField()
-	short_name = CharField()
 	crest_url = CharField(null=True)
 	crest_path = CharField(null=True)
+	national = BooleanField()
 	api_id = IntegerField(unique=True)
 	created = DateTimeField(default=datetime.now)
 	updated = DateTimeField(default=datetime.now)
@@ -285,14 +279,6 @@ class Team(BasicModel):
 
 	@property
 
-	def competition_names(self):
-		names = self.competitions.select(Competition.name).tuples()
-		names = list(sum(names, ()))
-
-		return names
-
-	@property
-
 	def fixtures(self):
 		query = (Fixture.home_team == self) | (Fixture.away_team == self)
 		fixtures = Fixture.select().where(query)
@@ -302,31 +288,20 @@ class Team(BasicModel):
 	@property
 
 	def crest(self):
-		path = self.crest_path
-
-		if path is None or not os.path.exists(path):
-			path = 'images/team-emblem.svg'
+		path = str(self.crest_path)
+		path = path if os.path.exists(path) else 'images/team-emblem.svg'
 
 		return path
-
-	@property
-
-	def label_name(self):
-		name = self.name
-
-		if self.short_name != 'None' and len(name) > 20:
-			name = self.short_name
-
-		return name
 
 
 class Fixture(BasicModel):
 	date = DateTimeField()
-	minute = CharField(null=True)
+	minute = IntegerField(null=True)
+	period = CharField(null=True)
 	home_team = ForeignKeyField(Team, related_name='home_team')
-	home_team_goals = IntegerField(null=True)
 	away_team = ForeignKeyField(Team, related_name='away_team')
-	away_team_goals = IntegerField(null=True)
+	score_home = IntegerField(null=True)
+	score_away = IntegerField(null=True)
 	competition = ForeignKeyField(Competition, related_name='competition')
 	api_id = IntegerField(unique=True)
 	created = DateTimeField(default=datetime.now)
@@ -342,11 +317,7 @@ class Fixture(BasicModel):
 	@property
 
 	def live(self):
-		minute = str(self.minute).replace("'", '')
-		minute = minute.replace('+', '').replace(' ', '')
-		minute = minute.strip()
-
-		if minute == 'HT' or minute == 'ET' or minute.isdigit():
+		if self.period not in ['PreMatch', 'FullTime']:
 			return True
 
 		return False
@@ -354,7 +325,15 @@ class Fixture(BasicModel):
 	@property
 
 	def today(self):
-		if self.date.date() <= datetime.today().date():
+		if parse_date(self.date).date() == datetime.today().date():
+			return True
+
+		return False
+
+	@property
+
+	def past(self):
+		if self.period == 'FullTime':
 			return True
 
 		return False
@@ -362,29 +341,13 @@ class Fixture(BasicModel):
 	@property
 
 	def score(self):
-		if self.home_team_goals is None and self.away_team_goals is None:
-			if self.date < datetime.now():
-				score = '? - ?'
-			else:
-				score = None
-		else:
-			score = str(self.home_team_goals) + ' - ' + str(self.away_team_goals)
+		times = format_date(self.date, "%H:%M")
+		dates = format_date(self.date, "%d/%m/%Y\n%H:%M")
+		score = str(self.score_home) + ' - ' + str(self.score_away)
+		score = times if self.period == 'PreMatch' else score
+		score = score if self.today or self.past else dates
 
 		return score
-
-	@property
-
-	def local_date(self):
-		local = self.date.strftime("%d/%m/%Y")
-
-		return local
-
-	@property
-
-	def local_time(self):
-		local = self.date.strftime("%H:%M")
-
-		return local
 
 
 class Channel(BasicModel):
@@ -398,10 +361,8 @@ class Channel(BasicModel):
 	@property
 
 	def logo(self):
-		path = self.logo_path
-
-		if path is None or not os.path.exists(path):
-			path = 'images/channel-logo.svg'
+		path = str(self.logo_path)
+		path = path if os.path.exists(path) else 'images/channel-logo.svg'
 
 		return path
 
@@ -417,10 +378,7 @@ class Channel(BasicModel):
 	def has_streams(self):
 		exist = Stream.select().where(Stream.channel == self).exists()
 
-		if exist:
-			return True
-
-		return False
+		return exist
 
 
 class Stream(BasicModel):
@@ -436,7 +394,8 @@ class Stream(BasicModel):
 	@property
 
 	def logo(self):
-		image = 'images/' + str(self.host).lower() + '.svg'
+		fname = str(self.host).lower()
+		image = 'images/' + fname + '.svg'
 
 		return image
 
