@@ -1,14 +1,15 @@
 import os
-import time
 
 from handlers.data import DataHandler
-from helpers.utils import cached_request, download_file
+from handlers.cache import CacheHandler
+from helpers.utils import cached_request, download_file, format_date, gmtime, tzone, yesterday
 
 
 class OnefootballApi:
 
 	def __init__(self):
 		self.data = DataHandler()
+		self.cache = CacheHandler()
 
 		self.score_url = 'scores-api.onefootball.com/v1'
 		self.sconf_url = 'config.onefootball.com/api/scoreconfig2'
@@ -19,7 +20,7 @@ class OnefootballApi:
 		self.create_images_folder()
 
 	def get(self, url, base_url, params=None, ttl=3600):
-		response = cached_request(url=url, base_url=base_url, json=True, ttl=ttl, params=params)
+		response = cached_request(url=url, cache=self.cache, base_url=base_url, json=True, ttl=ttl, params=params)
 		response = response if response is not None else {}
 
 		return response
@@ -48,7 +49,9 @@ class OnefootballApi:
 		self.data.set_multiple('competition', items, 'api_id')
 
 	def get_competition_teams(self, competition):
-		resource = '/'.join([str(competition.api_id), str(competition.season_id), 'teamsOverview.json'])
+		competid = str(competition.api_id)
+		seasonid = str(competition.season_id)
+		resource = '/'.join([competid, seasonid, 'teamsOverview.json'])
 		response = self.get(url=resource, base_url=self.feedm_url)
 		response = response['teams'] if response is not None else []
 
@@ -79,10 +82,10 @@ class OnefootballApi:
 		self.data.set_multiple('team', items, 'api_id')
 
 	def get_matches(self):
-		comp_ids = [12, 20, 5, 21, 7, 6, 9, 27, 17, 1, 2, 4, 13, 30, 19, 10, 28, 18, 23, 29, 33, 56, 126]
+		comp_ids = [1, 2, 4, 13, 30, 19, 10, 28, 18, 23, 29, 33, 56, 126]
 		comp_ids = ','.join(map(str, comp_ids))
-		currdate = time.strftime('%Y-%m-%d')
-		tzoffset = time.strftime('%z')
+		currdate = yesterday('%Y-%m-%d')
+		tzoffset = tzone('%z')
 		separams = { 'competitions': comp_ids, 'since': currdate, 'utc_offset': tzoffset }
 		response = self.get(url='en/search/matchdays', base_url=self.score_url, params=separams, ttl=60)
 		response = response['data']['matchdays'] if response is not None else []
@@ -102,9 +105,10 @@ class OnefootballApi:
 			competition = self.data.get_competition({ 'api_id': item['competition']['id'] })
 			home_team = self.data.get_team({ 'api_id': item['team_home']['id'] })
 			away_team = self.data.get_team({ 'api_id': item['team_away']['id'] })
+			form_date = format_date(date=item['kickoff'], localize=True)
 
 			items.append({
-				'date': item['kickoff'],
+				'date': form_date,
 				'minute': item['minute'],
 				'period': item['period'],
 				'home_team': home_team.id,
@@ -118,7 +122,7 @@ class OnefootballApi:
 		self.data.set_multiple('fixture', items, 'api_id')
 
 	def get_live(self):
-		currdate = time.strftime('%Y-%m-%dT%H:%M:00Z', time.gmtime())
+		currdate = gmtime('%Y-%m-%dT%H:%M:00Z')
 		separams = { 'since': currdate }
 		response = self.get(url='matches/updates', base_url=self.score_url, params=separams, ttl=60)
 		response = response['data']['match_updates'] if response is not None else []

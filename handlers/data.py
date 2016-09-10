@@ -1,7 +1,6 @@
 import os
 
-from datetime import datetime
-from helpers.utils import query_date_range, parse_date, format_date
+from helpers.utils import query_date_range, parse_date, format_date, now, today
 from peewee import Model, CharField, DateTimeField, IntegerField, BooleanField, ForeignKeyField
 from playhouse.sqlite_ext import SqliteExtDatabase
 
@@ -18,7 +17,7 @@ class DataHandler:
 		self.db = db_conn
 		self.register_models()
 
-		self.fx_limit = query_date_range({ 'days': 10 })
+		self.fx_limit = query_date_range({ 'days': 14 })
 		self.fx_query = (Fixture.date > self.fx_limit[0]) & (Fixture.date < self.fx_limit[1])
 
 	def create_db(self):
@@ -75,7 +74,7 @@ class DataHandler:
 		return item
 
 	def update_competition(self, item, kwargs):
-		kwargs['updated'] = datetime.now()
+		kwargs['updated'] = now()
 		query = Competition.update(**kwargs).where(Competition.api_id == item.api_id)
 		query.execute()
 
@@ -100,7 +99,7 @@ class DataHandler:
 		return item
 
 	def update_team(self, item, kwargs):
-		kwargs['updated'] = datetime.now()
+		kwargs['updated'] = now()
 		query = Team.update(**kwargs).where(Team.api_id == item.api_id)
 		query.execute()
 
@@ -127,7 +126,7 @@ class DataHandler:
 		return item
 
 	def update_fixture(self, item, kwargs):
-		kwargs['updated'] = datetime.now()
+		kwargs['updated'] = now()
 		query = Fixture.update(**kwargs).where(Fixture.api_id == item.api_id)
 		query.execute()
 
@@ -161,7 +160,7 @@ class DataHandler:
 		return item
 
 	def update_channel(self, item, kwargs):
-		kwargs['updated'] = datetime.now()
+		kwargs['updated'] = now()
 		query = Channel.update(**kwargs).where(Channel.name == item.name)
 		query.execute()
 
@@ -181,7 +180,7 @@ class DataHandler:
 		return item
 
 	def update_stream(self, item, kwargs):
-		kwargs['updated'] = datetime.now()
+		kwargs['updated'] = now()
 		query = Stream.update(**kwargs).where(Stream.url == item.url)
 		query.execute()
 
@@ -201,7 +200,7 @@ class DataHandler:
 		return item
 
 	def update_event(self, item, kwargs):
-		kwargs['updated'] = datetime.now()
+		kwargs['updated'] = now()
 		query = Event.update(**kwargs).where(Event.fs_id == item.fs_id)
 		query.execute()
 
@@ -213,6 +212,9 @@ class BasicModel(Model):
 	class Meta:
 		database = db_conn
 
+	def reload(self):
+		return self.get(id=self.id)
+
 
 class Competition(BasicModel):
 	name = CharField()
@@ -221,8 +223,8 @@ class Competition(BasicModel):
 	section_name = CharField()
 	season_id = IntegerField()
 	api_id = IntegerField(unique=True)
-	created = DateTimeField(default=datetime.now)
-	updated = DateTimeField(default=datetime.now)
+	created = DateTimeField(default=now())
+	updated = DateTimeField(default=now())
 
 	@property
 
@@ -248,8 +250,8 @@ class Team(BasicModel):
 	crest_path = CharField(null=True)
 	national = BooleanField()
 	api_id = IntegerField(unique=True)
-	created = DateTimeField(default=datetime.now)
-	updated = DateTimeField(default=datetime.now)
+	created = DateTimeField(default=now())
+	updated = DateTimeField(default=now())
 
 	@property
 
@@ -288,8 +290,8 @@ class Fixture(BasicModel):
 	score_away = IntegerField(null=True)
 	competition = ForeignKeyField(Competition, related_name='competition')
 	api_id = IntegerField(unique=True)
-	created = DateTimeField(default=datetime.now)
-	updated = DateTimeField(default=datetime.now)
+	created = DateTimeField(default=now())
+	updated = DateTimeField(default=now())
 
 	@property
 
@@ -301,7 +303,9 @@ class Fixture(BasicModel):
 	@property
 
 	def live(self):
-		if self.period not in ['PreMatch', 'FullTime', 'Postponed']:
+		fdate = parse_date(date=self.date, localize=False).date()
+
+		if fdate == today() and self.period not in ['PreMatch', 'FullTime', 'Postponed']:
 			return True
 
 		return False
@@ -309,7 +313,9 @@ class Fixture(BasicModel):
 	@property
 
 	def today(self):
-		if parse_date(self.date).date() == datetime.today().date():
+		fdate = parse_date(date=self.date, localize=False).date()
+
+		if fdate == today() and not self.period == 'Postponed':
 			return True
 
 		return False
@@ -325,9 +331,9 @@ class Fixture(BasicModel):
 	@property
 
 	def score(self):
-		posts = format_date(self.date, "%d/%m/%Y\nPostponed")
-		times = format_date(self.date, "%H:%M")
-		dates = format_date(self.date, "%d/%m/%Y\n%H:%M")
+		posts = format_date(date=self.date, date_format="%d/%m/%Y\nPostponed")
+		times = format_date(date=self.date, date_format="%H:%M")
+		dates = format_date(date=self.date, date_format="%d/%m/%Y\n%H:%M")
 		score = str(self.score_home) + ' - ' + str(self.score_away)
 		score = times if self.period == 'PreMatch' else score
 		score = score if self.today or self.past else dates
@@ -341,8 +347,8 @@ class Channel(BasicModel):
 	language = CharField()
 	logo_url = CharField(null=True)
 	logo_path = CharField(null=True)
-	created = DateTimeField(default=datetime.now)
-	updated = DateTimeField(default=datetime.now)
+	created = DateTimeField(default=now())
+	updated = DateTimeField(default=now())
 
 	@property
 
@@ -365,10 +371,11 @@ class Stream(BasicModel):
 	rate = IntegerField()
 	language = CharField()
 	url = CharField(unique=True)
+	hd_url = CharField(null=True)
 	channel = ForeignKeyField(Channel, related_name='channel', null=True)
 	watched = DateTimeField(null=True)
-	created = DateTimeField(default=datetime.now)
-	updated = DateTimeField(default=datetime.now)
+	created = DateTimeField(default=now())
+	updated = DateTimeField(default=now())
 
 	@property
 
@@ -383,5 +390,5 @@ class Event(BasicModel):
 	fs_id = CharField(unique=True)
 	fixture = ForeignKeyField(Fixture, related_name='fixture')
 	stream = ForeignKeyField(Stream, related_name='stream')
-	created = DateTimeField(default=datetime.now)
-	updated = DateTimeField(default=datetime.now)
+	created = DateTimeField(default=now())
+	updated = DateTimeField(default=now())

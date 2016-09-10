@@ -1,9 +1,9 @@
+import time
 import socket
 import requests
 import dateutil.parser
 
 from datetime import datetime, timedelta, timezone
-from handlers.cache import CacheHandler
 
 
 class Struct:
@@ -11,16 +11,50 @@ class Struct:
 		self.__dict__ = d
 
 
-def format_date(date, date_format='%Y-%m-%d %H:%M:%S.%f'):
-	date = parse_date(date)
+def gmtime(date_format=None):
+	date = time.gmtime()
+	date = date if date_format is None else time.strftime(date_format, date)
+
+	return date
+
+
+def tzone(zone_format):
+	zone = time.strftime(zone_format)
+
+	return zone
+
+
+def now(date_format=None):
+	date = datetime.now()
+	date = date if date_format is None else date.strftime(date_format)
+
+	return date
+
+
+def today(date_format=None):
+	date = datetime.today().date()
+	date = date if date_format is None else date.strftime(date_format)
+
+	return date
+
+
+def yesterday(date_format=None):
+	date = datetime.today() - timedelta(days=1)
+	date = date if date_format is None else date.strftime(date_format)
+
+	return date
+
+
+def format_date(date, localize=False, date_format='%Y-%m-%d %H:%M:%S.%f'):
+	date = parse_date(date, localize)
 	date = datetime.strftime(date, date_format)
 
 	return date
 
 
-def parse_date(date):
-	date = dateutil.parser.parse(date)
-	date = date.replace(tzinfo=timezone.utc).astimezone(tz=None)
+def parse_date(date, localize=False):
+	date = date if type(date) is not str else dateutil.parser.parse(date)
+	date = date if not localize else date.replace(tzinfo=timezone.utc).astimezone(tz=None)
 
 	return date
 
@@ -34,11 +68,10 @@ def query_date_range(kwargs):
 	return dates
 
 
-def cached_request(url, base_url=None, ttl=300, json=False, params=None, callback=None):
+def cached_request(url, cache, base_url=None, ttl=300, json=False, params=None, callback=None):
 	url = parse_url(url, base_url)
-	cache = CacheHandler()
 	cache_key = cache_key_from_url(url)
-	headers = { 'User-Agent': 'Mozilla/5.0' }
+	headers = { 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0' }
 	response = cache.load(cache_key)
 
 	if response is None:

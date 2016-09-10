@@ -76,14 +76,12 @@ class EventHandler:
 
 		return False
 
-	def category_filter_widgets(self, category, prefix, container):
-		all_items = prefix + 'all'
-
-		if category == all_items:
+	def category_filter_widgets(self, item, container):
+		if item.filter_name.startswith('All'):
 			container.show_all()
 		else:
 			for child in container.get_children():
-				if child.get_name() == category:
+				if child.filter_name == item.filter_name:
 					child.show()
 				else:
 					child.hide()
@@ -127,19 +125,21 @@ class EventHandler:
 		onefootball = OnefootballApi()
 		onefootball.save_matches()
 
-		livefootball = LivefootballApi()
-		livefootball.save_events()
+		# livefootball = LivefootballApi()
+		# livefootball.save_events()
 
 		GObject.idle_add(self.refresh_events_stack)
 
 	def refresh_events_stack(self):
-		listbox = self.builder.get_object('list_box_events_filters')
-		self.app.widget_remove_children(listbox)
-		self.app.add_events_filters()
+		# listbox = self.builder.get_object('list_box_events_filters')
+		# self.app.widget_remove_children(listbox)
+		# self.app.add_events_filters()
 
 		flowbox = self.builder.get_object('flow_box_events_list')
-		self.app.widget_remove_children(flowbox)
-		self.app.add_events_list()
+		# self.app.widget_remove_children(flowbox)
+		# self.app.add_events_list()
+		for match in flowbox.get_children():
+			match.update_fixture()
 
 	def update_channels(self):
 		livefootball = LivefootballApi()
@@ -158,12 +158,12 @@ class EventHandler:
 
 	def refresh_event_stack(self, data):
 		box = self.builder.get_object('box_event_teams')
-		self.app.widget_remove_children(box)
-		self.app.add_event_teams(box, data)
+		# self.app.widget_remove_children(box)
+		# self.app.add_event_teams(box, data)
 
 		listbox = self.builder.get_object('list_box_event_streams')
-		self.app.widget_remove_children(listbox)
-		self.app.add_event_streams(listbox, data.events)
+		# self.app.widget_remove_children(listbox)
+		# self.app.add_event_streams(listbox, data.events)
 
 	def on_window_main_destroy(self, _event):
 		self.player.close()
@@ -215,15 +215,11 @@ class EventHandler:
 
 	def on_list_box_events_filters_row_activated(self, _listbox, item):
 		flowbox = self.builder.get_object('flow_box_events_list')
-		comp_id = item.get_name()
-
-		GObject.idle_add(self.category_filter_widgets, comp_id, 'comp-', flowbox)
+		GObject.idle_add(self.category_filter_widgets, item, flowbox)
 
 	def on_list_box_channels_filters_row_activated(self, _listbox, item):
 		flowbox = self.builder.get_object('flow_box_channels_list')
-		lang_id = item.get_name()
-
-		GObject.idle_add(self.category_filter_widgets, lang_id, 'lang-', flowbox)
+		GObject.idle_add(self.category_filter_widgets, item, flowbox)
 
 	def on_header_button_back_clicked(self, _event):
 		self.header_button_back_toggle(False)
@@ -245,6 +241,6 @@ class EventHandler:
 
 		self.refresh_event_stack(data)
 
-	def on_stream_play_button_clicked(self, _widget, url):
+	def on_stream_activated(self, _widget, stream):
 		self.main_stack_set_focus('player')
-		self.stream.open(url)
+		self.stream.open(stream.url)

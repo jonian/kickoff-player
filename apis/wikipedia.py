@@ -1,18 +1,20 @@
 from lxml import html
 from fuzzywuzzy import fuzz
 from operator import itemgetter
+from handlers.cache import CacheHandler
 from helpers.utils import cached_request
 
 
 class WikipediaApi:
 
 	def __init__(self):
+		self.cache = CacheHandler()
 		self.api_url = 'https://en.wikipedia.org/w/api.php'
 
 	def search_term(self, term):
 		try:
 			params = { 'action': 'opensearch', 'search': term }
-			result = cached_request(url=self.api_url, ttl=604800, params=params, json=True)
+			result = cached_request(url=self.api_url, cache=self.cache, ttl=604800, params=params, json=True)
 			result = result[-1][0]
 		except IndexError:
 			result = None
@@ -50,7 +52,7 @@ class WikipediaApi:
 
 	def get_page_content(self, url):
 		if url is not None:
-			result = cached_request(url=url, ttl=604800)
+			result = cached_request(url=url, cache=self.cache, ttl=604800)
 		else:
 			result = None
 

@@ -1,9 +1,9 @@
 import os
 import json
 
-from datetime import datetime
 from peewee import Model, CharField, DateTimeField, IntegerField
 from playhouse.sqlite_ext import SqliteExtDatabase
+from helpers.utils import now
 
 db_path = os.path.expanduser('~') + '/.kickoff-player/cache.db'
 db_conn = SqliteExtDatabase(db_path)
@@ -44,7 +44,7 @@ class CacheHandler:
 		kwargs = {
 			'value': value.strip(),
 			'ttl': ttl,
-			'updated': datetime.now()
+			'updated': now()
 		}
 
 		query = Cacheable.update(**kwargs).where(Cacheable.key == item.key)
@@ -72,26 +72,22 @@ class CacheHandler:
 
 	def is_valid(self, item):
 		try:
-			now = datetime.now()
-			updated = item.updated
-			diff = int(abs((updated - now).total_seconds()))
-			ttl = int(abs(item.ttl))
+			diff = (now() - item.updated).total_seconds()
 
-			if diff < ttl:
+			if abs(diff) < abs(item.ttl):
 				return True
-			else:
-				return False
-
 		except AttributeError:
-			return False
+			pass
+
+		return False
 
 
 class Cacheable(Model):
 	key = CharField(unique=True)
 	value = CharField()
 	ttl = IntegerField(default=0)
-	created = DateTimeField(default=datetime.now)
-	updated = DateTimeField(default=datetime.now)
+	created = DateTimeField(default=now())
+	updated = DateTimeField(default=now())
 
 	class Meta:
 		database = db_conn

@@ -112,7 +112,7 @@
 	border-top: 1px solid @borders;
 }
 
-.stream-language {
+.stream-language, .stream-hd {
 	font-size: 80%;
 	padding: 2px 4px;
 	border-radius: 2px;
