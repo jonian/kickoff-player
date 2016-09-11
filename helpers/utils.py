@@ -86,8 +86,6 @@ def cached_request(url, cache, base_url=None, ttl=300, json=False, params=None, 
 	headers = { 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0' }
 	response = cache.load(cache_key)
 
-	print(url, params)
-
 	if response is None:
 		try:
 			response = requests.get(url, headers=headers, params=params)
