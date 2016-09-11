@@ -19,7 +19,7 @@ def remove_widget_children(widget):
 	children = widget.get_children()
 
 	for child in children:
-		widget.remove(child)
+		child.destroy()
 
 
 def filter_widget_items(window, container, selected, default, attr):

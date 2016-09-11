@@ -56,7 +56,7 @@ class ChannelHandler(object):
 
 		for item in clistbox.get_children():
 			if item.filter_name not in cfilters:
-				clistbox.remove(item)
+				item.destroy()
 
 	def do_channels_list(self):
 		channels = self.data.load_channels(True)
@@ -72,10 +72,9 @@ class ChannelHandler(object):
 
 		for item in cflowbox.get_children():
 			if item.channel.id in channels:
-				channel = self.data.get_channel({ 'id': item.channel.id })
-				item.set_property('channel', channel)
+				item.set_property('channel', item.channel.reload())
 			else:
-				cflowbox.remove(item)
+				item.destroy()
 
 	def on_header_button_reload_clicked(self, _event):
 		if self.app.get_stack_visible_child() == self.stack:

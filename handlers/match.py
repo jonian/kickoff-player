@@ -77,7 +77,7 @@ class MatchHandler(object):
 
 		for item in mlistbox.get_children():
 			if item.filter_name not in mfilters:
-				mlistbox.remove(item)
+				item.destroy()
 
 	def do_matches_list(self):
 		fixtures = self.data.load_fixtures(True)
@@ -93,10 +93,9 @@ class MatchHandler(object):
 
 		for item in flowbox.get_children():
 			if item.fixture.id in fixtures:
-				fixture = self.data.get_fixture({ 'id': item.fixture.id })
-				item.set_property('fixture', fixture)
+				item.set_property('fixture', item.fixture.reload())
 			else:
-				flowbox.remove(item)
+				item.destroy()
 
 	def do_match_details(self, fixture):
 		box = self.match.get_object('box_match_teams')
