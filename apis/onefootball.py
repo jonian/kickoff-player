@@ -82,7 +82,7 @@ class OnefootballApi:
 		self.data.set_multiple('team', items, 'api_id')
 
 	def get_matches(self):
-		comp_ids = [1, 2, 4, 13, 30, 19, 10, 28, 18, 23, 29, 33, 56, 126]
+		comp_ids = [5, 7, 1, 2, 4, 9, 27, 17, 13, 30, 19, 10, 28, 18, 23, 29, 33]
 		comp_ids = ','.join(map(str, comp_ids))
 		currdate = yesterday('%Y-%m-%d')
 		tzoffset = tzone('%z')

@@ -10,13 +10,12 @@ from subprocess import PIPE
 
 class StreamHandler:
 
-	def __init__(self, app):
-		self.player = app.player
+	def __init__(self, player):
+		self.player = player
 		self.acestream = None
 		self.sopcast = None
 		self.url = None
 		self.session = None
-		self.loading = False
 
 	def notify(self, message):
 		messages = {
@@ -31,7 +30,7 @@ class StreamHandler:
 		self.player.update_status(message)
 
 	def open(self, url):
-		self.loading = True
+		self.player.loading = True
 		thread = threading.Thread(target=self.open_stream, args=[url])
 		thread.start()
 
@@ -50,9 +49,10 @@ class StreamHandler:
 			self.start_sopcast(url)
 
 		if not self.url is None:
+			self.player.url = self.url
 			self.player.open(self.url)
 
-		self.loading = False
+		self.player.loading = False
 
 	def start_acestream(self, url):
 		engine = '/usr/bin/acestreamengine'

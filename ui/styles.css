@@ -6,6 +6,10 @@
 	border-left-style: none;
 }
 
+.player-video {
+	background: #000;
+}
+
 
 /* Events */
 
@@ -112,7 +116,7 @@
 	border-top: 1px solid @borders;
 }
 
-.stream-language, .stream-hd {
+.stream-language {
 	font-size: 80%;
 	padding: 2px 4px;
 	border-radius: 2px;

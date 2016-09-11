@@ -341,6 +341,9 @@ class LivefootballApi:
 		items = []
 
 		for fixture in fixts:
+			if not fixture.today:
+				continue
+
 			data = self.get_fixture_match(fixture)
 
 			if data is None:
