@@ -80,8 +80,12 @@ class PlayerHandler(object):
 		self.app.set_stack_visible_child(self.stack)
 
 	def reload_stream(self):
+		GObject.idle_add(self.app.toggle_reload, False)
+
 		self.close_stream()
 		self.open_stream(self.cstream)
+
+		GObject.idle_add(self.app.toggle_reload, True)
 
 	def close_stream(self):
 		self.url = None
@@ -193,8 +197,10 @@ class PlayerHandler(object):
 		if stack == self.stack and kname == 'F11':
 			self.toggle_fullscreen()
 
-	def on_header_reload_button_clicked(self, _event):
-		if self.app.get_stack_visible_child() == self.stack:
+	def on_header_button_reload_clicked(self, _event):
+		stack = self.app.get_stack_visible_child()
+
+		if stack == self.stack and self.cstream is not None:
 			self.reload_stream()
 
 	def on_button_fullscreen_clicked(self, _event):

@@ -53,10 +53,11 @@ class DataHandler:
 			for item in items:
 				self.set_single(model, item, main_key, update)
 
-	def load_competitions(self, current=False):
+	def load_competitions(self, current=False, name_only=False):
 		items = Competition.select()
 		items = items if not current else items.join(Fixture).where(self.fx_query)
 		items = items.distinct()
+		items = items if not name_only else list(sum(items.select(Competition.name).tuples(), ()))
 
 		return items
 
@@ -105,10 +106,11 @@ class DataHandler:
 
 		return item
 
-	def load_fixtures(self, current=False):
+	def load_fixtures(self, current=False, id_only=False):
 		items = Fixture.select()
 		items = items if not current else items.where(self.fx_query)
 		items = items.order_by(Fixture.date, Fixture.competition).distinct()
+		items = items if not id_only else list(sum(items.select(Fixture.id).tuples(), ()))
 
 		return items
 
@@ -139,10 +141,11 @@ class DataHandler:
 
 		return items
 
-	def load_channels(self, active=False):
+	def load_channels(self, active=False, id_only=False):
 		items = Channel.select()
 		items = items if not active else items.join(Stream)
 		items = items.order_by(Channel.name).distinct()
+		items = items if not id_only else list(sum(items.select(Channel.id).tuples(), ()))
 
 		return items
 

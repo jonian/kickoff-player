@@ -35,25 +35,30 @@ class ChannelHandler(object):
 		thread.start()
 
 	def do_update_channels_data(self):
+		GObject.idle_add(self.app.toggle_reload, False)
+
 		livefootball = LivefootballApi()
 		livefootball.save_channels()
 
 		GObject.idle_add(self.update_channels_filters)
 		GObject.idle_add(self.update_channels_list)
+		GObject.idle_add(self.app.toggle_reload, True)
 
 	def do_channels_filters(self):
-		defaults = ['All Languages']
 		clistbox = self.channels.get_object('list_box_channels_filters')
-		cfilters = defaults + self.data.load_languages()
+		cfilters = ['All Languages'] + self.data.load_languages()
 
 		for cfilter in cfilters:
 			filterbox = FilterBox(filter_name=cfilter)
 			clistbox.add(filterbox)
 
 	def update_channels_filters(self):
-		listbox = self.channels.get_object('list_box_channels_filters')
+		clistbox = self.channels.get_object('list_box_channels_filters')
+		cfilters = ['All Languages'] + self.data.load_languages()
 
-		print(listbox)
+		for item in clistbox.get_children():
+			if item.filter_name not in cfilters:
+				clistbox.remove(item)
 
 	def do_channels_list(self):
 		channels = self.data.load_channels(True)
@@ -64,11 +69,17 @@ class ChannelHandler(object):
 			cflowbox.add(channbox)
 
 	def update_channels_list(self):
-		flowbox = self.channels.get_object('flow_box_channels_list')
+		channels = self.data.load_channels(True, True)
+		cflowbox = self.channels.get_object('flow_box_channels_list')
 
-		print(flowbox)
+		for item in cflowbox.get_children():
+			if item.channel.id in channels:
+				channel = self.data.get_channel({ 'id': item.channel.id })
+				item.set_property('channel', channel)
+			else:
+				cflowbox.remove(item)
 
-	def on_header_reload_button_clicked(self, _event):
+	def on_header_button_reload_clicked(self, _event):
 		if self.app.get_stack_visible_child() == self.stack:
 			self.update_channels_data()
 

@@ -65,6 +65,10 @@ class KickoffPlayer:
 		stack = self.main.get_object('stack_main')
 		stack.set_visible_child(widget)
 
+	def toggle_reload(self, show):
+		button = self.main.get_object('header_button_reload')
+		button.set_sensitive(show)
+
 	def on_window_main_destroy(self, _event):
 		self.quit()
 
@@ -74,10 +78,10 @@ class KickoffPlayer:
 	def on_header_button_back_clicked(self, widget):
 		self.matches.on_header_button_back_clicked(widget)
 
-	def on_header_reload_button_clicked(self, event):
-		self.player.on_header_reload_button_clicked(event)
-		self.matches.on_header_reload_button_clicked(event)
-		self.channels.on_header_reload_button_clicked(event)
+	def on_header_button_reload_clicked(self, widget):
+		self.player.on_header_button_reload_clicked(widget)
+		self.matches.on_header_button_reload_clicked(widget)
+		self.channels.on_header_button_reload_clicked(widget)
 
 	def on_stack_main_visible_child_notify(self, widget, params):
 		self.matches.on_stack_main_visible_child_notify(widget, params)

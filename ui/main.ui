@@ -88,11 +88,11 @@
           </object>
         </child>
         <child>
-          <object class="GtkButton" id="header_reload_button">
+          <object class="GtkButton" id="header_button_reload">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
-            <signal name="clicked" handler="on_header_reload_button_clicked" swapped="no"/>
+            <signal name="clicked" handler="on_header_button_reload_clicked" swapped="no"/>
             <child>
               <object class="GtkImage">
                 <property name="visible">True</property>
