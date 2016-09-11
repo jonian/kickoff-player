@@ -5,7 +5,7 @@ gi.require_version('Gtk', '3.0')
 
 from gi.repository import Gtk, GObject
 from helpers.utils import Struct
-from helpers.gtk import filter_widget_items, remove_widget_children, add_widget_class
+from helpers.gtk import filter_widget_items, remove_widget_children
 
 from widgets.matchbox import MatchBox, MatchTeamsBox, MatchStreamBox
 from widgets.filterbox import FilterBox
