@@ -1,6 +1,6 @@
 import os
 
-from helpers.utils import cached_request, download_file, format_date, gmtime, tzone, yesterday
+from helpers.utils import cached_request, download_file, format_date, gmtime, tzone, today, batch
 
 
 class OnefootballApi:
@@ -35,14 +35,17 @@ class OnefootballApi:
 		items = []
 
 		for item in comps:
-			items.append({
-				'name': item['competitionName'],
-				'short_name': item['competitionShortName'],
-				'section_code': item['section'],
-				'section_name': self.section_name(codes, item['section']),
-				'season_id': item['seasonId'],
-				'api_id': item['competitionId']
-			})
+			try:
+				items.append({
+					'name': item['competitionName'],
+					'short_name': item['competitionShortName'],
+					'section_code': item['section'],
+					'section_name': self.section_name(codes, item['section']),
+					'season_id': item['seasonId'],
+					'api_id': item['competitionId']
+				})
+			except IndexError:
+				pass
 
 		self.data.set_multiple('competition', items, 'api_id')
 
@@ -69,23 +72,25 @@ class OnefootballApi:
 		items = []
 
 		for item in teams:
-			items.append({
-				'name': item['name'],
-				'crest_url': self.crest_url(item),
-				'crest_path': self.crest_path(item),
-				'national': item['isNational'],
-				'api_id': item['idInternal']
-			})
+			try:
+				items.append({
+					'name': item['name'],
+					'crest_url': self.crest_url(item),
+					'crest_path': self.crest_path(item),
+					'national': item['isNational'],
+					'api_id': item['idInternal']
+				})
+			except IndexError:
+				pass
 
 		self.data.set_multiple('team', items, 'api_id')
 
-	def get_matches(self):
-		comp_ids = [5, 7, 1, 2, 4, 9, 27, 17, 13, 30, 19, 10, 28, 18, 23, 29, 33]
-		comp_ids = ','.join(map(str, comp_ids))
-		currdate = yesterday('%Y-%m-%d')
+	def get_matchdays(self, comp_ids=None):
+		comp_ids = '' if comp_ids is None else ','.join(map(str, comp_ids))
+		currdate = today('%Y-%m-%d')
 		tzoffset = tzone('%z')
 		separams = { 'competitions': comp_ids, 'since': currdate, 'utc_offset': tzoffset }
-		response = self.get(url='en/search/matchdays', base_url=self.score_url, params=separams, ttl=60)
+		response = self.get(url='en/search/matchdays', base_url=self.score_url, params=separams, ttl=0)
 		response = response['data']['matchdays'] if response is not None else []
 		combined = []
 
@@ -95,34 +100,46 @@ class OnefootballApi:
 
 		return combined
 
+	def get_matches(self):
+		comp_ids = [5, 7, 1, 2, 4, 9, 27, 17, 13, 30, 19, 10, 28, 18, 23, 29, 33, 56, 126]
+		response = []
+
+		for item in batch(comp_ids, 5):
+			response = response + self.get_matchdays(item)
+
+		return response
+
 	def save_matches(self):
 		matches = self.get_matches()
 		items = []
 
 		for item in matches:
-			competition = self.data.get_competition({ 'api_id': item['competition']['id'] })
-			home_team = self.data.get_team({ 'api_id': item['team_home']['id'] })
-			away_team = self.data.get_team({ 'api_id': item['team_away']['id'] })
-			form_date = format_date(date=item['kickoff'], localize=True)
+			try:
+				competition = self.data.get_competition({ 'api_id': item['competition']['id'] })
+				home_team = self.data.get_team({ 'api_id': item['team_home']['id'] })
+				away_team = self.data.get_team({ 'api_id': item['team_away']['id'] })
+				form_date = format_date(date=item['kickoff'], localize=True)
 
-			items.append({
-				'date': form_date,
-				'minute': item['minute'],
-				'period': item['period'],
-				'home_team': home_team.id,
-				'away_team': away_team.id,
-				'score_home': item['score_home'],
-				'score_away': item['score_away'],
-				'competition': competition.id,
-				'api_id': item['id']
-			})
+				items.append({
+					'date': form_date,
+					'minute': item['minute'],
+					'period': item['period'],
+					'home_team': home_team.id,
+					'away_team': away_team.id,
+					'score_home': item['score_home'],
+					'score_away': item['score_away'],
+					'competition': competition.id,
+					'api_id': item['id']
+				})
+			except (AttributeError, IndexError):
+				pass
 
 		self.data.set_multiple('fixture', items, 'api_id')
 
 	def get_live(self):
-		currdate = gmtime('%Y-%m-%dT%H:%M:00Z')
+		currdate = gmtime('%Y-%m-%dT%H:%M:%SZ', True)
 		separams = { 'since': currdate }
-		response = self.get(url='matches/updates', base_url=self.score_url, params=separams, ttl=60)
+		response = self.get(url='matches/updates', base_url=self.score_url, params=separams, ttl=9)
 		response = response['data']['match_updates'] if response is not None else []
 
 		return response
@@ -132,13 +149,16 @@ class OnefootballApi:
 		items = []
 
 		for item in matches:
-			items.append({
-				'minute': item['minute'],
-				'period': item['period'],
-				'score_home': item['score_home'],
-				'score_away': item['score_away'],
-				'api_id': item['id']
-			})
+			try:
+				items.append({
+					'minute': item['minute'],
+					'period': item['period'],
+					'score_home': item['score_home'],
+					'score_away': item['score_away'],
+					'api_id': item['id']
+				})
+			except IndexError:
+				pass
 
 		self.data.set_multiple('fixture', items, 'api_id', True)
 

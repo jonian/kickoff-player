@@ -36,6 +36,8 @@ class MatchHandler(object):
 		GObject.idle_add(self.do_matches_filters)
 		GObject.idle_add(self.do_matches_list)
 
+		GObject.timeout_add(10000, self.update_live_data)
+
 	def update_matches_data(self):
 		thread = threading.Thread(target=self.do_update_matches_data)
 		thread.start()
@@ -62,6 +64,16 @@ class MatchHandler(object):
 
 		GObject.idle_add(self.update_match_details)
 		GObject.idle_add(self.app.toggle_reload, True)
+
+	def update_live_data(self):
+		thread = threading.Thread(target=self.do_update_live_data)
+		thread.start()
+
+		return True
+
+	def do_update_live_data(self):
+		self.app.scores_api.save_live()
+		GObject.idle_add(self.update_matches_list)
 
 	def do_matches_filters(self):
 		mlistbox = self.matches.get_object('list_box_matches_filters')

@@ -56,7 +56,7 @@ class DataHandler:
 	def load_competitions(self, current=False, name_only=False):
 		items = Competition.select()
 		items = items if not current else items.join(Fixture).where(self.fx_query)
-		items = items.distinct().order_by(Competition.section_name, Competition.name)
+		items = items.distinct().order_by(Competition.section_name, Competition.api_id)
 		items = items if not name_only else list(sum(items.select(Competition.name).tuples(), ()))
 
 		return items

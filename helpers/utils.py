@@ -6,14 +6,11 @@ import dateutil.parser
 from datetime import datetime, timedelta, timezone
 
 
-class Struct:
-	def __init__(self, d):
-		self.__dict__ = d
-
-
-def gmtime(date_format=None):
+def gmtime(date_format=None, round_time=False):
 	date = time.gmtime()
-	date = date if date_format is None else time.strftime(date_format, date)
+	date = datetime(*date[:6])
+	date = date if not round_time else round_datetime(date)
+	date = date if date_format is None else date.strftime(date_format)
 
 	return date
 
@@ -59,6 +56,14 @@ def parse_date(date, localize=False):
 	return date
 
 
+def round_datetime(date, round_to=10):
+	secs = (date - date.min).seconds
+	rndg = (secs + round_to / 2 ) // round_to * round_to
+	date = date + timedelta(0, rndg - secs, - date.microsecond)
+
+	return date
+
+
 def query_date_range(kwargs):
 	now_d = datetime.now()
 	min_d = now_d - timedelta(hours=3)
@@ -68,11 +73,20 @@ def query_date_range(kwargs):
 	return dates
 
 
+def batch(iterable, n=1):
+	l = len(iterable)
+
+	for ndx in range(0, l, n):
+		yield iterable[ndx:min(ndx + n, l)]
+
+
 def cached_request(url, cache, base_url=None, ttl=300, json=False, params=None, callback=None):
 	url = parse_url(url, base_url)
 	cache_key = cache_key_from_url(url)
 	headers = { 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0' }
 	response = cache.load(cache_key)
+
+	print(url, params)
 
 	if response is None:
 		try:
