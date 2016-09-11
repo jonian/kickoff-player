@@ -1,3 +1,5 @@
+*.ui~
+*.ui#
 *test*
 *sample*
 *pycache*
