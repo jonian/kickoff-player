@@ -5,9 +5,9 @@ gi.require_version('Gtk', '3.0')
 
 from gi.repository import Gtk, GObject
 from helpers.utils import Struct
-from helpers.gtk import filter_widget_items, remove_widget_children
+from helpers.gtk import filter_widget_items, remove_widget_children, add_widget_class
 
-from widgets.matchbox import MatchBox, MatchTeamsBox, MatchStreamsBox
+from widgets.matchbox import MatchBox, MatchTeamsBox, MatchStreamBox
 from widgets.filterbox import FilterBox
 
 from apis.onefootball import OnefootballApi
@@ -91,8 +91,13 @@ class MatchHandler(object):
 		listbox = self.match.get_object('list_box_match_streams')
 		remove_widget_children(listbox)
 
-		streambox = MatchStreamsBox(fixture=fixture, callback=self.player.open_stream)
-		listbox.add(streambox)
+		if fixture.events.count() == 0:
+			streambox = MatchStreamBox(stream=None, callback=None)
+			listbox.add(streambox)
+
+		for event in fixture.events:
+			streambox = MatchStreamBox(stream=event.stream, callback=self.player.open_stream)
+			listbox.add(streambox)
 
 	def on_header_reload_button_clicked(self, _event):
 		if self.app.get_stack_visible_child() == self.stack:

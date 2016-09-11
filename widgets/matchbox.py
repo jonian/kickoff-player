@@ -275,34 +275,37 @@ class MatchDetailsBox(Gtk.Box):
 		self.callback(fixture)
 
 
-class MatchStreamsBox(Gtk.ListBoxRow):
+class MatchStreamBox(Gtk.ListBoxRow):
 
-	__gtype_name__ = 'MatchStreamsBox'
+	__gtype_name__ = 'MatchStreamBox'
 
-	fixture = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
+	stream = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
 	callback = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
 
 	def __init__(self, *args, **kwargs):
 		Gtk.ListBoxRow.__init__(self, *args, **kwargs)
 
-		self.fixture = self.get_property('fixture')
+		self.stream = self.get_property('stream')
 		self.callback = self.get_property('callback')
-		self.events = None
 
 		self.connect('realize', self.on_realized)
-		self.connect('notify::fixture', self.on_fixture_updated)
+		self.connect('notify::stream', self.on_fixture_updated)
 
 		add_widget_class(self, 'stream-item')
 
 		self.show()
 
 	def on_realized(self, *_args):
-		self.events = getattr(self.fixture, 'events')
-		self.do_fixture_streams()
+		if self.stream is None:
+			self.do_nostreams_label()
+		else:
+			self.do_stream_box()
 
 	def on_fixture_updated(self, *_args):
-		self.events = getattr(self.fixture, 'events')
-		self.update_fixture_streams()
+		if self.stream is None:
+			self.do_nostreams_label()
+		else:
+			self.update_stream_box()
 
 	def do_nostreams_label(self):
 		label = Gtk.Label('No streams available...')
@@ -310,19 +313,18 @@ class MatchStreamsBox(Gtk.ListBoxRow):
 		label.set_margin_bottom(10)
 		label.show()
 
+		self.add(label)
+
 		add_widget_class(label, 'stream-unknown')
 
 		return label
 
-	def do_fixture_streams(self):
-		if self.events.count() == 0:
-			label = self.do_nostreams_label()
-			self.add(label)
+	def do_stream_box(self):
+		box = StreamBox(stream=self.stream, callback=self.callback, compact=False)
+		self.add(box)
 
-		for event in self.events:
-			streambox = StreamBox(stream=event.stream, callback=self.callback, compact=True)
-			self.add(streambox)
+		return box
 
-	def update_fixture_streams(self):
+	def update_stream_box(self):
 		remove_widget_children(self)
-		self.do_fixture_streams()
+		self.do_stream_box()

@@ -361,7 +361,8 @@ class Channel(BasicModel):
 	@property
 
 	def streams(self):
-		streams = Stream.select().where(Stream.channel == self)
+		streams = Stream.select().where(Stream.channel == self).limit(2)
+		streams = streams.distinct(Stream.host).order_by(Stream.created)
 
 		return streams
 

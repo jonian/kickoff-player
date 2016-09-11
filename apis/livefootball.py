@@ -213,6 +213,10 @@ class LivefootballApi:
 
 				for stream in streams:
 					stream = self.data.get_stream({ 'url': stream['url'] })
+
+					if stream is None:
+						continue
+
 					item['streams'].append(stream.id)
 
 			if len(item['streams']) > 1:
