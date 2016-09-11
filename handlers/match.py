@@ -9,9 +9,6 @@ from helpers.gtk import filter_widget_items, remove_widget_children
 from widgets.matchbox import MatchBox, MatchTeamsBox, MatchStreamBox
 from widgets.filterbox import FilterBox
 
-from apis.onefootball import OnefootballApi
-from apis.livefootball import LivefootballApi
-
 
 class MatchHandler(object):
 
@@ -46,11 +43,8 @@ class MatchHandler(object):
 	def do_update_matches_data(self):
 		GObject.idle_add(self.app.toggle_reload, False)
 
-		onefootball = OnefootballApi()
-		onefootball.save_matches()
-
-		livefootball = LivefootballApi()
-		livefootball.save_events()
+		self.app.scores_api.save_matches()
+		self.app.streams_api.save_events()
 
 		GObject.idle_add(self.update_matches_filters)
 		GObject.idle_add(self.update_matches_list)
@@ -63,11 +57,8 @@ class MatchHandler(object):
 	def do_update_match_data(self):
 		GObject.idle_add(self.app.toggle_reload, False)
 
-		onefootball = OnefootballApi()
-		onefootball.save_matches()
-
-		livefootball = LivefootballApi()
-		livefootball.save_events()
+		self.app.scores_api.save_matches()
+		self.app.streams_api.save_events()
 
 		GObject.idle_add(self.update_match_details)
 		GObject.idle_add(self.app.toggle_reload, True)

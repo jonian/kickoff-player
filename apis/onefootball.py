@@ -1,15 +1,13 @@
 import os
 
-from handlers.data import DataHandler
-from handlers.cache import CacheHandler
 from helpers.utils import cached_request, download_file, format_date, gmtime, tzone, yesterday
 
 
 class OnefootballApi:
 
-	def __init__(self):
-		self.data = DataHandler()
-		self.cache = CacheHandler()
+	def __init__(self, data, cache):
+		self.data = data
+		self.cache = cache
 
 		self.score_url = 'scores-api.onefootball.com/v1'
 		self.sconf_url = 'config.onefootball.com/api/scoreconfig2'

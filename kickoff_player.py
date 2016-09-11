@@ -9,9 +9,13 @@ gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk, Gdk, GObject
 
 from handlers.data import DataHandler
+from handlers.cache import CacheHandler
 from handlers.match import MatchHandler
 from handlers.channel import ChannelHandler
 from handlers.player import PlayerHandler
+
+from apis.onefootball import OnefootballApi
+from apis.livefootball import LivefootballApi
 
 GObject.threads_init()
 
@@ -20,6 +24,11 @@ class KickoffPlayer:
 
 	def __init__(self):
 		self.data = DataHandler()
+		self.cache = CacheHandler()
+
+		self.scores_api = OnefootballApi(self.data, self.cache)
+		self.streams_api = LivefootballApi(self.data, self.cache)
+
 		self.add_extra_styles('ui/styles.css')
 
 		self.main = Gtk.Builder()

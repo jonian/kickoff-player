@@ -1,16 +1,14 @@
 from lxml import html
 from fuzzywuzzy import fuzz
 from operator import itemgetter
-from handlers.data import DataHandler
-from handlers.cache import CacheHandler
 from helpers.utils import cached_request
 
 
 class LivefootballApi:
 
-	def __init__(self):
-		self.data = DataHandler()
-		self.cache = CacheHandler()
+	def __init__(self, data, cache):
+		self.data = data
+		self.cache = cache
 
 	def get(self, url='', ttl=86400):
 		base_url = 'livefootballol.me'

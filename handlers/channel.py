@@ -5,7 +5,6 @@ gi.require_version('Gtk', '3.0')
 
 from gi.repository import Gtk, GObject
 from helpers.gtk import filter_widget_items
-from apis.livefootball import LivefootballApi
 
 from widgets.channelbox import ChannelBox
 from widgets.filterbox import FilterBox
@@ -37,8 +36,7 @@ class ChannelHandler(object):
 	def do_update_channels_data(self):
 		GObject.idle_add(self.app.toggle_reload, False)
 
-		livefootball = LivefootballApi()
-		livefootball.save_channels()
+		self.app.streams_api.save_channels()
 
 		GObject.idle_add(self.update_channels_filters)
 		GObject.idle_add(self.update_channels_list)
