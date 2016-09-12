@@ -99,6 +99,7 @@ class MatchHandler(object):
 
 	def do_matches_list(self):
 		fixtures = self.app.data.load_fixtures(True)
+		remove_widget_children(self.matches_list)
 
 		for fixture in fixtures:
 			matchbox = MatchBox(fixture=fixture, callback=self.on_match_activated)
@@ -106,7 +107,6 @@ class MatchHandler(object):
 
 	def update_matches_list(self):
 		fixtures = self.app.data.load_fixtures(True, True)
-		remove_widget_children(self.matches_list)
 
 		for item in self.matches_list.get_children():
 			if item.fixture.id in fixtures:
