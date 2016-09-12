@@ -12,9 +12,7 @@ class PlayerHandler(object):
 
 	def __init__(self, app):
 		self.stream = StreamHandler(self)
-
 		self.app = app
-		self.window = app.window
 		self.stack = app.player_stack
 
 		self.url = None
@@ -38,6 +36,11 @@ class PlayerHandler(object):
 
 		self.status = self.player.get_object('label_player_status')
 		self.status.set_text('Not playing')
+
+		self.toolbar = self.player.get_object('toolbar_player')
+		self.volume_button = self.player.get_object('button_volume')
+		self.full_button = self.player.get_object('button_fullscreen')
+		self.restore_button = self.player.get_object('button_unfullscreen')
 
 		self.instance = vlc.Instance()
 		self.playbin = self.instance.media_player_new()
@@ -131,32 +134,28 @@ class PlayerHandler(object):
 		if not self.visible:
 			return False
 
-		enable = self.player.get_object('button_fullscreen')
-		disable = self.player.get_object('button_unfullscreen')
-
 		if self.is_fullscreen:
-			disable.hide()
-			enable.show()
-			self.window.unfullscreen()
+			self.restore_button.hide()
+			self.full_button.show()
+			self.app.window.unfullscreen()
 
 			self.is_fullscreen = False
 		else:
-			enable.hide()
-			disable.show()
-			self.window.fullscreen()
+			self.full_button.hide()
+			self.restore_button.show()
+			self.app.window.fullscreen()
 
 			self.is_fullscreen = True
 
 	def toggle_toolbar(self, timer=True):
-		toolbar = self.player.get_object('toolbar_player')
-		visible = toolbar.is_visible()
+		visible = self.toolbar.is_visible()
 
 		if not self.toolbar_stick and self.actionable:
 			if timer and visible:
-				toolbar.hide()
+				self.toolbar.hide()
 
 			if not timer and not visible:
-				toolbar.show()
+				self.toolbar.show()
 
 		return timer
 
@@ -169,7 +168,7 @@ class PlayerHandler(object):
 
 	def on_button_play_clicked(self, _event):
 		if not self.loading:
-			volume = self.player.get_object('button_volume').get_value()
+			volume = self.volume_button.get_value()
 			volume = int(round(volume * 100))
 
 			self.play()

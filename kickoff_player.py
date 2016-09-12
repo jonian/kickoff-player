@@ -35,6 +35,10 @@ class KickoffPlayer:
 		self.main.add_from_file('ui/main.ui')
 		self.main.connect_signals(self)
 
+		self.header_back = self.main.get_object('header_button_back')
+		self.header_reload = self.main.get_object('header_button_reload')
+		self.main_stack = self.main.get_object('stack_main')
+
 		self.window = self.main.get_object('window_main')
 		self.window.show_all()
 
@@ -64,19 +68,16 @@ class KickoffPlayer:
 			Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
 		)
 
+	def toggle_reload(self, show):
+		self.header_reload.set_sensitive(show)
+
 	def get_stack_visible_child(self):
-		stack = self.main.get_object('stack_main')
-		child = stack.get_visible_child()
+		child = self.main_stack.get_visible_child()
 
 		return child
 
 	def set_stack_visible_child(self, widget):
-		stack = self.main.get_object('stack_main')
-		stack.set_visible_child(widget)
-
-	def toggle_reload(self, show):
-		button = self.main.get_object('header_button_reload')
-		button.set_sensitive(show)
+		self.main_stack.set_visible_child(widget)
 
 	def on_window_main_destroy(self, _event):
 		self.quit()

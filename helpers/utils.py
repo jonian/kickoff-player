@@ -80,9 +80,21 @@ def batch(iterable, n=1):
 		yield iterable[ndx:min(ndx + n, l)]
 
 
-def cached_request(url, cache, base_url=None, ttl=300, json=False, params=None, callback=None):
+def search_dict_key(iterable, keys, default=None):
+	try:
+		keys = keys if type(keys) is list else [keys]
+
+		for key in keys:
+			iterable = iterable[key]
+	except KeyError:
+		iterable = default
+
+	return iterable
+
+
+def cached_request(url, cache, base_url=None, ttl=300, json=False, params=None, callback=None, cache_key=None):
 	url = parse_url(url, base_url)
-	cache_key = cache_key_from_url(url)
+	cache_key = cache_key_from_url(url, params, cache_key)
 	headers = { 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0' }
 	response = cache.load(cache_key)
 
@@ -104,8 +116,12 @@ def cached_request(url, cache, base_url=None, ttl=300, json=False, params=None, 
 		return response.text
 
 
-def cache_key_from_url(url):
+def cache_key_from_url(url, params=None, cache_key=None):
 	key = url.split('://')[1]
+
+	if cache_key is not None:
+		key = key + ':' + search_dict_key(params, cache_key)
+
 	key = key.replace('www.', '')
 	key = key.replace('.html', '')
 	key = key.replace('.php', '')
@@ -114,6 +130,7 @@ def cache_key_from_url(url):
 	key = key.replace('-', ':')
 	key = key.replace('_', ':')
 	key = key.replace('.', ':')
+	key = key.replace(',', ':')
 	key = key.replace(' ', ':')
 	key = key.strip('/')
 	key = key.strip(':')

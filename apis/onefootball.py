@@ -1,6 +1,7 @@
 import os
 
-from helpers.utils import cached_request, download_file, format_date, gmtime, tzone, today, batch
+from helpers.utils import format_date, gmtime, tzone, today
+from helpers.utils import cached_request, download_file, batch, search_dict_key
 
 
 class OnefootballApi:
@@ -17,21 +18,36 @@ class OnefootballApi:
 		self.img_path = os.path.expanduser('~') + '/.kickoff-player/images/'
 		self.create_images_folder()
 
-	def get(self, url, base_url, params=None, ttl=3600):
-		response = cached_request(url=url, cache=self.cache, base_url=base_url, json=True, ttl=ttl, params=params)
+	def get(self, url, base_url, params=None, ttl=3600, key=None, cache_key=None):
+		reparams = {
+			'url': url,
+			'cache': self.cache,
+			'base_url': base_url,
+			'json': True,
+			'ttl': ttl,
+			'params': params,
+			'cache_key': cache_key
+		}
+
+		response = cached_request(**reparams)
 		response = response if response is not None else {}
+		response = response if key is None else search_dict_key(response, key, [])
+
+		return response
+
+	def get_sections(self):
+		response = self.get(url='en.json', base_url=self.sconf_url, key='sections')
 
 		return response
 
 	def get_competitions(self):
-		response = self.get(url='en.json', base_url=self.sconf_url)
+		response = self.get(url='en.json', base_url=self.sconf_url, key='competitions')
 
 		return response
 
 	def save_competitions(self):
-		cdata = self.get_competitions()
-		comps = cdata['competitions'] if cdata is not None else []
-		codes = cdata['sections'] if cdata is not None else []
+		codes = self.get_sections()
+		comps = self.get_competitions()
 		items = []
 
 		for item in comps:
@@ -44,7 +60,7 @@ class OnefootballApi:
 					'season_id': item['seasonId'],
 					'api_id': item['competitionId']
 				})
-			except IndexError:
+			except KeyError:
 				pass
 
 		self.data.set_multiple('competition', items, 'api_id')
@@ -53,8 +69,7 @@ class OnefootballApi:
 		competid = str(competition.api_id)
 		seasonid = str(competition.season_id)
 		resource = '/'.join([competid, seasonid, 'teamsOverview.json'])
-		response = self.get(url=resource, base_url=self.feedm_url)
-		response = response['teams'] if response is not None else []
+		response = self.get(url=resource, base_url=self.feedm_url, key='teams')
 
 		return response
 
@@ -80,18 +95,26 @@ class OnefootballApi:
 					'national': item['isNational'],
 					'api_id': item['idInternal']
 				})
-			except IndexError:
+			except KeyError:
 				pass
 
 		self.data.set_multiple('team', items, 'api_id')
 
 	def get_matchdays(self, comp_ids=None):
-		comp_ids = '' if comp_ids is None else ','.join(map(str, comp_ids))
-		currdate = today('%Y-%m-%d')
-		tzoffset = tzone('%z')
-		separams = { 'competitions': comp_ids, 'since': currdate, 'utc_offset': tzoffset }
-		response = self.get(url='en/search/matchdays', base_url=self.score_url, params=separams, ttl=0)
-		response = response['data']['matchdays'] if response is not None else []
+		reparams = {
+			'url': 'en/search/matchdays',
+			'base_url': self.score_url,
+			'params': {
+				'competitions': comp_ids,
+				'since': today('%Y-%m-%d'),
+				'utc_offset': tzone('%z')
+			},
+			'ttl': 60,
+			'key': ['data', 'matchdays'],
+			'cache_key': 'competitions'
+		}
+
+		response = self.get(**reparams)
 		combined = []
 
 		for item in response:
@@ -102,12 +125,14 @@ class OnefootballApi:
 
 	def get_matches(self):
 		comp_ids = [5, 7, 1, 2, 4, 9, 27, 17, 13, 30, 19, 10, 28, 18, 23, 29, 33, 56, 126]
-		response = []
+		combined = []
 
 		for item in batch(comp_ids, 5):
-			response = response + self.get_matchdays(item)
+			comp_ids = ','.join(map(str, item))
+			response = self.get_matchdays(comp_ids)
+			combined = combined + response
 
-		return response
+		return combined
 
 	def save_matches(self):
 		matches = self.get_matches()
@@ -131,24 +156,31 @@ class OnefootballApi:
 					'competition': competition.id,
 					'api_id': item['id']
 				})
-			except (AttributeError, IndexError):
+			except (AttributeError, KeyError):
 				pass
 
 		self.data.set_multiple('fixture', items, 'api_id')
 
 	def get_live(self):
-		currdate = gmtime('%Y-%m-%dT%H:%M:%SZ', True)
-		separams = { 'since': currdate }
-		response = self.get(url='matches/updates', base_url=self.score_url, params=separams, ttl=9)
-		response = response['data']['match_updates'] if response is not None else []
+		reparams = {
+			'url': 'matches/updates',
+			'base_url': self.score_url,
+			'params': {
+				'since': gmtime('%Y-%m-%dT%H:%M:%SZ', True)
+			},
+			'ttl': 10,
+			'key': ['data', 'match_updates']
+		}
+
+		response = self.get(**reparams)
 
 		return response
 
 	def save_live(self):
-		matches = self.get_live()
+		lives = self.get_live()
 		items = []
 
-		for item in matches:
+		for item in lives:
 			try:
 				items.append({
 					'minute': item['minute'],
@@ -157,7 +189,7 @@ class OnefootballApi:
 					'score_away': item['score_away'],
 					'api_id': item['id']
 				})
-			except IndexError:
+			except KeyError:
 				pass
 
 		self.data.set_multiple('fixture', items, 'api_id', True)
