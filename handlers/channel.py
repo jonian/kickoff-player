@@ -36,7 +36,7 @@ class ChannelHandler(object):
 	def do_update_channels_data(self):
 		GObject.idle_add(self.app.toggle_reload, False)
 
-		self.app.streams_api.save_channels()
+		self.app.streams_api.save_streams()
 
 		GObject.idle_add(self.update_channels_filters)
 		GObject.idle_add(self.update_channels_list)

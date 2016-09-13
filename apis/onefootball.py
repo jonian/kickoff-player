@@ -200,12 +200,6 @@ class OnefootballApi:
 		for team in teams:
 			self.download_team_crest(team)
 
-	def save_all_data(self):
-		self.save_competitions()
-		self.save_teams()
-		self.save_matches()
-		self.save_crests()
-
 	def section_name(self, codes, code):
 		name = list(filter(lambda ccode: ccode['key'] == code, codes))
 		name = name[0]['title']

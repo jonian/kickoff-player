@@ -259,6 +259,8 @@ class LivefootballApi:
 			self.data.set_multiple('channel', items, 'name')
 
 	def save_streams(self):
+		self.save_channels()
+
 		links = self.get_host_links()
 		items = []
 
@@ -339,6 +341,9 @@ class LivefootballApi:
 			self.data.set_multiple('stream', items, 'url')
 
 	def save_events(self):
+		self.save_events_channels()
+		self.save_events_streams()
+
 		fixts = self.data.load_fixtures(today_only=True)
 		items = []
 
