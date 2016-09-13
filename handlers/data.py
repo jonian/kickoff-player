@@ -20,6 +20,9 @@ class DataHandler:
 		self.fx_limit = query_date_range({ 'days': 14 })
 		self.fx_query = (Fixture.date > self.fx_limit[0]) & (Fixture.date < self.fx_limit[1])
 
+		self.fl_limit = query_date_range({ 'hours': 3 })
+		self.fl_query = (Fixture.date > self.fl_limit[0]) & (Fixture.date < self.fl_limit[1])
+
 	def create_db(self):
 		if not os.path.exists(self.path):
 			open(self.path, 'w+')
@@ -106,10 +109,11 @@ class DataHandler:
 
 		return item
 
-	def load_fixtures(self, current=False, id_only=False):
-		items = Fixture.select()
+	def load_fixtures(self, current=False, id_only=False, today_only=False):
+		items = Fixture.select().distinct()
+		items = items.order_by(Fixture.date, Fixture.competition)
 		items = items if not current else items.where(self.fx_query)
-		items = items.order_by(Fixture.date, Fixture.competition).distinct()
+		items = items if not today_only else items.where(self.fl_query)
 		items = items if not id_only else list(sum(items.select(Fixture.id).tuples(), ()))
 
 		return items

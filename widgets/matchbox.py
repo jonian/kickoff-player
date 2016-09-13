@@ -256,14 +256,13 @@ class MatchDetailsBox(Gtk.Box):
 	def do_more_button(self):
 		kwargs = { 'icon_name': 'media-playback-start-symbolic', 'size': Gtk.IconSize.BUTTON }
 		button = Gtk.Button.new_from_icon_name(**kwargs)
+		button.connect('clicked', self.on_more_button_clicked, self.fixture)
 
 		add_widget_class(button, 'event-item-details')
 
 		return button
 
 	def update_more_button(self):
-		self.more_button.connect('clicked', self.on_more_button_clicked, self.fixture)
-
 		if self.event_count == 0:
 			self.more_button.set_opacity(0.5)
 		else:

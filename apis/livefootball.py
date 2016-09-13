@@ -142,13 +142,13 @@ class LivefootballApi:
 		return link
 
 	def get_events_links(self, url):
-		data = self.get(url)
+		data = self.get(url=url, ttl=7200)
 		items = []
 
 		if data is None:
 			return items
 
-		for link in data.xpath('//div[@id="system"]//a[contains(@href, "/streaming/")]'):
+		for link in data.xpath('//div[@id="system"]//list[1]//a[contains(@href, "/streaming/")]'):
 			try:
 				items.append(link.attrib['href'].strip())
 			except (IndexError, ValueError):
@@ -157,7 +157,7 @@ class LivefootballApi:
 		return items
 
 	def get_event_channels(self, url):
-		data = self.get(url)
+		data = self.get(url=url, ttl=60)
 		item = None
 
 		if data is None:
@@ -339,7 +339,7 @@ class LivefootballApi:
 			self.data.set_multiple('stream', items, 'url')
 
 	def save_events(self):
-		fixts = self.data.load_fixtures(True)
+		fixts = self.data.load_fixtures(today_only=True)
 		items = []
 
 		for fixture in fixts:
