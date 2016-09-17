@@ -34,21 +34,12 @@ class StreamBox(Gtk.Box):
 		self.show()
 
 	def on_realized(self, *_args):
-		if not self.compact:
-			self.update_stream_language()
-			self.pack_start(self.stream_lang, False, False, 0)
+		self.on_stream_updated(_args)
 
-		self.update_stream_logo()
+		self.pack_start(self.stream_lang, False, False, 0)
 		self.pack_start(self.stream_logo, False, False, 1)
-
-		if not self.compact:
-			self.update_stream_name()
-			self.pack_start(self.stream_name, False, False, 2)
-
-		self.update_play_button()
+		self.pack_start(self.stream_name, False, False, 2)
 		self.pack_end(self.play_button, False, False, 0)
-
-		self.update_stream_rate()
 		self.pack_end(self.stream_rate, False, False, 1)
 
 	def on_stream_updated(self, *_args):
@@ -85,7 +76,11 @@ class StreamBox(Gtk.Box):
 	def update_stream_language(self):
 		language = getattr(self.stream, 'language')
 		self.stream_lang.set_label(language)
-		self.stream_lang.show()
+
+		if self.compact:
+			self.stream_lang.hide()
+		else:
+			self.stream_lang.show()
 
 	def do_stream_rate(self):
 		label = Gtk.Label('0Kbps')
@@ -114,7 +109,11 @@ class StreamBox(Gtk.Box):
 		chan = getattr(self.stream, 'channel')
 		name = 'Unknown Channel' if chan is None else getattr(chan, 'name')
 		self.stream_name.set_label(name)
-		self.stream_name.show()
+
+		if self.compact:
+			self.stream_name.hide()
+		else:
+			self.stream_name.show()
 
 	def do_play_button(self):
 		kwargs = { 'icon_name': 'media-playback-start-symbolic', 'size': Gtk.IconSize.BUTTON }

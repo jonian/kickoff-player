@@ -17,12 +17,12 @@ class FilterBox(Gtk.ListBoxRow):
 		self.filter_name = self.get_property('filter-name')
 		self.filter_label = self.do_filter_label()
 
-		self.connect('realize', self.on_realized)
-		self.connect('notify::filter_name', self.on_realized)
+		self.connect('realize', self.on_filter_name_updated)
+		self.connect('notify::filter_name', self.on_filter_name_updated)
 
 		self.show()
 
-	def on_realized(self, *_args):
+	def on_filter_name_updated(self, *_args):
 		self.update_filter_label()
 
 	def do_filter_label(self):

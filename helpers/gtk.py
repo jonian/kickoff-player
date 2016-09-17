@@ -15,6 +15,16 @@ def add_widget_class(widget, classes):
 		context.add_class(name)
 
 
+def remove_widget_class(widget, classes):
+	context = widget.get_style_context()
+
+	if type(classes) not in (tuple, list):
+		classes = classes.split(' ')
+
+	for name in classes:
+		context.remove_class(name)
+
+
 def remove_widget_children(widget):
 	children = widget.get_children()
 

@@ -24,24 +24,28 @@ class ChannelBox(Gtk.FlowBoxChild):
 		self.filter_name = self.get_property('filter_name')
 
 		self.outer_box = self.do_outer_box()
-		self.header = None
-		self.streams = None
+		self.header_box = self.do_header_box()
+		self.streams_box = self.do_streams_box()
 
 		self.set_valign(Gtk.Align.START)
-		self.connect('realize', self.on_realized)
+		self.connect('realize', self.on_channel_updated)
+		self.connect('realize', self.on_realize)
 		self.connect('notify::channel', self.on_channel_updated)
 
 		add_widget_class(self, 'channel-item')
 
 		self.show()
 
-	def on_realized(self, *_args):
-		self.filter_name = getattr(self.channel, 'language')
+	def on_realize(self, *_args):
 		self.update_outer_box()
 
+		self.outer_box.pack_start(self.header_box, True, True, 0)
+		self.outer_box.pack_start(self.streams_box, True, True, 1)
+
 	def on_channel_updated(self, *_args):
-		self.header.set_property('channel', self.channel)
-		self.streams.set_property('channel', self.channel)
+		self.filter_name = getattr(self.channel, 'language')
+		self.update_header_box()
+		self.update_streams_box()
 
 	def do_outer_box(self):
 		box = Gtk.Box()
@@ -50,14 +54,24 @@ class ChannelBox(Gtk.FlowBoxChild):
 		return box
 
 	def update_outer_box(self):
-		self.header = ChannelHeaderBox(channel=self.channel)
-		self.outer_box.pack_start(self.header, True, True, 0)
-
-		self.streams = ChannelStreamsBox(channel=self.channel, callback=self.callback)
-		self.outer_box.pack_start(self.streams, True, True, 1)
-
-		self.outer_box.show()
 		self.add(self.outer_box)
+		self.outer_box.show()
+
+	def do_header_box(self):
+		header = ChannelHeaderBox(channel=self.channel)
+
+		return header
+
+	def update_header_box(self):
+		self.header_box.set_property('channel', self.channel)
+
+	def do_streams_box(self):
+		streams = ChannelStreamsBox(channel=self.channel, callback=self.callback)
+
+		return streams
+
+	def update_streams_box(self):
+		self.streams_box.set_property('channel', self.channel)
 
 
 class ChannelHeaderBox(Gtk.Box):
@@ -81,19 +95,15 @@ class ChannelHeaderBox(Gtk.Box):
 		self.set_margin_right(10)
 		self.set_spacing(10)
 
-		self.connect('realize', self.on_realized)
+		self.connect('realize', self.on_channel_updated)
+		self.connect('realize', self.on_realize)
 		self.connect('notify::channel', self.on_channel_updated)
 
 		self.show()
 
-	def on_realized(self, *_args):
-		self.update_channel_logo()
+	def on_realize(self, *_args):
 		self.pack_start(self.channel_logo, False, False, 0)
-
-		self.update_channel_name()
 		self.pack_start(self.channel_name, True, True, 1)
-
-		self.update_channel_language()
 		self.pack_start(self.channel_language, True, True, 2)
 
 	def on_channel_updated(self, *_args):
@@ -157,16 +167,12 @@ class ChannelStreamsBox(Gtk.Box):
 		self.set_orientation(Gtk.Orientation.HORIZONTAL)
 		self.set_homogeneous(True)
 
-		self.connect('realize', self.on_realized)
+		self.connect('realize', self.on_channel_updated)
 		self.connect('notify::channel', self.on_channel_updated)
 
 		add_widget_class(self, 'channel-streams')
 
 		self.show()
-
-	def on_realized(self, *_args):
-		self.streams = getattr(self.channel, 'streams')
-		self.do_channel_streams()
 
 	def on_channel_updated(self, *_args):
 		self.streams = getattr(self.channel, 'streams')

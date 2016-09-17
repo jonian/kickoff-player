@@ -4,7 +4,8 @@ gi.require_version('Gtk', '3.0')
 
 from gi.repository import Gtk, GObject, Pango
 from widgets.streambox import StreamBox
-from helpers.gtk import add_widget_class, image_from_path, remove_widget_children
+from helpers.gtk import add_widget_class, remove_widget_class
+from helpers.gtk import image_from_path, remove_widget_children
 
 
 class MatchBox(Gtk.FlowBoxChild):
@@ -23,24 +24,28 @@ class MatchBox(Gtk.FlowBoxChild):
 		self.filter_name = self.get_property('filter-name')
 
 		self.outer_box = self.do_outer_box()
-		self.teams_box = None
-		self.details_box = None
+		self.teams_box = self.do_teams_box()
+		self.details_box = self.do_details_box()
 
 		self.set_valign(Gtk.Align.START)
-		self.connect('realize', self.on_realized)
+		self.connect('realize', self.on_fixture_updated)
+		self.connect('realize', self.on_realize)
 		self.connect('notify::fixture', self.on_fixture_updated)
 
 		add_widget_class(self, 'event-item')
 
 		self.show()
 
-	def on_realized(self, *_args):
-		self.filter_name = getattr(self.fixture, 'competition').name
+	def on_realize(self, *_args):
 		self.update_outer_box()
 
+		self.outer_box.pack_start(self.teams_box, True, True, 0)
+		self.outer_box.pack_start(self.details_box, True, True, 1)
+
 	def on_fixture_updated(self, *_args):
-		self.teams_box.set_property('fixture', self.fixture)
-		self.details_box.set_property('fixture', self.fixture)
+		self.filter_name = getattr(self.fixture, 'competition').name
+		self.update_teams_box()
+		self.update_details_box()
 
 	def do_outer_box(self):
 		box = Gtk.Box()
@@ -49,14 +54,24 @@ class MatchBox(Gtk.FlowBoxChild):
 		return box
 
 	def update_outer_box(self):
-		self.teams_box = MatchTeamsBox(fixture=self.fixture)
-		self.outer_box.pack_start(self.teams_box, True, True, 0)
-
-		self.details_box = MatchDetailsBox(fixture=self.fixture, callback=self.callback)
-		self.outer_box.pack_start(self.details_box, True, True, 1)
-
 		self.outer_box.show()
 		self.add(self.outer_box)
+
+	def do_teams_box(self):
+		box = MatchTeamsBox(fixture=self.fixture)
+
+		return box
+
+	def update_teams_box(self):
+		self.teams_box.set_property('fixture', self.fixture)
+
+	def do_details_box(self):
+		box = MatchDetailsBox(fixture=self.fixture, callback=self.callback)
+
+		return box
+
+	def update_details_box(self):
+		self.details_box.set_property('fixture', self.fixture)
 
 
 class MatchTeamsBox(Gtk.Box):
@@ -84,24 +99,22 @@ class MatchTeamsBox(Gtk.Box):
 		self.set_orientation(Gtk.Orientation.HORIZONTAL)
 		self.set_homogeneous(True)
 
-		self.connect('realize', self.on_realized)
+		self.connect('realize', self.on_fixture_updated)
+		self.connect('realize', self.on_realize)
 		self.connect('notify::fixture', self.on_fixture_updated)
 
 		self.show()
 
-	def on_realized(self, *_args):
-		self.update_team_crest('home')
-		self.update_team_name('home')
+	def on_realize(self, *_args):
 		self.pack_start(self.home_box, True, True, 0)
-
-		self.update_score_label()
 		self.pack_start(self.score_box, True, True, 1)
-
-		self.update_team_crest('away')
-		self.update_team_name('away')
 		self.pack_start(self.away_box, True, True, 2)
 
 	def on_fixture_updated(self, *_args):
+		self.update_team_crest('home')
+		self.update_team_name('home')
+		self.update_team_crest('away')
+		self.update_team_name('away')
 		self.update_score_label()
 
 	def do_column_box(self):
@@ -178,12 +191,18 @@ class MatchTeamsBox(Gtk.Box):
 	def update_score_label(self):
 		if getattr(self.fixture, 'past'):
 			add_widget_class(self.score, 'event-score')
+		else:
+			remove_widget_class(self.score, 'event-score')
 
 		if getattr(self.fixture, 'today'):
 			add_widget_class(self.score, 'event-today')
+		else:
+			remove_widget_class(self.score, 'event-today')
 
 		if getattr(self.fixture, 'live'):
 			add_widget_class(self.score, 'event-live')
+		else:
+			remove_widget_class(self.score, 'event-live')
 
 		score = getattr(self.fixture, 'score')
 		self.score.set_label(score)
@@ -209,23 +228,21 @@ class MatchDetailsBox(Gtk.Box):
 		self.more_button = self.do_more_button()
 
 		self.set_orientation(Gtk.Orientation.HORIZONTAL)
-		self.connect('realize', self.on_realized)
+		self.connect('realize', self.on_fixture_updated)
+		self.connect('realize', self.on_realize)
 		self.connect('notify::fixture', self.on_fixture_updated)
 
 		add_widget_class(self, 'event-item-streams')
 
 		self.show()
 
-	def on_realized(self, *_args):
-		self.on_fixture_updated()
-
+	def on_realize(self, *_args):
 		self.pack_start(self.count_label, False, False, 0)
 		self.pack_start(self.available_label, False, False, 1)
 		self.pack_end(self.more_button, False, False, 2)
 
 	def on_fixture_updated(self, *_args):
 		self.event_count = getattr(self.fixture, 'events').count()
-
 		self.update_count_label()
 		self.update_more_button()
 
@@ -250,6 +267,8 @@ class MatchDetailsBox(Gtk.Box):
 
 		if self.event_count == 0:
 			add_widget_class(self.count_label, 'no-streams')
+		else:
+			remove_widget_class(self.count_label, 'no-streams')
 
 		self.count_label.show()
 
@@ -287,18 +306,12 @@ class MatchStreamBox(Gtk.ListBoxRow):
 		self.stream = self.get_property('stream')
 		self.callback = self.get_property('callback')
 
-		self.connect('realize', self.on_realized)
+		self.connect('realize', self.on_fixture_updated)
 		self.connect('notify::stream', self.on_fixture_updated)
 
 		add_widget_class(self, 'stream-item')
 
 		self.show()
-
-	def on_realized(self, *_args):
-		if self.stream is None:
-			self.do_nostreams_label()
-		else:
-			self.do_stream_box()
 
 	def on_fixture_updated(self, *_args):
 		if self.stream is None:
