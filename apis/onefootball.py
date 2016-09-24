@@ -124,7 +124,7 @@ class OnefootballApi:
 		return combined
 
 	def get_matches(self):
-		comp_ids = [5, 7, 1, 2, 4, 9, 27, 17, 13, 30, 19, 10, 28, 18, 23, 29, 33, 56, 126]
+		comp_ids = [5, 7, 1, 2, 4, 9, 27, 17, 41, 13, 30, 19, 10, 28, 18, 23, 29, 33, 56, 126]
 		combined = []
 
 		for item in batch(comp_ids, 5):

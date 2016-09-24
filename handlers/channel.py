@@ -26,8 +26,12 @@ class ChannelHandler(object):
 		self.channels_filters = self.channels.get_object('list_box_channels_filters')
 		self.channels_list = self.channels.get_object('flow_box_channels_list')
 
-		GObject.idle_add(self.do_channels_filters)
-		GObject.idle_add(self.do_channels_list)
+	def do_channels_widgets(self):
+		if len(self.channels_filters.get_children()) == 0:
+			GObject.timeout_add(200, self.do_channels_filters)
+
+		if len(self.channels_list.get_children()) == 0:
+			GObject.timeout_add(200, self.do_channels_list)
 
 	def update_channels_data(self):
 		thread = threading.Thread(target=self.do_update_channels_data)
@@ -74,6 +78,10 @@ class ChannelHandler(object):
 				item.set_property('channel', updated)
 			else:
 				item.destroy()
+
+	def on_stack_main_visible_child_notify(self, _widget, _params):
+		if self.app.get_stack_visible_child() == self.stack:
+			self.do_channels_widgets()
 
 	def on_header_button_reload_clicked(self, _event):
 		if self.app.get_stack_visible_child() == self.stack:

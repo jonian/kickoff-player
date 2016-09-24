@@ -275,7 +275,7 @@ class MatchDetailsBox(Gtk.Box):
 	def do_more_button(self):
 		kwargs = { 'icon_name': 'media-playback-start-symbolic', 'size': Gtk.IconSize.BUTTON }
 		button = Gtk.Button.new_from_icon_name(**kwargs)
-		button.connect('clicked', self.on_more_button_clicked, self.fixture)
+		button.connect('clicked', self.on_more_button_clicked)
 
 		add_widget_class(button, 'event-item-details')
 
@@ -289,8 +289,8 @@ class MatchDetailsBox(Gtk.Box):
 
 		self.more_button.show()
 
-	def on_more_button_clicked(self, _widget, fixture):
-		self.callback(fixture)
+	def on_more_button_clicked(self, _widget):
+		self.callback(self.fixture)
 
 
 class MatchStreamBox(Gtk.ListBoxRow):

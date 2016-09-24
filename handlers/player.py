@@ -79,7 +79,7 @@ class PlayerHandler(object):
 		self.cstream = stream
 		self.stream.open(stream.url)
 
-		self.toggle_toolbar(False)
+		self.toolbar.show()
 		self.app.set_stack_visible_child(self.stack)
 
 	def reload_stream(self):

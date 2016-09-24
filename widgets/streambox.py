@@ -119,7 +119,7 @@ class StreamBox(Gtk.Box):
 		kwargs = { 'icon_name': 'media-playback-start-symbolic', 'size': Gtk.IconSize.BUTTON }
 		button = Gtk.Button.new_from_icon_name(**kwargs)
 		button.set_halign(Gtk.Align.END)
-		button.connect('clicked', self.on_play_button_clicked, self.stream)
+		button.connect('clicked', self.on_play_button_clicked)
 
 		add_widget_class(button, 'stream-play')
 
@@ -128,5 +128,5 @@ class StreamBox(Gtk.Box):
 	def update_play_button(self):
 		self.play_button.show()
 
-	def on_play_button_clicked(self, _widget, stream):
-		self.callback(stream)
+	def on_play_button_clicked(self, _widget):
+		self.callback(self.stream)

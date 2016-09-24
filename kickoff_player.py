@@ -45,11 +45,16 @@ class KickoffPlayer:
 		self.player_stack = self.main.get_object('stack_player')
 		self.player = PlayerHandler(self)
 
+		self.matches_loader = self.main.get_object('spinner_matches')
 		self.matches_stack = self.main.get_object('stack_matches')
 		self.matches = MatchHandler(self)
 
+		self.channels_loader = self.main.get_object('spinner_channels')
 		self.channels_stack = self.main.get_object('stack_channels')
 		self.channels = ChannelHandler(self)
+
+		self.set_stack_visible_child(self.channels_stack)
+		self.set_stack_visible_child(self.matches_stack)
 
 	def run(self):
 		Gtk.main()
@@ -95,6 +100,7 @@ class KickoffPlayer:
 
 	def on_stack_main_visible_child_notify(self, widget, params):
 		self.matches.on_stack_main_visible_child_notify(widget, params)
+		self.channels.on_stack_main_visible_child_notify(widget, params)
 
 
 if __name__ == '__main__':

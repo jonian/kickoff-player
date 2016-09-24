@@ -37,10 +37,14 @@ class MatchHandler(object):
 		self.match_teams = self.match.get_object('box_match_teams')
 		self.match_streams = self.match.get_object('list_box_match_streams')
 
-		GObject.idle_add(self.do_matches_filters)
-		GObject.idle_add(self.do_matches_list)
-
 		GObject.timeout_add(10000, self.update_live_data)
+
+	def do_matches_widgets(self):
+		if len(self.matches_filters.get_children()) == 0:
+			GObject.timeout_add(200, self.do_matches_filters)
+
+		if len(self.matches_list.get_children()) == 0:
+			GObject.timeout_add(200, self.do_matches_list)
 
 	def update_matches_data(self):
 		thread = threading.Thread(target=self.do_update_matches_data)
@@ -161,6 +165,9 @@ class MatchHandler(object):
 			self.app.header_back.show()
 		else:
 			self.app.header_back.hide()
+
+		if outer == self.stack:
+			self.do_matches_widgets()
 
 	def on_match_activated(self, fixture):
 		self.stack.set_visible_child(self.match_box)
