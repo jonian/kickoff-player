@@ -11,98 +11,98 @@ db_conn = SqliteExtDatabase(db_path)
 
 class CacheHandler(object):
 
-	def __init__(self):
-		self.path = db_path
-		self.create_db()
+  def __init__(self):
+    self.path = db_path
+    self.create_db()
 
-		self.db = db_conn
-		self.register_models()
+    self.db = db_conn
+    self.register_models()
 
-	def create_db(self):
-		if not os.path.exists(self.path):
-			open(self.path, 'w+')
+  def create_db(self):
+    if not os.path.exists(self.path):
+      open(self.path, 'w+')
 
-	def register_models(self):
-		self.db.connect()
-		self.db.create_tables([Cacheable], safe=True)
+  def register_models(self):
+    self.db.connect()
+    self.db.create_tables([Cacheable], safe=True)
 
-	def get(self, key):
-		try:
-			item = Cacheable.get(key=key)
-		except Cacheable.DoesNotExist:
-			item = None
+  def get(self, key):
+    try:
+      item = Cacheable.get(key=key)
+    except Cacheable.DoesNotExist:
+      item = None
 
-		return item
+    return item
 
-	def create(self, key, value, ttl=0):
-		value = value.strip()
-		item = Cacheable.create(key=key, value=value, ttl=ttl)
+  def create(self, key, value, ttl=0):
+    value = value.strip()
+    item = Cacheable.create(key=key, value=value, ttl=ttl)
 
-		return item
+    return item
 
-	def update(self, item, value, ttl=0):
-		kwargs = {
-			'value': value.strip(),
-			'ttl': ttl,
-			'updated': now()
-		}
+  def update(self, item, value, ttl=0):
+    kwargs = {
+      'value': value.strip(),
+      'ttl': ttl,
+      'updated': now()
+    }
 
-		query = Cacheable.update(**kwargs).where(Cacheable.key == item.key)
-		query.execute()
+    query = Cacheable.update(**kwargs).where(Cacheable.key == item.key)
+    query.execute()
 
-		return item
+    return item
 
-	def load(self, key):
-		item = self.get(key)
+  def load(self, key):
+    item = self.get(key)
 
-		if self.is_valid(item):
-			return item
+    if self.is_valid(item):
+      return item
 
-		return None
+    return None
 
-	def save(self, key, value, ttl=0):
-		item = self.get(key)
+  def save(self, key, value, ttl=0):
+    item = self.get(key)
 
-		if item is None:
-			item = self.create(key, value, ttl)
-		else:
-			item = self.update(item, value, ttl)
+    if item is None:
+      item = self.create(key, value, ttl)
+    else:
+      item = self.update(item, value, ttl)
 
-		return item
+    return item
 
-	def is_valid(self, item):
-		try:
-			diff = (now() - item.updated).total_seconds()
+  def is_valid(self, item):
+    try:
+      diff = (now() - item.updated).total_seconds()
 
-			if abs(diff) < abs(item.ttl):
-				return True
-		except AttributeError:
-			pass
+      if abs(diff) < abs(item.ttl):
+        return True
+    except AttributeError:
+      pass
 
-		return False
+    return False
 
 
 class Cacheable(Model):
-	key = CharField(unique=True)
-	value = CharField()
-	ttl = IntegerField(default=0)
-	created = DateTimeField(default=now())
-	updated = DateTimeField(default=now())
+  key = CharField(unique=True)
+  value = CharField()
+  ttl = IntegerField(default=0)
+  created = DateTimeField(default=now())
+  updated = DateTimeField(default=now())
 
-	class Meta:
-		database = db_conn
+  class Meta:
+    database = db_conn
 
-	@property
+  @property
 
-	def text(self):
-		data = '' if self.value is None else str(self.value)
+  def text(self):
+    data = '' if self.value is None else str(self.value)
 
-		return data
+    return data
 
-	@property
+  @property
 
-	def json(self):
-		data = '[]' if self.value is None else str(self.value)
-		data = json.loads(data)
+  def json(self):
+    data = '[]' if self.value is None else str(self.value)
+    data = json.loads(data)
 
-		return data
+    return data

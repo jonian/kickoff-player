@@ -24,99 +24,99 @@ GObject.threads_init()
 
 class KickoffPlayer(object):
 
-	def __init__(self):
-		GLib.set_prgname('kickoff-player')
-		GLib.set_application_name('Kickoff Player')
+  def __init__(self):
+    GLib.set_prgname('kickoff-player')
+    GLib.set_application_name('Kickoff Player')
 
-		self.path = os.path.expanduser('~') + '/.kickoff-player'
-		self.create_settings_path()
+    self.path = os.path.expanduser('~') + '/.kickoff-player'
+    self.create_settings_path()
 
-		self.data = DataHandler()
-		self.cache = CacheHandler()
+    self.data = DataHandler()
+    self.cache = CacheHandler()
 
-		self.scores_api = OnefootballApi(self.data, self.cache)
-		self.streams_api = LivefootballApi(self.data, self.cache)
+    self.scores_api = OnefootballApi(self.data, self.cache)
+    self.streams_api = LivefootballApi(self.data, self.cache)
 
-		self.add_extra_styles('ui/styles.css')
+    self.add_extra_styles('ui/styles.css')
 
-		self.main = Gtk.Builder()
-		self.main.add_from_file('ui/main.ui')
-		self.main.connect_signals(self)
+    self.main = Gtk.Builder()
+    self.main.add_from_file('ui/main.ui')
+    self.main.connect_signals(self)
 
-		self.header_back = self.main.get_object('header_button_back')
-		self.header_reload = self.main.get_object('header_button_reload')
-		self.main_stack = self.main.get_object('stack_main')
+    self.header_back = self.main.get_object('header_button_back')
+    self.header_reload = self.main.get_object('header_button_reload')
+    self.main_stack = self.main.get_object('stack_main')
 
-		self.window = self.main.get_object('window_main')
-		self.window.show_all()
+    self.window = self.main.get_object('window_main')
+    self.window.show_all()
 
-		self.player_stack = self.main.get_object('stack_player')
-		self.player = PlayerHandler(self)
+    self.player_stack = self.main.get_object('stack_player')
+    self.player = PlayerHandler(self)
 
-		self.matches_loader = self.main.get_object('spinner_matches')
-		self.matches_stack = self.main.get_object('stack_matches')
-		self.matches = MatchHandler(self)
+    self.matches_loader = self.main.get_object('spinner_matches')
+    self.matches_stack = self.main.get_object('stack_matches')
+    self.matches = MatchHandler(self)
 
-		self.channels_loader = self.main.get_object('spinner_channels')
-		self.channels_stack = self.main.get_object('stack_channels')
-		self.channels = ChannelHandler(self)
+    self.channels_loader = self.main.get_object('spinner_channels')
+    self.channels_stack = self.main.get_object('stack_channels')
+    self.channels = ChannelHandler(self)
 
-		self.set_stack_visible_child(self.channels_stack)
-		self.set_stack_visible_child(self.matches_stack)
+    self.set_stack_visible_child(self.channels_stack)
+    self.set_stack_visible_child(self.matches_stack)
 
-	def run(self):
-		Gtk.main()
+  def run(self):
+    Gtk.main()
 
-	def quit(self):
-		self.player.close()
-		Gtk.main_quit()
+  def quit(self):
+    self.player.close()
+    Gtk.main_quit()
 
-	def create_settings_path(self):
-		if not os.path.exists(self.path):
-			os.makedirs(self.path)
+  def create_settings_path(self):
+    if not os.path.exists(self.path):
+      os.makedirs(self.path)
 
-	def add_extra_styles(self, path):
-		path_style_provider = Gtk.CssProvider()
-		path_style_provider.load_from_path(path)
+  def add_extra_styles(self, path):
+    path_style_provider = Gtk.CssProvider()
+    path_style_provider.load_from_path(path)
 
-		Gtk.StyleContext.add_provider_for_screen(
-			Gdk.Screen.get_default(),
-			path_style_provider,
-			Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-		)
+    Gtk.StyleContext.add_provider_for_screen(
+      Gdk.Screen.get_default(),
+      path_style_provider,
+      Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+    )
 
-	def toggle_reload(self, show):
-		self.header_reload.set_sensitive(show)
+  def toggle_reload(self, show):
+    self.header_reload.set_sensitive(show)
 
-	def get_stack_visible_child(self):
-		child = self.main_stack.get_visible_child()
+  def get_stack_visible_child(self):
+    child = self.main_stack.get_visible_child()
 
-		return child
+    return child
 
-	def set_stack_visible_child(self, widget):
-		self.main_stack.set_visible_child(widget)
+  def set_stack_visible_child(self, widget):
+    self.main_stack.set_visible_child(widget)
 
-	def on_window_main_destroy(self, _event):
-		self.quit()
+  def on_window_main_destroy(self, _event):
+    self.quit()
 
-	def on_window_main_key_release_event(self, widget, event):
-		self.player.on_window_main_key_release_event(widget, event)
+  def on_window_main_key_release_event(self, widget, event):
+    self.player.on_window_main_key_release_event(widget, event)
 
-	def on_header_button_back_clicked(self, widget):
-		self.matches.on_header_button_back_clicked(widget)
+  def on_header_button_back_clicked(self, widget):
+    self.matches.on_header_button_back_clicked(widget)
 
-	def on_header_button_reload_clicked(self, widget):
-		self.player.on_header_button_reload_clicked(widget)
-		self.matches.on_header_button_reload_clicked(widget)
-		self.channels.on_header_button_reload_clicked(widget)
+  def on_header_button_reload_clicked(self, widget):
+    self.player.on_header_button_reload_clicked(widget)
+    self.matches.on_header_button_reload_clicked(widget)
+    self.channels.on_header_button_reload_clicked(widget)
 
-	def on_stack_main_visible_child_notify(self, widget, params):
-		self.matches.on_stack_main_visible_child_notify(widget, params)
-		self.channels.on_stack_main_visible_child_notify(widget, params)
+  def on_stack_main_visible_child_notify(self, widget, params):
+    self.matches.on_stack_main_visible_child_notify(widget, params)
+    self.channels.on_stack_main_visible_child_notify(widget, params)
 
 
 if __name__ == '__main__':
-	signal.signal(signal.SIGINT, signal.SIG_DFL)
+  signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-	player = KickoffPlayer()
-	player.run()
+  player = KickoffPlayer()
+  player.run()

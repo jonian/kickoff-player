@@ -1,144 +1,144 @@
 /* General */
 
 .category-sidebar {
-	border-top-style: none;
-	border-bottom-style: none;
-	border-left-style: none;
+  border-top-style: none;
+  border-bottom-style: none;
+  border-left-style: none;
 }
 
 .player-video {
-	background: #000;
+  background: #000;
 }
 
 
 /* Events */
 
 .event-item {
-	background: @theme_base_color;
-	border: 1px solid @borders;
-	min-width: 450px;
-	padding: 0;
-	margin: 0;
+  background: @theme_base_color;
+  border: 1px solid @borders;
+  min-width: 450px;
+  padding: 0;
+  margin: 0;
 }
 
 .event-score, .event-today {
-	font-weight: bold;
-	padding: 5px 10px;
-	background: @theme_bg_color;
-	border-radius: 2px;
-	border: 1px solid @borders;
+  font-weight: bold;
+  padding: 5px 10px;
+  background: @theme_bg_color;
+  border-radius: 2px;
+  border: 1px solid @borders;
 }
 
 .event-live {
-	color: @theme_selected_fg_color;
-	background: @theme_selected_bg_color;
-	border: 1px solid @theme_selected_bg_color;
+  color: @theme_selected_fg_color;
+  background: @theme_selected_bg_color;
+  border: 1px solid @theme_selected_bg_color;
 }
 
 .event-item .team-emblem {
-	min-width: 48px;
-	min-height: 48px;
+  min-width: 48px;
+  min-height: 48px;
 }
 
 .event-item .team-name {
-	font-size: 85%;
+  font-size: 85%;
 }
 
 .event-item-streams {
-	margin: 0;
-	padding: 8px 10px 7px 12px;
-	border-top: 1px solid @borders;
-	background: rgba(0, 0, 0, 0.03);
+  margin: 0;
+  padding: 8px 10px 7px 12px;
+  border-top: 1px solid @borders;
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .event-item-streams label {
-	font-size: 80%;
-	opacity: 0.8;
+  font-size: 80%;
+  opacity: 0.8;
 }
 
 .event-item-counter {
-	background: rgba(0, 0, 0, 0.12);
-	padding: 5px;
-	border-radius: 4px;
-	min-width: 25px;
-	font-weight: 600;
+  background: rgba(0, 0, 0, 0.12);
+  padding: 5px;
+  border-radius: 4px;
+  min-width: 25px;
+  font-weight: 600;
 }
 
 .event-item-counter.no-streams {
-	background: rgba(0, 0, 0, 0.03);
+  background: rgba(0, 0, 0, 0.03);
 }
 
 
 /* Channels */
 
 .channel-item {
-	margin: 0;
-	padding: 0;
-	min-width: 300px;
-	background: @theme_base_color;
-	border: 1px solid @borders;
+  margin: 0;
+  padding: 0;
+  min-width: 300px;
+  background: @theme_base_color;
+  border: 1px solid @borders;
 }
 
 .channel-language {
-	font-size: 80%;
-	padding: 2px 4px;
-	border-radius: 2px;
-	min-width: 25px;
-	border: 1px solid @borders;
+  font-size: 80%;
+  padding: 2px 4px;
+  border-radius: 2px;
+  min-width: 25px;
+  border: 1px solid @borders;
 }
 
 .channel-streams {
-	margin: 0;
-	padding: 0;
-	border-top: 1px solid @borders;
-	background: rgba(0, 0, 0, 0.03);
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid @borders;
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .channel-stream-item {
-	padding: 8px 10px 7px 12px;
+  padding: 8px 10px 7px 12px;
 }
 
 .channel-stream-item + .channel-stream-item {
-	border-left: 1px solid @borders;
+  border-left: 1px solid @borders;
 }
 
 
 /* Streams */
 
 .event-streams {
-	border-left: 1px solid @borders;
-	border-right: 1px solid @borders;
-	border-bottom: 1px solid @borders;
+  border-left: 1px solid @borders;
+  border-right: 1px solid @borders;
+  border-bottom: 1px solid @borders;
 }
 
 .stream-item {
-	padding: 10px 12px 8px 15px;
-	border-top: 1px solid @borders;
+  padding: 10px 12px 8px 15px;
+  border-top: 1px solid @borders;
 }
 
 .stream-language {
-	font-size: 80%;
-	padding: 2px 4px;
-	border-radius: 2px;
-	min-width: 25px;
-	border: 1px solid @borders;
+  font-size: 80%;
+  padding: 2px 4px;
+  border-radius: 2px;
+  min-width: 25px;
+  border: 1px solid @borders;
 }
 
 .stream-rate {
-	font-size: 80%;
-	opacity: 0.8;
+  font-size: 80%;
+  opacity: 0.8;
 }
 
 .stream-unknown {
-	opacity: 0.5;
+  opacity: 0.5;
 }
 
 .streams-title {
-	font-size: 130%;
-	font-weight: 600;
+  font-size: 130%;
+  font-weight: 600;
 }
 
 .event-teams {
-	padding-top: 15px;
-	padding-bottom: 15px;
+  padding-top: 15px;
+  padding-bottom: 15px;
 }
