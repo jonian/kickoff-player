@@ -3,6 +3,7 @@ import socket
 import requests
 import dateutil.parser
 
+from multiprocessing.pool import ThreadPool
 from datetime import datetime, timedelta, timezone
 
 
@@ -73,11 +74,30 @@ def query_date_range(kwargs):
 	return dates
 
 
-def batch(iterable, n=1):
-	l = len(iterable)
+def batch(iterable, size=1, delimiter=None):
+	length = len(iterable)
+	result = []
 
-	for ndx in range(0, l, n):
-		yield iterable[ndx:min(ndx + n, l)]
+	for ndx in range(0, length, size):
+		subset = iterable[ndx:min(ndx + size, length)]
+		subset = subset if delimiter is None else delimiter.join(subset)
+
+		result.append(subset)
+
+	return result
+
+
+def thread_pool(callback, args, flatten=True):
+	pool = ThreadPool(processes=int(len(args)))
+	data = pool.map(callback, args)
+
+	pool.close()
+	pool.join()
+
+	if flatten:
+		data = [item for sublist in data for item in sublist]
+
+	return data
 
 
 def search_dict_key(iterable, keys, default=None):

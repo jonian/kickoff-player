@@ -1,12 +1,14 @@
 #! /usr/bin/python3
 
+import os
 import gi
 import signal
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
+gi.require_version('GLib', '2.0')
 
-from gi.repository import Gtk, Gdk, GObject
+from gi.repository import Gtk, Gdk, GLib, GObject
 
 from handlers.data import DataHandler
 from handlers.cache import CacheHandler
@@ -20,9 +22,15 @@ from apis.livefootball import LivefootballApi
 GObject.threads_init()
 
 
-class KickoffPlayer:
+class KickoffPlayer(object):
 
 	def __init__(self):
+		GLib.set_prgname('kickoff-player')
+		GLib.set_application_name('Kickoff Player')
+
+		self.path = os.path.expanduser('~') + '/.kickoff-player'
+		self.create_settings_path()
+
 		self.data = DataHandler()
 		self.cache = CacheHandler()
 
@@ -62,6 +70,10 @@ class KickoffPlayer:
 	def quit(self):
 		self.player.close()
 		Gtk.main_quit()
+
+	def create_settings_path(self):
+		if not os.path.exists(self.path):
+			os.makedirs(self.path)
 
 	def add_extra_styles(self, path):
 		path_style_provider = Gtk.CssProvider()

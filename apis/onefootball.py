@@ -1,7 +1,7 @@
 import os
 
 from helpers.utils import format_date, gmtime, tzone, today
-from helpers.utils import cached_request, download_file, batch, search_dict_key
+from helpers.utils import cached_request, download_file, batch, search_dict_key, thread_pool
 
 
 class OnefootballApi:
@@ -124,13 +124,10 @@ class OnefootballApi:
 		return combined
 
 	def get_matches(self):
-		comp_ids = [5, 7, 1, 2, 4, 9, 27, 17, 41, 13, 30, 19, 10, 28, 18, 23, 29, 33, 56, 126]
-		combined = []
-
-		for item in batch(comp_ids, 5):
-			comp_ids = ','.join(map(str, item))
-			response = self.get_matchdays(comp_ids)
-			combined = combined + response
+		settings = self.data.get_setting({ 'key': 'competitions' })
+		comp_ids = settings.value.split(',')
+		comp_ids = batch(comp_ids, 5, ',')
+		combined = thread_pool(self.get_matchdays, comp_ids)
 
 		return combined
 
