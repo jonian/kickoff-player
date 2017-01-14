@@ -9,7 +9,7 @@ db_path = os.path.expanduser('~') + '/.kickoff-player/cache.db'
 db_conn = SqliteExtDatabase(db_path)
 
 
-class CacheHandler:
+class CacheHandler(object):
 
 	def __init__(self):
 		self.path = db_path

@@ -8,7 +8,7 @@ import threading
 from subprocess import PIPE
 
 
-class StreamHandler:
+class StreamHandler(object):
 
 	def __init__(self, player):
 		self.player = player

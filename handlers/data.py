@@ -8,7 +8,7 @@ db_path = os.path.expanduser('~') + '/.kickoff-player/data.db'
 db_conn = SqliteExtDatabase(db_path)
 
 
-class DataHandler:
+class DataHandler(object):
 
 	def __init__(self):
 		self.path = db_path
@@ -28,7 +28,7 @@ class DataHandler:
 			open(self.path, 'w+')
 
 	def register_models(self):
-		tables = [Competition, Team, Fixture, Channel, Stream, Event]
+		tables = [Setting,Competition, Team, Fixture, Channel, Stream, Event]
 
 		self.db.connect()
 		self.db.create_tables(tables, safe=True)
@@ -55,6 +55,30 @@ class DataHandler:
 		with self.db.atomic():
 			for item in items:
 				self.set_single(model, item, main_key, update)
+
+	def load_settings(self):
+		items = Setting.select()
+
+		return items
+
+	def get_setting(self, kwargs):
+		try:
+			item = Setting.get(**kwargs)
+		except Setting.DoesNotExist:
+			item = None
+
+		return item
+
+	def create_setting(self, kwargs):
+		item = Setting.create(**kwargs)
+
+		return item
+
+	def update_setting(self, item, kwargs):
+		query = Setting.update(**kwargs).where(Setting.key == item.key)
+		query.execute()
+
+		return item
 
 	def load_competitions(self, current=False, name_only=False):
 		items = Competition.select()
@@ -221,6 +245,11 @@ class BasicModel(Model):
 
 	def reload(self):
 		return self.get(id=self.id)
+
+
+class Setting(BasicModel):
+	key = CharField(unique=True)
+	value = CharField()
 
 
 class Competition(BasicModel):
