@@ -1,11 +1,11 @@
 import gi
-import vlc
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 
 from gi.repository import Gtk, Gdk, GObject
 from handlers.stream import StreamHandler
+from widgets.gstbox import GstBox
 
 
 class PlayerHandler(object):
@@ -31,8 +31,9 @@ class PlayerHandler(object):
     self.overlay = self.player.get_object('overlay_player')
     self.stack.add_named(self.overlay, 'player_video')
 
-    self.widget = self.player.get_object('drawing_area_player')
-    self.widget.connect('realize', self.on_widget_realized)
+    self.playbin = GstBox()
+    self.overlay.add(self.playbin)
+    self.playbin.connect('motion-notify-event', self.on_gstbox_player_motion_notify_event)
 
     self.status = self.player.get_object('label_player_status')
     self.status.set_text('Not playing')
@@ -42,38 +43,22 @@ class PlayerHandler(object):
     self.full_button = self.player.get_object('button_fullscreen')
     self.restore_button = self.player.get_object('button_unfullscreen')
 
-    self.instance = vlc.Instance()
-    self.playbin = self.instance.media_player_new()
-
-    self.playbin.video_set_scale(0)
-    self.playbin.video_set_aspect_ratio('16:9')
-    self.playbin.video_set_deinterlace('on')
-
     GObject.timeout_add(3000, self.toggle_toolbar, True)
 
   @property
 
   def visible(self):
-    if self.stack.get_visible_child() == self.overlay:
-      return True
-
-    return False
+    return self.stack.get_visible_child() == self.overlay
 
   @property
 
   def state(self):
-    state = self.playbin.get_state()
-    state = str(state).replace('State.', '').lower().strip()
-
-    return state
+    return self.playbin.get_state()
 
   @property
 
   def actionable(self):
-    if self.url is None:
-      return False
-
-    return True
+    return self.url is not None
 
   def open_stream(self, stream):
     self.cstream = stream
@@ -96,8 +81,8 @@ class PlayerHandler(object):
     self.stream.close()
 
   def open(self, url):
-    self.url = self.instance.media_new_location(url)
-    self.playbin.set_media(self.url)
+    self.url = url
+    self.playbin.open(self.url)
     self.play()
 
   def close(self):
@@ -105,27 +90,27 @@ class PlayerHandler(object):
 
   def play(self):
     self.playbin.play()
+    self.update_status('PLAYING')
 
   def pause(self):
     self.playbin.pause()
+    self.update_status('PAUSED')
 
   def stop(self):
     self.playbin.stop()
+    self.update_status('READY')
 
   def set_volume(self, volume):
-    if self.actionable:
-      self.playbin.audio_set_volume(volume)
+    self.playbin.set_volume(volume)
 
-  def update_status(self, text=None):
-    if not self.loading and text is None:
-      labels = {
-        'playing': 'Playing',
-        'paused': 'Paused',
-        'stopped': 'Stopped'
-      }
+  def update_status(self, text):
+    labels = {
+      'PLAYING': 'Playing',
+      'PAUSED': 'Paused',
+      'READY': 'Stopped'
+    }
 
-      text = labels.get(self.state, 'Not playing')
-
+    text = labels.get(text, 'Not playing')
     self.status.set_text(text)
 
     return False
@@ -159,35 +144,25 @@ class PlayerHandler(object):
 
     return timer
 
-  def on_widget_realized(self, widget):
-    self.xid = widget.get_property('window').get_xid()
-    self.playbin.set_xwindow(self.xid)
-
   def on_stream_activated(self, _widget, stream):
     self.open_stream(stream)
 
   def on_button_play_clicked(self, _event):
     if not self.loading:
-      volume = self.volume_button.get_value()
-      volume = int(round(volume * 100))
-
       self.play()
-      self.set_volume(volume)
-      GObject.idle_add(self.update_status)
+      self.set_volume(self.volume_button.get_value())
 
   def on_button_pause_clicked(self, _event):
     if not self.loading:
       self.pause()
-      GObject.idle_add(self.update_status)
 
   def on_button_stop_clicked(self, _event):
     if not self.loading:
       self.stop()
-      GObject.idle_add(self.update_status)
 
   def on_button_volume_value_changed(self, _event, value):
-    volume = int(round(value * 100))
-    self.set_volume(volume)
+    if not self.loading and self.actionable:
+      self.set_volume(value)
 
   def on_window_main_key_release_event(self, _widget, event):
     stack = self.app.get_stack_visible_child()
@@ -208,7 +183,7 @@ class PlayerHandler(object):
   def on_button_unfullscreen_clicked(self, _event):
     self.toggle_fullscreen()
 
-  def on_drawing_area_player_motion_notify_event(self, _widget, _event):
+  def on_gstbox_player_motion_notify_event(self, _widget, _event):
     self.toolbar_stick = False
     GObject.idle_add(self.toggle_toolbar, False)
 
