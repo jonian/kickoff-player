@@ -31,7 +31,7 @@ class PlayerHandler(object):
     self.overlay = self.player.get_object('overlay_player')
     self.stack.add_named(self.overlay, 'player_video')
 
-    self.playbin = GstBox()
+    self.playbin = GstBox(callback=self.update_status)
     self.overlay.add(self.playbin)
     self.playbin.connect('motion-notify-event', self.on_gstbox_player_motion_notify_event)
 
@@ -107,7 +107,8 @@ class PlayerHandler(object):
     labels = {
       'PLAYING': 'Playing',
       'PAUSED': 'Paused',
-      'READY': 'Stopped'
+      'READY': 'Stopped',
+      'ERROR': 'Error',
     }
 
     text = labels.get(text, 'Not playing')
