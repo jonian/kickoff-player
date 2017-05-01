@@ -46,6 +46,13 @@ class MatchHandler(object):
     if len(self.matches_list.get_children()) == 0:
       GObject.timeout_add(200, self.do_matches_list)
 
+  def update_matches_widgets(self):
+    if len(self.matches_filters.get_children()) > 0:
+      GObject.timeout_add(200, self.update_matches_filters)
+
+    if len(self.matches_list.get_children()) > 0:
+      GObject.timeout_add(200, self.update_matches_list)
+
   def update_matches_data(self):
     thread = threading.Thread(target=self.do_update_matches_data)
     thread.start()
@@ -56,8 +63,8 @@ class MatchHandler(object):
     self.app.scores_api.save_matches()
     self.app.streams_api.save_events()
 
-    GObject.idle_add(self.update_matches_filters)
-    GObject.idle_add(self.update_matches_list)
+    GObject.idle_add(self.do_matches_widgets)
+    GObject.idle_add(self.update_matches_widgets)
     GObject.idle_add(self.app.toggle_reload, True)
 
   def update_match_data(self):
@@ -87,7 +94,7 @@ class MatchHandler(object):
     GObject.idle_add(self.update_matches_list)
 
   def do_matches_filters(self):
-    filters = ['All Competitions'] + self.app.data.load_competitions(True, True)
+    filters = self.app.data.load_matches_filters()
     remove_widget_children(self.matches_filters)
 
     for filter_name in filters:
@@ -95,7 +102,7 @@ class MatchHandler(object):
       self.matches_filters.add(filterbox)
 
   def update_matches_filters(self):
-    filters = ['All Competitions'] + self.app.data.load_competitions(True, True)
+    filters = self.app.data.load_matches_filters()
 
     for item in self.matches_filters.get_children():
       if item.filter_name not in filters:

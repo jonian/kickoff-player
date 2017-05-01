@@ -33,6 +33,13 @@ class ChannelHandler(object):
     if len(self.channels_list.get_children()) == 0:
       GObject.timeout_add(200, self.do_channels_list)
 
+  def update_channels_widgets(self):
+    if len(self.channels_filters.get_children()) > 0:
+      GObject.timeout_add(200, self.update_channels_filters)
+
+    if len(self.channels_list.get_children()) > 0:
+      GObject.timeout_add(200, self.update_channels_list)
+
   def update_channels_data(self):
     thread = threading.Thread(target=self.do_update_channels_data)
     thread.start()
@@ -42,12 +49,12 @@ class ChannelHandler(object):
 
     self.app.streams_api.save_streams()
 
-    GObject.idle_add(self.update_channels_filters)
-    GObject.idle_add(self.update_channels_list)
+    GObject.idle_add(self.do_channels_widgets)
+    GObject.idle_add(self.update_channels_widgets)
     GObject.idle_add(self.app.toggle_reload, True)
 
   def do_channels_filters(self):
-    filters = ['All Languages'] + self.app.data.load_languages()
+    filters = self.app.data.load_channels_filters()
     remove_widget_children(self.channels_filters)
 
     for filter_name in filters:
@@ -55,7 +62,7 @@ class ChannelHandler(object):
       self.channels_filters.add(filterbox)
 
   def update_channels_filters(self):
-    filters = ['All Languages'] + self.app.data.load_languages()
+    filters = self.app.data.load_channels_filters()
 
     for item in self.channels_filters.get_children():
       if item.filter_name not in filters:

@@ -265,6 +265,18 @@ class DataHandler(object):
 
     return item
 
+  def load_matches_filters(self):
+    filters = self.load_competitions(True, True)
+    filters = ['All Competitions'] + filters if len(filters) else filters
+
+    return filters
+
+  def load_channels_filters(self):
+    filters = self.load_languages()
+    filters = ['All Languages'] + filters if len(filters) else filters
+
+    return filters
+
 
 class BasicModel(Model):
 
