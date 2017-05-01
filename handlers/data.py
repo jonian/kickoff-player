@@ -85,11 +85,12 @@ class DataHandler(object):
 
     return item
 
-  def load_competitions(self, current=False, name_only=False):
+  def load_competitions(self, current=False, name_only=False, ids=None):
     items = Competition.select()
     items = items if not current else items.join(Fixture).where(self.fx_query)
     items = items.distinct().order_by(Competition.section_name, Competition.api_id)
     items = items if not name_only else list(sum(items.select(Competition.name).tuples(), ()))
+    items = items if ids is None else items.where(Competition.api_id << ids)
 
     return items
 
@@ -276,6 +277,16 @@ class DataHandler(object):
     filters = ['All Languages'] + filters if len(filters) else filters
 
     return filters
+
+  def load_active_competitions(self, records=False):
+    default = '1 2 5 9 17 13 19 10 18 23 33'.split(' ')
+    setting = self.get_setting({ 'key': 'competitions' })
+    setting = default if setting is None else setting
+
+    if records:
+      return self.load_competitions(ids=setting)
+    else:
+      return setting
 
 
 class BasicModel(Model):

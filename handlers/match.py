@@ -37,6 +37,8 @@ class MatchHandler(object):
     self.match_teams   = self.match.get_object('box_match_teams')
     self.match_streams = self.match.get_object('list_box_match_streams')
 
+    GObject.idle_add(self.update_competitions_data)
+    GObject.idle_add(self.update_teams_data)
     GObject.timeout_add(10000, self.update_live_data)
 
   def do_matches_widgets(self):
@@ -52,6 +54,18 @@ class MatchHandler(object):
 
     if len(self.matches_list.get_children()) > 0:
       GObject.timeout_add(200, self.update_matches_list)
+
+  def update_competitions_data(self):
+    competitions = self.app.data.load_competitions()
+
+    if len(competitions) == 0:
+      self.app.scores_api.save_competitions()
+
+  def update_teams_data(self):
+    teams = self.app.data.load_teams()
+
+    if len(teams) == 0:
+      self.app.scores_api.save_teams()
 
   def update_matches_data(self):
     thread = threading.Thread(target=self.do_update_matches_data)

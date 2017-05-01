@@ -74,13 +74,10 @@ class OnefootballApi:
     return response
 
   def get_teams(self):
-    comps = self.data.load_competitions()
-    items = []
+    comps = self.data.load_active_competitions(True)
+    itesm = thread_pool(self.get_competition_teams, list(comps))
 
-    for competition in comps:
-      items = items + self.get_competition_teams(competition)
-
-    return items
+    return itesm
 
   def save_teams(self):
     teams = self.get_teams()
@@ -124,13 +121,9 @@ class OnefootballApi:
     return combined
 
   def get_matches(self):
-    settings = self.data.get_setting({ 'key': 'competitions' })
-    combined = []
-
-    if settings is not None:
-      comp_ids = settings.value.split(',')
-      comp_ids = batch(comp_ids, 5, ',')
-      combined = thread_pool(self.get_matchdays, comp_ids)
+    settings = self.data.load_active_competitions()
+    comp_ids = batch(settings, 5, ',')
+    combined = thread_pool(self.get_matchdays, comp_ids)
 
     return combined
 
