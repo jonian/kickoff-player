@@ -1,13 +1,14 @@
 import os
 import json
 
+from playhouse.apsw_ext import APSWDatabase
+from playhouse.apsw_ext import CharField, DateTimeField, IntegerField
+
 from peewee import IntegrityError, Model
-from peewee import CharField, DateTimeField, IntegerField
-from playhouse.sqliteq import SqliteQueueDatabase
 from helpers.utils import now
 
 db_path = os.path.expanduser('~') + '/.kickoff-player/cache.db'
-db_conn = SqliteQueueDatabase(db_path)
+db_conn = APSWDatabase(db_path)
 
 
 class CacheHandler(object):

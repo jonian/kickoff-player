@@ -1,4 +1,4 @@
-from lxml import html
+from lxml import html, etree
 from fuzzywuzzy import fuzz
 from operator import itemgetter
 from helpers.utils import cached_request

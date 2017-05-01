@@ -1,12 +1,13 @@
 import os
 
-from helpers.utils import query_date_range, parse_date, format_date, now, today
+from playhouse.apsw_ext import APSWDatabase
+from playhouse.apsw_ext import CharField, DateTimeField, IntegerField, BooleanField, ForeignKeyField
+
 from peewee import IntegrityError, Model
-from peewee import CharField, DateTimeField, IntegerField, BooleanField, ForeignKeyField
-from playhouse.sqliteq import SqliteQueueDatabase
+from helpers.utils import query_date_range, parse_date, format_date, now, today
 
 db_path = os.path.expanduser('~') + '/.kickoff-player/data.db'
-db_conn = SqliteQueueDatabase(db_path)
+db_conn = APSWDatabase(db_path)
 
 
 class DataHandler(object):
