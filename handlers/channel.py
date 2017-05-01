@@ -13,7 +13,7 @@ from widgets.filterbox import FilterBox
 class ChannelHandler(object):
 
   def __init__(self, app):
-    self.app = app
+    self.app   = app
     self.stack = app.channels_stack
 
     self.channels = Gtk.Builder()
@@ -24,7 +24,7 @@ class ChannelHandler(object):
     self.stack.add_named(self.channels_box, 'channels_container')
 
     self.channels_filters = self.channels.get_object('list_box_channels_filters')
-    self.channels_list = self.channels.get_object('flow_box_channels_list')
+    self.channels_list    = self.channels.get_object('flow_box_channels_list')
 
   def do_channels_widgets(self):
     if len(self.channels_filters.get_children()) == 0:

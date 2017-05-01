@@ -10,21 +10,21 @@ from helpers.gtk import add_widget_class, remove_widget_children, image_from_pat
 class ChannelBox(Gtk.FlowBoxChild):
 
   __gtype_name__ = 'ChannelBox'
-  __gsignals__ = { 'stream-activate': (GObject.SIGNAL_RUN_FIRST, None, (object,)) }
+  __gsignals__   = { 'stream-activate': (GObject.SIGNAL_RUN_FIRST, None, (object,)) }
 
-  channel = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
-  callback = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
+  channel     = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
+  callback    = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
   filter_name = GObject.property(type=str, flags=GObject.PARAM_READWRITE)
 
   def __init__(self, *args, **kwargs):
     Gtk.FlowBoxChild.__init__(self, *args, **kwargs)
 
-    self.channel = self.get_property('channel')
-    self.callback = self.get_property('callback')
+    self.channel     = self.get_property('channel')
+    self.callback    = self.get_property('callback')
     self.filter_name = self.get_property('filter_name')
 
-    self.outer_box = self.do_outer_box()
-    self.header_box = self.do_header_box()
+    self.outer_box   = self.do_outer_box()
+    self.header_box  = self.do_header_box()
     self.streams_box = self.do_streams_box()
 
     self.set_valign(Gtk.Align.START)
@@ -83,9 +83,9 @@ class ChannelHeaderBox(Gtk.Box):
   def __init__(self, *args, **kwargs):
     Gtk.Box.__init__(self, *args, **kwargs)
 
-    self.channel = self.get_property('channel')
-    self.channel_logo = self.do_channel_logo()
-    self.channel_name = self.do_channel_name()
+    self.channel          = self.get_property('channel')
+    self.channel_logo     = self.do_channel_logo()
+    self.channel_name     = self.do_channel_name()
     self.channel_language = self.do_channel_language()
 
     self.set_orientation(Gtk.Orientation.VERTICAL)
@@ -154,15 +154,15 @@ class ChannelStreamsBox(Gtk.Box):
 
   __gtype_name__ = 'ChannelStreamsBox'
 
-  channel = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
+  channel  = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
   callback = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
 
   def __init__(self, *args, **kwargs):
     Gtk.Box.__init__(self, *args, **kwargs)
 
-    self.channel = self.get_property('channel')
+    self.channel  = self.get_property('channel')
     self.callback = self.get_property('callback')
-    self.streams = None
+    self.streams  = None
 
     self.set_orientation(Gtk.Orientation.HORIZONTAL)
     self.set_homogeneous(True)

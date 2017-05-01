@@ -113,10 +113,10 @@ def search_dict_key(iterable, keys, default=None):
 
 
 def cached_request(url, cache, base_url=None, ttl=300, json=False, params=None, callback=None, cache_key=None):
-  url = parse_url(url, base_url)
+  url       = parse_url(url, base_url)
   cache_key = cache_key_from_url(url, params, cache_key)
-  headers = { 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0' }
-  response = cache.load(cache_key)
+  headers   = { 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0' }
+  response  = cache.load(cache_key)
 
   if response is None:
     try:

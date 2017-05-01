@@ -1,13 +1,13 @@
 from lxml import html
 from fuzzywuzzy import fuzz
 from operator import itemgetter
-from helpers.utils import cached_request
+from helpers.utils import cached_request, thread_pool
 
 
 class LivefootballApi:
 
   def __init__(self, data, cache):
-    self.data = data
+    self.data  = data
     self.cache = cache
 
   def get(self, url='', ttl=86400):
@@ -27,7 +27,7 @@ class LivefootballApi:
     return name
 
   def get_host_links(self):
-    data = self.get()
+    data  = self.get()
     items = []
 
     if data is None:
@@ -48,7 +48,7 @@ class LivefootballApi:
     return items
 
   def get_host_channels(self, url):
-    data = self.get(url)
+    data  = self.get(url)
     items = []
 
     if data is None:
@@ -71,9 +71,9 @@ class LivefootballApi:
         lang = 'Unknown' if lang == '' else lang.title()
 
         items.append({
-          'name': name,
+          'name':     name,
           'language': lang,
-          'url': link
+          'url':      link
         })
       except (IndexError, ValueError):
         pass
@@ -97,12 +97,12 @@ class LivefootballApi:
       rate = 0 if rate == '' else int(rate.replace('Kbps', ''))
 
       item = {
-        'rate': rate,
+        'rate':     rate,
         'language': lang,
-        'lang': lang[:3].upper(),
-        'host': None,
-        'url': None,
-        'hd_url': None
+        'lang':     lang[:3].upper(),
+        'host':     None,
+        'url':      None,
+        'hd_url':   None
       }
 
       for link in root.xpath('.//a'):
@@ -142,7 +142,7 @@ class LivefootballApi:
     return link
 
   def get_events_links(self, url):
-    data = self.get(url=url, ttl=7200)
+    data  = self.get(url=url, ttl=7200)
     items = []
 
     if data is None:
@@ -172,9 +172,9 @@ class LivefootballApi:
 
       item = {
         'competition': comp,
-        'home': team[0].strip(),
-        'away': team[1].strip(),
-        'channels': []
+        'home':        team[0].strip(),
+        'away':        team[1].strip(),
+        'channels':    []
       }
 
       for link in data.xpath('//div[@id="system"]//a[contains(@href, "/channel/")]'):
@@ -201,9 +201,9 @@ class LivefootballApi:
 
       item = {
         'competition': data['competition'],
-        'home': data['home'],
-        'away': data['away'],
-        'streams': []
+        'home':        data['home'],
+        'away':        data['away'],
+        'streams':     []
       }
 
       for channel in data['channels']:
@@ -251,7 +251,7 @@ class LivefootballApi:
 
       for channel in channels:
         items.append({
-          'name': channel['name'],
+          'name':     channel['name'],
           'language': channel['language']
         })
 
@@ -276,11 +276,11 @@ class LivefootballApi:
 
         for stream in streams:
           items.append({
-            'channel': channel.id,
-            'host': stream['host'],
-            'rate': stream['rate'],
-            'url': stream['url'],
-            'hd_url': stream['hd_url'],
+            'channel':  channel.id,
+            'host':     stream['host'],
+            'rate':     stream['rate'],
+            'url':      stream['url'],
+            'hd_url':   stream['hd_url'],
             'language': stream['lang']
           })
 
@@ -302,7 +302,7 @@ class LivefootballApi:
         streams = self.get_host_streams(channel['url'])
 
         items.append({
-          'name': channel['name'],
+          'name':     channel['name'],
           'language': streams[0]['language']
         })
 
@@ -329,11 +329,11 @@ class LivefootballApi:
 
         for stream in streams:
           items.append({
-            'channel': channel.id,
-            'host': stream['host'],
-            'rate': stream['rate'],
-            'url': stream['url'],
-            'hd_url': stream['hd_url'],
+            'channel':  channel.id,
+            'host':     stream['host'],
+            'rate':     stream['rate'],
+            'url':      stream['url'],
+            'hd_url':   stream['hd_url'],
             'language': stream['lang']
           })
 
@@ -358,9 +358,9 @@ class LivefootballApi:
 
       for stream in data['streams']:
         items.append({
-          'fs_id': str(fixture.id) + '_' + str(stream),
+          'fs_id':   str(fixture.id) + '_' + str(stream),
           'fixture': fixture.id,
-          'stream': stream
+          'stream':  stream
         })
 
     if len(items) > 0:

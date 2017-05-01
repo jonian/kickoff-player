@@ -28,7 +28,7 @@ class DataHandler(object):
       open(self.path, 'w+')
 
   def register_models(self):
-    tables = [Setting,Competition, Team, Fixture, Channel, Stream, Event]
+    tables = [Setting, Competition, Team, Fixture, Channel, Stream, Event]
 
     self.db.connect()
     self.db.create_tables(tables, safe=True)
@@ -40,11 +40,11 @@ class DataHandler(object):
       return None
 
     get_item = getattr(self, 'get_' + model)
-    item = get_item({ main_key: key })
+    item     = get_item({ main_key: key })
 
     if item is None and not update:
       create_item = getattr(self, 'create_' + model)
-      item = create_item(kwargs)
+      item        = create_item(kwargs)
     elif item is not None:
       update_item = getattr(self, 'update_' + model)
       update_item(item, kwargs)
@@ -103,6 +103,7 @@ class DataHandler(object):
 
   def update_competition(self, item, kwargs):
     kwargs['updated'] = now()
+
     query = Competition.update(**kwargs).where(Competition.api_id == item.api_id)
     query.execute()
 
@@ -157,6 +158,7 @@ class DataHandler(object):
 
   def update_fixture(self, item, kwargs):
     kwargs['updated'] = now()
+
     query = Fixture.update(**kwargs).where(Fixture.api_id == item.api_id)
     query.execute()
 
@@ -192,6 +194,7 @@ class DataHandler(object):
 
   def update_channel(self, item, kwargs):
     kwargs['updated'] = now()
+
     query = Channel.update(**kwargs).where(Channel.name == item.name)
     query.execute()
 
@@ -212,6 +215,7 @@ class DataHandler(object):
 
   def update_stream(self, item, kwargs):
     kwargs['updated'] = now()
+
     query = Stream.update(**kwargs).where(Stream.url == item.url)
     query.execute()
 
@@ -232,6 +236,7 @@ class DataHandler(object):
 
   def update_event(self, item, kwargs):
     kwargs['updated'] = now()
+
     query = Event.update(**kwargs).where(Event.fs_id == item.fs_id)
     query.execute()
 
@@ -248,19 +253,19 @@ class BasicModel(Model):
 
 
 class Setting(BasicModel):
-  key = CharField(unique=True)
+  key   = CharField(unique=True)
   value = CharField()
 
 
 class Competition(BasicModel):
-  name = CharField()
-  short_name = CharField()
+  name         = CharField()
+  short_name   = CharField()
   section_code = CharField()
   section_name = CharField()
-  season_id = IntegerField()
-  api_id = IntegerField(unique=True)
-  created = DateTimeField(default=now())
-  updated = DateTimeField(default=now())
+  season_id    = IntegerField()
+  api_id       = IntegerField(unique=True)
+  created      = DateTimeField(default=now())
+  updated      = DateTimeField(default=now())
 
   @property
 
@@ -268,7 +273,7 @@ class Competition(BasicModel):
     fixtures = self.fixtures.select(Fixture.home_team, Fixture.away_team)
     fixtures = fixtures.distinct(Fixture.home_team).distinct(Fixture.away_team).tuples()
     team_ids = list(set(sum(fixtures, ())))
-    teams = Team.select().where(Team.id << team_ids)
+    teams    = Team.select().where(Team.id << team_ids)
 
     return teams
 
@@ -281,20 +286,20 @@ class Competition(BasicModel):
 
 
 class Team(BasicModel):
-  name = CharField()
-  crest_url = CharField(null=True)
+  name       = CharField()
+  crest_url  = CharField(null=True)
   crest_path = CharField(null=True)
-  national = BooleanField()
-  api_id = IntegerField(unique=True)
-  created = DateTimeField(default=now())
-  updated = DateTimeField(default=now())
+  national   = BooleanField()
+  api_id     = IntegerField(unique=True)
+  created    = DateTimeField(default=now())
+  updated    = DateTimeField(default=now())
 
   @property
 
   def competitions(self):
-    fixtures = self.fixtures.select(Fixture.competition)
-    fixtures = fixtures.distinct(Fixture.competition).tuples()
-    comp_ids = list(sum(fixtures, ()))
+    fixtures     = self.fixtures.select(Fixture.competition)
+    fixtures     = fixtures.distinct(Fixture.competition).tuples()
+    comp_ids     = list(sum(fixtures, ()))
     competitions = Competition.select().where(Competition.id << comp_ids)
 
     return competitions
@@ -302,7 +307,7 @@ class Team(BasicModel):
   @property
 
   def fixtures(self):
-    query = (Fixture.home_team == self) | (Fixture.away_team == self)
+    query    = (Fixture.home_team == self) | (Fixture.away_team == self)
     fixtures = Fixture.select().where(query)
 
     return fixtures
@@ -317,17 +322,17 @@ class Team(BasicModel):
 
 
 class Fixture(BasicModel):
-  date = DateTimeField()
-  minute = IntegerField(null=True)
-  period = CharField(null=True)
-  home_team = ForeignKeyField(Team, related_name='home_team')
-  away_team = ForeignKeyField(Team, related_name='away_team')
-  score_home = IntegerField(null=True)
-  score_away = IntegerField(null=True)
+  date        = DateTimeField()
+  minute      = IntegerField(null=True)
+  period      = CharField(null=True)
+  home_team   = ForeignKeyField(Team, related_name='home_team')
+  away_team   = ForeignKeyField(Team, related_name='away_team')
+  score_home  = IntegerField(null=True)
+  score_away  = IntegerField(null=True)
   competition = ForeignKeyField(Competition, related_name='competition')
-  api_id = IntegerField(unique=True)
-  created = DateTimeField(default=now())
-  updated = DateTimeField(default=now())
+  api_id      = IntegerField(unique=True)
+  created     = DateTimeField(default=now())
+  updated     = DateTimeField(default=now())
 
   @property
 
@@ -379,12 +384,12 @@ class Fixture(BasicModel):
 
 
 class Channel(BasicModel):
-  name = CharField(unique=True)
-  language = CharField()
-  logo_url = CharField(null=True)
+  name      = CharField(unique=True)
+  language  = CharField()
+  logo_url  = CharField(null=True)
   logo_path = CharField(null=True)
-  created = DateTimeField(default=now())
-  updated = DateTimeField(default=now())
+  created   = DateTimeField(default=now())
+  updated   = DateTimeField(default=now())
 
   @property
 
@@ -404,15 +409,15 @@ class Channel(BasicModel):
 
 
 class Stream(BasicModel):
-  host = CharField()
-  rate = IntegerField()
+  host     = CharField()
+  rate     = IntegerField()
   language = CharField()
-  url = CharField(unique=True)
-  hd_url = CharField(null=True)
-  channel = ForeignKeyField(Channel, related_name='channel', null=True)
-  watched = DateTimeField(null=True)
-  created = DateTimeField(default=now())
-  updated = DateTimeField(default=now())
+  url      = CharField(unique=True)
+  hd_url   = CharField(null=True)
+  channel  = ForeignKeyField(Channel, related_name='channel', null=True)
+  watched  = DateTimeField(null=True)
+  created  = DateTimeField(default=now())
+  updated  = DateTimeField(default=now())
 
   @property
 
@@ -424,8 +429,8 @@ class Stream(BasicModel):
 
 
 class Event(BasicModel):
-  fs_id = CharField(unique=True)
+  fs_id   = CharField(unique=True)
   fixture = ForeignKeyField(Fixture, related_name='fixture')
-  stream = ForeignKeyField(Stream, related_name='stream')
+  stream  = ForeignKeyField(Stream, related_name='stream')
   created = DateTimeField(default=now())
   updated = DateTimeField(default=now())

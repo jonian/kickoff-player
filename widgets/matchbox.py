@@ -12,19 +12,19 @@ class MatchBox(Gtk.FlowBoxChild):
 
   __gtype_name__ = 'MatchBox'
 
-  fixture = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
-  callback = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
+  fixture     = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
+  callback    = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
   filter_name = GObject.property(type=str, flags=GObject.PARAM_READWRITE)
 
   def __init__(self, *args, **kwargs):
     Gtk.FlowBoxChild.__init__(self, *args, **kwargs)
 
-    self.fixture = self.get_property('fixture')
-    self.callback = self.get_property('callback')
+    self.fixture     = self.get_property('fixture')
+    self.callback    = self.get_property('callback')
     self.filter_name = self.get_property('filter-name')
 
-    self.outer_box = self.do_outer_box()
-    self.teams_box = self.do_teams_box()
+    self.outer_box   = self.do_outer_box()
+    self.teams_box   = self.do_teams_box()
     self.details_box = self.do_details_box()
 
     self.set_valign(Gtk.Align.START)
@@ -86,14 +86,14 @@ class MatchTeamsBox(Gtk.Box):
     self.fixture = self.get_property('fixture')
 
     self.home_crest = self.do_team_crest()
-    self.home_name = self.do_team_name()
-    self.home_box = self.do_team_box('home')
+    self.home_name  = self.do_team_name()
+    self.home_box   = self.do_team_box('home')
 
     self.away_crest = self.do_team_crest()
-    self.away_name = self.do_team_name()
-    self.away_box = self.do_team_box('away')
+    self.away_name  = self.do_team_name()
+    self.away_box   = self.do_team_box('away')
 
-    self.score = self.do_score_label()
+    self.score     = self.do_score_label()
     self.score_box = self.do_score_box()
 
     self.set_orientation(Gtk.Orientation.HORIZONTAL)
@@ -213,19 +213,19 @@ class MatchDetailsBox(Gtk.Box):
 
   __gtype_name__ = 'MatchDetailsBox'
 
-  fixture = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
+  fixture  = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
   callback = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
 
   def __init__(self, *args, **kwargs):
     Gtk.Box.__init__(self, *args, **kwargs)
 
-    self.fixture = self.get_property('fixture')
+    self.fixture  = self.get_property('fixture')
     self.callback = self.get_property('callback')
 
-    self.event_count = 0
-    self.count_label = self.do_count_label()
+    self.event_count     = 0
+    self.count_label     = self.do_count_label()
     self.available_label = self.do_available_label()
-    self.more_button = self.do_more_button()
+    self.more_button     = self.do_more_button()
 
     self.set_orientation(Gtk.Orientation.HORIZONTAL)
     self.connect('realize', self.on_fixture_updated)
@@ -297,13 +297,13 @@ class MatchStreamBox(Gtk.ListBoxRow):
 
   __gtype_name__ = 'MatchStreamBox'
 
-  stream = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
+  stream   = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
   callback = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
 
   def __init__(self, *args, **kwargs):
     Gtk.ListBoxRow.__init__(self, *args, **kwargs)
 
-    self.stream = self.get_property('stream')
+    self.stream   = self.get_property('stream')
     self.callback = self.get_property('callback')
 
     self.connect('realize', self.on_fixture_updated)

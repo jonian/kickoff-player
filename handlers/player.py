@@ -12,8 +12,8 @@ class PlayerHandler(object):
 
   def __init__(self, app):
     self.stream = StreamHandler(self)
-    self.app = app
-    self.stack = app.player_stack
+    self.app    = app
+    self.stack  = app.player_stack
 
     self.url = None
     self.xid = None
@@ -38,9 +38,9 @@ class PlayerHandler(object):
     self.status = self.player.get_object('label_player_status')
     self.status.set_text('Not playing')
 
-    self.toolbar = self.player.get_object('toolbar_player')
-    self.volume_button = self.player.get_object('button_volume')
-    self.full_button = self.player.get_object('button_fullscreen')
+    self.toolbar        = self.player.get_object('toolbar_player')
+    self.volume_button  = self.player.get_object('button_volume')
+    self.full_button    = self.player.get_object('button_fullscreen')
     self.restore_button = self.player.get_object('button_unfullscreen')
 
     GObject.timeout_add(3000, self.toggle_toolbar, True)

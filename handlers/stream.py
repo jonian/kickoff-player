@@ -12,11 +12,11 @@ class StreamHandler(object):
   """Handler for acestream and sopcast streams"""
 
   def __init__(self, player):
-    self.player = player
+    self.player    = player
     self.acestream = None
-    self.sopcast = None
-    self.url = None
-    self.session = None
+    self.sopcast   = None
+    self.url       = None
+    self.session   = None
 
   def notify(self, message):
     """Notify player on stream status changes"""
@@ -103,9 +103,9 @@ class StreamHandler(object):
       session.sendline('HELLOBG version=3')
       session.expect('key=.*')
 
-      request_key = session.after.decode('utf-8').split()[0].split('=')[1]
-      signature = (request_key + product_key).encode('utf-8')
-      signature = hashlib.sha1(signature).hexdigest()
+      request_key  = session.after.decode('utf-8').split()[0].split('=')[1]
+      signature    = (request_key + product_key).encode('utf-8')
+      signature    = hashlib.sha1(signature).hexdigest()
       response_key = product_key.split('-')[0] + '-' + signature
 
       session.sendline('READY key=' + response_key)
@@ -121,7 +121,7 @@ class StreamHandler(object):
       session.expect('http://.*')
 
       self.session = session
-      self.url = session.after.decode('utf-8').split()[0]
+      self.url     = session.after.decode('utf-8').split()[0]
       self.notify('playing')
     except (pexpect.TIMEOUT, pexpect.EOF):
       self.notify('unavailable')
@@ -176,7 +176,7 @@ class StreamHandler(object):
 
     if success is True:
       self.session = session
-      self.url = 'http://localhost:' + port + '/sopcast.mp4'
+      self.url     = 'http://localhost:' + port + '/sopcast.mp4'
       self.notify('playing')
     else:
       self.notify('unavailable')

@@ -31,10 +31,10 @@ class KickoffPlayer(object):
     self.path = os.path.expanduser('~') + '/.kickoff-player'
     self.create_settings_path()
 
-    self.data = DataHandler()
+    self.data  = DataHandler()
     self.cache = CacheHandler()
 
-    self.scores_api = OnefootballApi(self.data, self.cache)
+    self.scores_api  = OnefootballApi(self.data, self.cache)
     self.streams_api = LivefootballApi(self.data, self.cache)
 
     self.add_extra_styles('ui/styles.css')
@@ -43,20 +43,20 @@ class KickoffPlayer(object):
     self.main.add_from_file('ui/main.ui')
     self.main.connect_signals(self)
 
-    self.window = self.main.get_object('window_main')
-    self.header_back = self.main.get_object('header_button_back')
+    self.window        = self.main.get_object('window_main')
+    self.header_back   = self.main.get_object('header_button_back')
     self.header_reload = self.main.get_object('header_button_reload')
-    self.main_stack = self.main.get_object('stack_main')
+    self.main_stack    = self.main.get_object('stack_main')
 
-    self.player_stack = self.main.get_object('stack_player')
-    self.matches_stack = self.main.get_object('stack_matches')
-    self.matches_loader = self.main.get_object('spinner_matches')
+    self.player_stack    = self.main.get_object('stack_player')
+    self.matches_stack   = self.main.get_object('stack_matches')
+    self.matches_loader  = self.main.get_object('spinner_matches')
     self.channels_loader = self.main.get_object('spinner_channels')
-    self.channels_stack = self.main.get_object('stack_channels')
+    self.channels_stack  = self.main.get_object('stack_channels')
 
-    self.matches = MatchHandler(self)
+    self.matches  = MatchHandler(self)
     self.channels = ChannelHandler(self)
-    self.player = PlayerHandler(self)
+    self.player   = PlayerHandler(self)
 
     self.set_stack_visible_child(self.channels_stack)
     self.set_stack_visible_child(self.matches_stack)

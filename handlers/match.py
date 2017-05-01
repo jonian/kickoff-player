@@ -14,7 +14,7 @@ from widgets.filterbox import FilterBox
 class MatchHandler(object):
 
   def __init__(self, app):
-    self.app = app
+    self.app   = app
     self.stack = app.matches_stack
 
     self.matches = Gtk.Builder()
@@ -25,7 +25,7 @@ class MatchHandler(object):
     self.stack.add_named(self.matches_box, 'matches_container')
 
     self.matches_filters = self.matches.get_object('list_box_matches_filters')
-    self.matches_list = self.matches.get_object('flow_box_matches_list')
+    self.matches_list    = self.matches.get_object('flow_box_matches_list')
 
     self.match = Gtk.Builder()
     self.match.add_from_file('ui/match.ui')
@@ -34,7 +34,7 @@ class MatchHandler(object):
     self.match_box = self.match.get_object('box_match')
     self.stack.add_named(self.match_box, 'match_container')
 
-    self.match_teams = self.match.get_object('box_match_teams')
+    self.match_teams   = self.match.get_object('box_match_teams')
     self.match_streams = self.match.get_object('list_box_match_streams')
 
     GObject.timeout_add(10000, self.update_live_data)

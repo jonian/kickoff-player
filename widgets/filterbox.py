@@ -14,7 +14,7 @@ class FilterBox(Gtk.ListBoxRow):
   def __init__(self, *args, **kwargs):
     Gtk.ListBoxRow.__init__(self, *args, **kwargs)
 
-    self.filter_name = self.get_property('filter-name')
+    self.filter_name  = self.get_property('filter-name')
     self.filter_label = self.do_filter_label()
 
     self.connect('realize', self.on_filter_name_updated)

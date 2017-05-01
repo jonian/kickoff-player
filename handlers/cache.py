@@ -36,7 +36,7 @@ class CacheHandler(object):
 
   def create(self, key, value, ttl=0):
     value = value.strip()
-    item = Cacheable.create(key=key, value=value, ttl=ttl)
+    item  = Cacheable.create(key=key, value=value, ttl=ttl)
 
     return item
 
@@ -83,9 +83,9 @@ class CacheHandler(object):
 
 
 class Cacheable(Model):
-  key = CharField(unique=True)
-  value = CharField()
-  ttl = IntegerField(default=0)
+  key     = CharField(unique=True)
+  value   = CharField()
+  ttl     = IntegerField(default=0)
   created = DateTimeField(default=now())
   updated = DateTimeField(default=now())
 

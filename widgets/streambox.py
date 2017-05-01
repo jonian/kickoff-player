@@ -10,16 +10,16 @@ class StreamBox(Gtk.Box):
 
   __gtype_name__ = 'StreamBox'
 
-  stream = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
+  stream   = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
   callback = GObject.property(type=object, flags=GObject.PARAM_READWRITE)
-  compact = GObject.property(type=bool, default=False, flags=GObject.PARAM_READWRITE)
+  compact  = GObject.property(type=bool, default=False, flags=GObject.PARAM_READWRITE)
 
   def __init__(self, *args, **kwargs):
     Gtk.Box.__init__(self, *args, **kwargs)
 
-    self.stream = self.get_property('stream')
+    self.stream   = self.get_property('stream')
     self.callback = self.get_property('callback')
-    self.compact = self.get_property('compact')
+    self.compact  = self.get_property('compact')
 
     self.stream_name = self.do_stream_name()
     self.stream_rate = self.do_stream_rate()

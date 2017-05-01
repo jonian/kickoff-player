@@ -7,7 +7,7 @@ from helpers.utils import cached_request, download_file, batch, search_dict_key,
 class OnefootballApi:
 
   def __init__(self, data, cache):
-    self.data = data
+    self.data  = data
     self.cache = cache
 
     self.score_url = 'scores-api.onefootball.com/v1'
@@ -20,12 +20,12 @@ class OnefootballApi:
 
   def get(self, url, base_url, params=None, ttl=3600, key=None, cache_key=None):
     reparams = {
-      'url': url,
-      'cache': self.cache,
-      'base_url': base_url,
-      'json': True,
-      'ttl': ttl,
-      'params': params,
+      'url':       url,
+      'cache':     self.cache,
+      'base_url':  base_url,
+      'json':      True,
+      'ttl':       ttl,
+      'params':    params,
       'cache_key': cache_key
     }
 
@@ -53,12 +53,12 @@ class OnefootballApi:
     for item in comps:
       try:
         items.append({
-          'name': item['competitionName'],
-          'short_name': item['competitionShortName'],
+          'name':         item['competitionName'],
+          'short_name':   item['competitionShortName'],
           'section_code': item['section'],
           'section_name': self.section_name(codes, item['section']),
-          'season_id': item['seasonId'],
-          'api_id': item['competitionId']
+          'season_id':    item['seasonId'],
+          'api_id':       item['competitionId']
         })
       except KeyError:
         pass
@@ -89,11 +89,11 @@ class OnefootballApi:
     for item in teams:
       try:
         items.append({
-          'name': item['name'],
-          'crest_url': self.crest_url(item),
+          'name':       item['name'],
+          'crest_url':  self.crest_url(item),
           'crest_path': self.crest_path(item),
-          'national': item['isNational'],
-          'api_id': item['idInternal']
+          'national':   item['isNational'],
+          'api_id':     item['idInternal']
         })
       except KeyError:
         pass
@@ -102,16 +102,16 @@ class OnefootballApi:
 
   def get_matchdays(self, comp_ids=None):
     reparams = {
-      'url': 'en/search/matchdays',
-      'base_url': self.score_url,
-      'params': {
+      'base_url':  self.score_url,
+      'url':       'en/search/matchdays',
+      'key':       ['data', 'matchdays'],
+      'cache_key': 'competitions',
+      'ttl':       60,
+      'params':    {
         'competitions': comp_ids,
-        'since': today('%Y-%m-%d'),
-        'utc_offset': tzone('%z')
-      },
-      'ttl': 60,
-      'key': ['data', 'matchdays'],
-      'cache_key': 'competitions'
+        'since':        today('%Y-%m-%d'),
+        'utc_offset':   tzone('%z')
+      }
     }
 
     response = self.get(**reparams)
@@ -138,20 +138,20 @@ class OnefootballApi:
     for item in matches:
       try:
         competition = self.data.get_competition({ 'api_id': item['competition']['id'] })
-        home_team = self.data.get_team({ 'api_id': item['team_home']['id'] })
-        away_team = self.data.get_team({ 'api_id': item['team_away']['id'] })
-        form_date = format_date(date=item['kickoff'], localize=True)
+        home_team   = self.data.get_team({ 'api_id': item['team_home']['id'] })
+        away_team   = self.data.get_team({ 'api_id': item['team_away']['id'] })
+        form_date   = format_date(date=item['kickoff'], localize=True)
 
         items.append({
-          'date': form_date,
-          'minute': item['minute'],
-          'period': item['period'],
-          'home_team': home_team.id,
-          'away_team': away_team.id,
-          'score_home': item['score_home'],
-          'score_away': item['score_away'],
+          'date':        form_date,
+          'minute':      item['minute'],
+          'period':      item['period'],
+          'home_team':   home_team.id,
+          'away_team':   away_team.id,
+          'score_home':  item['score_home'],
+          'score_away':  item['score_away'],
           'competition': competition.id,
-          'api_id': item['id']
+          'api_id':      item['id']
         })
       except (AttributeError, KeyError):
         pass
@@ -160,13 +160,13 @@ class OnefootballApi:
 
   def get_live(self):
     reparams = {
-      'url': 'matches/updates',
       'base_url': self.score_url,
-      'params': {
+      'url':      'matches/updates',
+      'key':      ['data', 'match_updates'],
+      'ttl':      10,
+      'params':   {
         'since': gmtime('%Y-%m-%dT%H:%M:%SZ', True)
-      },
-      'ttl': 10,
-      'key': ['data', 'match_updates']
+      }
     }
 
     response = self.get(**reparams)
@@ -180,11 +180,11 @@ class OnefootballApi:
     for item in lives:
       try:
         items.append({
-          'minute': item['minute'],
-          'period': item['period'],
+          'minute':     item['minute'],
+          'period':     item['period'],
           'score_home': item['score_home'],
           'score_away': item['score_away'],
-          'api_id': item['id']
+          'api_id':     item['id']
         })
       except KeyError:
         pass
