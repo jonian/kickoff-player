@@ -1,7 +1,7 @@
 from lxml import html
 from fuzzywuzzy import fuzz
 from operator import itemgetter
-from helpers.utils import cached_request, thread_pool
+from helpers.utils import cached_request
 
 
 class LivefootballApi:
@@ -13,7 +13,11 @@ class LivefootballApi:
   def get(self, url='', ttl=86400):
     base_url = 'livefootballol.me'
     response = cached_request(url=url, cache=self.cache, base_url=base_url, ttl=ttl)
-    response = response if response is None else html.fromstring(response)
+
+    try:
+      response = html.fromstring(response)
+    except (TypeError, etree.XMLSyntaxError):
+      response = None
 
     return response
 

@@ -1,12 +1,13 @@
 import os
 import json
 
-from peewee import Model, CharField, DateTimeField, IntegerField
-from playhouse.sqlite_ext import SqliteExtDatabase
+from peewee import IntegrityError, Model
+from peewee import CharField, DateTimeField, IntegerField
+from playhouse.sqliteq import SqliteQueueDatabase
 from helpers.utils import now
 
 db_path = os.path.expanduser('~') + '/.kickoff-player/cache.db'
-db_conn = SqliteExtDatabase(db_path)
+db_conn = SqliteQueueDatabase(db_path)
 
 
 class CacheHandler(object):
@@ -35,15 +36,17 @@ class CacheHandler(object):
     return item
 
   def create(self, key, value, ttl=0):
-    value = value.strip()
-    item  = Cacheable.create(key=key, value=value, ttl=ttl)
+    try:
+      item = Cacheable.create(key=key, value=value.strip(), ttl=ttl)
+    except IntegrityError:
+      item = None
 
     return item
 
   def update(self, item, value, ttl=0):
     kwargs = {
-      'value': value.strip(),
-      'ttl': ttl,
+      'value':   value.strip(),
+      'ttl':     ttl,
       'updated': now()
     }
 

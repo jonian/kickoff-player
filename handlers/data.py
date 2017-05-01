@@ -1,11 +1,12 @@
 import os
 
 from helpers.utils import query_date_range, parse_date, format_date, now, today
-from peewee import Model, CharField, DateTimeField, IntegerField, BooleanField, ForeignKeyField
-from playhouse.sqlite_ext import SqliteExtDatabase
+from peewee import IntegrityError, Model
+from peewee import CharField, DateTimeField, IntegerField, BooleanField, ForeignKeyField
+from playhouse.sqliteq import SqliteQueueDatabase
 
 db_path = os.path.expanduser('~') + '/.kickoff-player/data.db'
-db_conn = SqliteExtDatabase(db_path)
+db_conn = SqliteQueueDatabase(db_path)
 
 
 class DataHandler(object):
@@ -70,7 +71,10 @@ class DataHandler(object):
     return item
 
   def create_setting(self, kwargs):
-    item = Setting.create(**kwargs)
+    try:
+      item = Setting.create(**kwargs)
+    except IntegrityError:
+      item = None
 
     return item
 
@@ -97,7 +101,10 @@ class DataHandler(object):
     return item
 
   def create_competition(self, kwargs):
-    item = Competition.create(**kwargs)
+    try:
+      item = Competition.create(**kwargs)
+    except IntegrityError:
+      item = None
 
     return item
 
@@ -123,7 +130,10 @@ class DataHandler(object):
     return item
 
   def create_team(self, kwargs):
-    item = Team.create(**kwargs)
+    try:
+      item = Team.create(**kwargs)
+    except IntegrityError:
+      item = None
 
     return item
 
@@ -152,7 +162,10 @@ class DataHandler(object):
     return item
 
   def create_fixture(self, kwargs):
-    item = Fixture.create(**kwargs)
+    try:
+      item = Fixture.create(**kwargs)
+    except IntegrityError:
+      item = None
 
     return item
 
@@ -188,7 +201,10 @@ class DataHandler(object):
     return item
 
   def create_channel(self, kwargs):
-    item = Channel.create(**kwargs)
+    try:
+      item = Channel.create(**kwargs)
+    except IntegrityError:
+      item = None
 
     return item
 
@@ -209,7 +225,10 @@ class DataHandler(object):
     return item
 
   def create_stream(self, kwargs):
-    item = Stream.create(**kwargs)
+    try:
+      item = Stream.create(**kwargs)
+    except IntegrityError:
+      item = None
 
     return item
 
@@ -230,7 +249,10 @@ class DataHandler(object):
     return item
 
   def create_event(self, kwargs):
-    item = Event.create(**kwargs)
+    try:
+      item = Event.create(**kwargs)
+    except IntegrityError:
+      item = None
 
     return item
 
