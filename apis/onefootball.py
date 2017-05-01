@@ -125,15 +125,18 @@ class OnefootballApi:
 
   def get_matches(self):
     settings = self.data.get_setting({ 'key': 'competitions' })
-    comp_ids = settings.value.split(',')
-    comp_ids = batch(comp_ids, 5, ',')
-    combined = thread_pool(self.get_matchdays, comp_ids)
+    combined = []
+
+    if settings is not None:
+      comp_ids = settings.value.split(',')
+      comp_ids = batch(comp_ids, 5, ',')
+      combined = thread_pool(self.get_matchdays, comp_ids)
 
     return combined
 
   def save_matches(self):
     matches = self.get_matches()
-    items = []
+    items   = []
 
     for item in matches:
       try:
