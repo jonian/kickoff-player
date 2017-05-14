@@ -2,6 +2,7 @@
 <!-- Generated with glade 3.20.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
+  <!-- interface-css-provider-path styles.css -->
   <object class="GtkApplicationWindow" id="window_main">
     <property name="can_focus">False</property>
     <property name="default_width">980</property>
