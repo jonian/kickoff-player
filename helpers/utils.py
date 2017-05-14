@@ -1,10 +1,37 @@
+import os
 import time
 import socket
 import requests
 import dateutil.parser
 
+from playhouse.apsw_ext import APSWDatabase
 from multiprocessing.pool import ThreadPool
 from datetime import datetime, timedelta, timezone
+
+
+def user_data_dir():
+  path = "%s/.config/kickoff-player" % os.path.expanduser('~')
+
+  if not os.path.exists(path):
+    os.makedirs(path)
+
+  return path
+
+
+def database_dir(db_name):
+  db_dir = os.path.join(user_data_dir(), db_name)
+
+  if not os.path.exists(db_dir):
+    open(db_dir, 'w+')
+
+  return db_dir
+
+
+def database_connection(db_name):
+  db_dir  = database_dir(db_name)
+  db_conn = APSWDatabase(db_dir)
+
+  return db_conn
 
 
 def gmtime(date_format=None, round_time=False):

@@ -6,6 +6,7 @@ gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk, Gdk, GObject
 from handlers.stream import StreamHandler
 from widgets.gstbox import GstBox
+from helpers.gtk import toggle_cursor
 
 
 class PlayerHandler(object):
@@ -139,9 +140,11 @@ class PlayerHandler(object):
     if not self.toolbar_stick and self.actionable:
       if timer and visible:
         self.toolbar.hide()
+        toggle_cursor(self.overlay, True)
 
       if not timer and not visible:
         self.toolbar.show()
+        toggle_cursor(self.overlay, False)
 
     return timer
 

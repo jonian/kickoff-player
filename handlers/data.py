@@ -1,22 +1,16 @@
 import os
 
-from playhouse.apsw_ext import APSWDatabase
 from playhouse.apsw_ext import CharField, DateTimeField, IntegerField, BooleanField, ForeignKeyField
 
 from peewee import IntegrityError, Model
+from helpers.utils import database_connection
 from helpers.utils import query_date_range, parse_date, format_date, now, today
-
-db_path = os.path.expanduser('~') + '/.kickoff-player/data.db'
-db_conn = APSWDatabase(db_path)
 
 
 class DataHandler(object):
 
   def __init__(self):
-    self.path = db_path
-    self.create_db()
-
-    self.db = db_conn
+    self.db = database_connection('data.db')
     self.register_models()
 
     self.fx_limit = query_date_range({ 'days': 14 })
@@ -24,10 +18,6 @@ class DataHandler(object):
 
     self.fl_limit = query_date_range({ 'hours': 3 })
     self.fl_query = (Fixture.date > self.fl_limit[0]) & (Fixture.date < self.fl_limit[1])
-
-  def create_db(self):
-    if not os.path.exists(self.path):
-      open(self.path, 'w+')
 
   def register_models(self):
     tables = [Setting, Competition, Team, Fixture, Channel, Stream, Event]
@@ -292,7 +282,7 @@ class DataHandler(object):
 class BasicModel(Model):
 
   class Meta:
-    database = db_conn
+    database = database_connection('data.db')
 
   def reload(self):
     return self.get(id=self.id)

@@ -1,8 +1,10 @@
+import os
 import gi
 
 gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
 
-from gi.repository import Gtk, GdkPixbuf
+from gi.repository import Gtk, Gdk, GdkPixbuf
 
 
 def add_widget_class(widget, classes):
@@ -23,6 +25,33 @@ def remove_widget_class(widget, classes):
 
   for name in classes:
     context.remove_class(name)
+
+
+def add_widget_custom_css(widget, style):
+  screen   = Gdk.Screen.get_default()
+  priority = Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+  provider = Gtk.CssProvider()
+  context  = widget.get_style_context()
+
+  if os.path.exists(style):
+    provider.load_from_path(style)
+  else:
+    provider.load_from_data(style.encode())
+
+  context.add_provider(provider, priority)
+
+
+def add_custom_css(style):
+  screen   = Gdk.Screen.get_default()
+  priority = Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+  provider = Gtk.CssProvider()
+
+  if os.path.exists(style):
+    provider.load_from_path(style)
+  else:
+    provider.load_from_data(style.encode())
+
+  Gtk.StyleContext.add_provider_for_screen(screen, provider, priority)
 
 
 def remove_widget_children(widget):
@@ -51,3 +80,11 @@ def image_from_path(path, size=48, image=None):
   gimage.set_from_pixbuf(pixbuf)
 
   return gimage
+
+
+def toggle_cursor(widget, hide=False):
+  window = widget.get_window()
+  blank  = Gdk.CursorType.BLANK_CURSOR
+  cursor = Gdk.Cursor(blank) if hide else None
+
+  window.set_cursor(cursor)

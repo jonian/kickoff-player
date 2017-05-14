@@ -19,6 +19,8 @@ from handlers.player import PlayerHandler
 from apis.onefootball import OnefootballApi
 from apis.livefootball import LivefootballApi
 
+from helpers.gtk import add_custom_css
+
 GObject.threads_init()
 
 
@@ -28,16 +30,11 @@ class KickoffPlayer(object):
     GLib.set_prgname('kickoff-player')
     GLib.set_application_name('Kickoff Player')
 
-    self.path = os.path.expanduser('~') + '/.kickoff-player'
-    self.create_settings_path()
-
     self.data  = DataHandler()
     self.cache = CacheHandler()
 
     self.scores_api  = OnefootballApi(self.data, self.cache)
     self.streams_api = LivefootballApi(self.data, self.cache)
-
-    self.add_extra_styles('ui/styles.css')
 
     self.main = Gtk.Builder()
     self.main.add_from_file('ui/main.ui')
@@ -61,6 +58,8 @@ class KickoffPlayer(object):
     self.set_stack_visible_child(self.channels_stack)
     self.set_stack_visible_child(self.matches_stack)
 
+    self.add_custom_styles()
+
   def run(self):
     self.window.show_all()
     Gtk.main()
@@ -69,19 +68,8 @@ class KickoffPlayer(object):
     self.player.close()
     Gtk.main_quit()
 
-  def create_settings_path(self):
-    if not os.path.exists(self.path):
-      os.makedirs(self.path)
-
-  def add_extra_styles(self, path):
-    path_style_provider = Gtk.CssProvider()
-    path_style_provider.load_from_path(path)
-
-    Gtk.StyleContext.add_provider_for_screen(
-      Gdk.Screen.get_default(),
-      path_style_provider,
-      Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-    )
+  def add_custom_styles(self):
+    add_custom_css('ui/styles.css')
 
   def toggle_reload(self, show):
     self.header_reload.set_sensitive(show)

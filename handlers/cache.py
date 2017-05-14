@@ -1,28 +1,18 @@
 import os
 import json
 
-from playhouse.apsw_ext import APSWDatabase
 from playhouse.apsw_ext import CharField, DateTimeField, IntegerField
 
 from peewee import IntegrityError, Model
+from helpers.utils import database_connection
 from helpers.utils import now
-
-db_path = os.path.expanduser('~') + '/.kickoff-player/cache.db'
-db_conn = APSWDatabase(db_path)
 
 
 class CacheHandler(object):
 
   def __init__(self):
-    self.path = db_path
-    self.create_db()
-
-    self.db = db_conn
+    self.db = database_connection('cache.db')
     self.register_models()
-
-  def create_db(self):
-    if not os.path.exists(self.path):
-      open(self.path, 'w+')
 
   def register_models(self):
     self.db.connect()
@@ -94,7 +84,7 @@ class Cacheable(Model):
   updated = DateTimeField(default=now())
 
   class Meta:
-    database = db_conn
+    database = database_connection('cache.db')
 
   @property
 
