@@ -30,6 +30,8 @@ class KickoffPlayer(object):
     GLib.set_prgname('kickoff-player')
     GLib.set_application_name('Kickoff Player')
 
+    add_custom_css('ui/styles.css')
+
     self.data  = DataHandler()
     self.cache = CacheHandler()
 
@@ -55,11 +57,6 @@ class KickoffPlayer(object):
     self.channels = ChannelHandler(self)
     self.player   = PlayerHandler(self)
 
-    self.set_stack_visible_child(self.channels_stack)
-    self.set_stack_visible_child(self.matches_stack)
-
-    self.add_custom_styles()
-
   def run(self):
     self.window.show_all()
     Gtk.main()
@@ -68,15 +65,11 @@ class KickoffPlayer(object):
     self.player.close()
     Gtk.main_quit()
 
-  def add_custom_styles(self):
-    add_custom_css('ui/styles.css')
-
   def toggle_reload(self, show):
     self.header_reload.set_sensitive(show)
 
   def get_stack_visible_child(self):
     child = self.main_stack.get_visible_child()
-
     return child
 
   def set_stack_visible_child(self, widget):
