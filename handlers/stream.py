@@ -35,9 +35,10 @@ class StreamHandler(object):
   def open(self, url):
     """Opean stream in a new thread"""
 
-    self.player.loading = True
     thread = threading.Thread(target=self.open_stream, args=[url])
     thread.start()
+
+    self.player.loading = True
 
   def close(self):
     """Close all streaming engines"""
@@ -90,6 +91,12 @@ class StreamHandler(object):
 
     if not self.session is None:
       self.session.close()
+
+    for process in psutil.process_iter():
+      if 'acestreamengine' in process.name():
+        process.kill()
+
+    self.player.loading = False
 
   def start_acestream_session(self, pid):
     """Handle acestream engine authentication"""
@@ -155,6 +162,12 @@ class StreamHandler(object):
     if not self.session is None:
       self.session.close()
 
+    for process in psutil.process_iter():
+      if 'sp-sc' in process.name():
+        process.kill()
+
+    self.player.loading = False
+
   def start_sopcast_session(self, port):
     """Handle sopcast channel availability"""
 
@@ -176,7 +189,7 @@ class StreamHandler(object):
 
     if success is True:
       self.session = session
-      self.url     = 'http://localhost:' + port + '/sopcast.mp4'
+      self.url     = "http://localhost:%s/sopcast.mp4" % port
       self.notify('playing')
     else:
       self.notify('unavailable')
