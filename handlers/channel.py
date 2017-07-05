@@ -2,12 +2,15 @@ import gi
 import threading
 
 gi.require_version('Gtk', '3.0')
+gi.require_version('GLib', '2.0')
 
-from gi.repository import Gtk, GObject
+from gi.repository import Gtk, GLib
 from helpers.gtk import filter_widget_items, remove_widget_children
 
 from widgets.channelbox import ChannelBox
 from widgets.filterbox import FilterBox
+
+GLib.threads_init()
 
 
 class ChannelHandler(object):
@@ -28,36 +31,39 @@ class ChannelHandler(object):
 
   def do_channels_widgets(self):
     if len(self.channels_filters.get_children()) == 0:
-      GObject.timeout_add(200, self.do_channels_filters)
+      GLib.idle_add(self.do_channels_filters)
 
     if len(self.channels_list.get_children()) == 0:
-      GObject.timeout_add(200, self.do_channels_list)
+      GLib.idle_add(self.do_channels_list)
 
   def update_channels_widgets(self):
     if len(self.channels_filters.get_children()) > 0:
-      GObject.timeout_add(200, self.update_channels_filters)
+      GLib.idle_add(self.update_channels_filters)
 
     if len(self.channels_list.get_children()) > 0:
-      GObject.timeout_add(200, self.update_channels_list)
+      GLib.idle_add(self.update_channels_list)
 
   def update_channels_data(self):
     thread = threading.Thread(target=self.do_update_channels_data)
     thread.start()
 
   def do_update_channels_data(self):
-    GObject.idle_add(self.app.toggle_reload, False)
+    GLib.idle_add(self.app.toggle_reload, False)
 
     self.app.streams_api.save_streams()
 
-    GObject.idle_add(self.do_channels_widgets)
-    GObject.idle_add(self.update_channels_widgets)
-    GObject.idle_add(self.app.toggle_reload, True)
+    GLib.idle_add(self.do_channels_widgets)
+    GLib.idle_add(self.update_channels_widgets)
+    GLib.idle_add(self.app.toggle_reload, True)
 
   def do_channels_filters(self):
     filters = self.app.data.load_channels_filters()
     remove_widget_children(self.channels_filters)
 
-    for filter_name in filters:
+    for index, filter_name in enumerate(filters):
+      GLib.timeout_add(50 * index, self.do_filter_item, filter_name)
+
+  def do_filter_item(self, filter_name):
       filterbox = FilterBox(filter_name=filter_name)
       self.channels_filters.add(filterbox)
 
@@ -72,7 +78,10 @@ class ChannelHandler(object):
     channels = self.app.data.load_channels(True)
     remove_widget_children(self.channels_list)
 
-    for channel in channels:
+    for index, channel in enumerate(channels):
+      GLib.timeout_add(50 * index, self.do_channel_item, channel)
+
+  def do_channel_item(self, channel):
       channbox = ChannelBox(channel=channel, callback=self.app.player.open_stream)
       self.channels_list.add(channbox)
 
