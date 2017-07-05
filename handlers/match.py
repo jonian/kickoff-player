@@ -2,8 +2,9 @@ import gi
 import threading
 
 gi.require_version('Gtk', '3.0')
+gi.require_version('GLib', '2.0')
 
-from gi.repository import Gtk, GObject
+from gi.repository import Gtk, GLib
 from helpers.utils import now
 from helpers.gtk import filter_widget_items, remove_widget_children
 
@@ -37,23 +38,23 @@ class MatchHandler(object):
     self.match_teams   = self.match.get_object('box_match_teams')
     self.match_streams = self.match.get_object('list_box_match_streams')
 
-    GObject.idle_add(self.update_competitions_data)
-    GObject.idle_add(self.update_teams_data)
-    GObject.timeout_add(10000, self.update_live_data)
+    GLib.idle_add(self.update_competitions_data)
+    GLib.idle_add(self.update_teams_data)
+    GLib.timeout_add(10000, self.update_live_data)
 
   def do_matches_widgets(self):
     if len(self.matches_filters.get_children()) == 0:
-      GObject.timeout_add(200, self.do_matches_filters)
+      GLib.timeout_add(200, self.do_matches_filters)
 
     if len(self.matches_list.get_children()) == 0:
-      GObject.timeout_add(200, self.do_matches_list)
+      GLib.timeout_add(200, self.do_matches_list)
 
   def update_matches_widgets(self):
     if len(self.matches_filters.get_children()) > 0:
-      GObject.timeout_add(200, self.update_matches_filters)
+      GLib.timeout_add(200, self.update_matches_filters)
 
     if len(self.matches_list.get_children()) > 0:
-      GObject.timeout_add(200, self.update_matches_list)
+      GLib.timeout_add(200, self.update_matches_list)
 
   def update_competitions_data(self):
     competitions = self.app.data.load_competitions()
@@ -72,27 +73,27 @@ class MatchHandler(object):
     thread.start()
 
   def do_update_matches_data(self):
-    GObject.idle_add(self.app.toggle_reload, False)
+    GLib.idle_add(self.app.toggle_reload, False)
 
     self.app.scores_api.save_matches()
     self.app.streams_api.save_events()
 
-    GObject.idle_add(self.do_matches_widgets)
-    GObject.idle_add(self.update_matches_widgets)
-    GObject.idle_add(self.app.toggle_reload, True)
+    GLib.idle_add(self.do_matches_widgets)
+    GLib.idle_add(self.update_matches_widgets)
+    GLib.idle_add(self.app.toggle_reload, True)
 
   def update_match_data(self):
     thread = threading.Thread(target=self.do_update_match_data)
     thread.start()
 
   def do_update_match_data(self):
-    GObject.idle_add(self.app.toggle_reload, False)
+    GLib.idle_add(self.app.toggle_reload, False)
 
     self.app.scores_api.save_matches()
     self.app.streams_api.save_events()
 
-    GObject.idle_add(self.update_match_details)
-    GObject.idle_add(self.app.toggle_reload, True)
+    GLib.idle_add(self.update_match_details)
+    GLib.idle_add(self.app.toggle_reload, True)
 
   def update_live_data(self):
     match_items = self.matches_list.get_children()
@@ -105,7 +106,7 @@ class MatchHandler(object):
 
   def do_update_live_data(self):
     self.app.scores_api.save_live()
-    GObject.idle_add(self.update_matches_list)
+    GLib.idle_add(self.update_matches_list)
 
   def do_matches_filters(self):
     filters = self.app.data.load_matches_filters()

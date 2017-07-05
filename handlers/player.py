@@ -2,8 +2,9 @@ import gi
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
+gi.require_version('GLib', '2.0')
 
-from gi.repository import Gtk, Gdk, GObject
+from gi.repository import Gtk, Gdk, GLib
 from handlers.stream import StreamHandler
 from widgets.gstbox import GstBox
 from helpers.gtk import toggle_cursor
@@ -44,7 +45,7 @@ class PlayerHandler(object):
     self.full_button    = self.player.get_object('button_fullscreen')
     self.restore_button = self.player.get_object('button_unfullscreen')
 
-    GObject.timeout_add(3000, self.toggle_toolbar, True)
+    GLib.timeout_add(3000, self.toggle_toolbar, True)
 
   @property
 
@@ -69,12 +70,12 @@ class PlayerHandler(object):
     self.app.set_stack_visible_child(self.stack)
 
   def reload_stream(self):
-    GObject.idle_add(self.app.toggle_reload, False)
+    GLib.idle_add(self.app.toggle_reload, False)
 
     self.close_stream()
     self.open_stream(self.cstream)
 
-    GObject.idle_add(self.app.toggle_reload, True)
+    GLib.idle_add(self.app.toggle_reload, True)
 
   def close_stream(self):
     self.url = None
@@ -187,8 +188,8 @@ class PlayerHandler(object):
 
   def on_gstbox_player_motion_notify_event(self, _widget, _event):
     self.toolbar_stick = False
-    GObject.idle_add(self.toggle_toolbar, False)
+    GLib.idle_add(self.toggle_toolbar, False)
 
   def on_toolbar_player_enter_notify_event(self, _widget, _event):
     self.toolbar_stick = True
-    GObject.idle_add(self.toggle_toolbar, False)
+    GLib.idle_add(self.toggle_toolbar, False)

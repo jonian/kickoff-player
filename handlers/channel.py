@@ -10,8 +10,6 @@ from helpers.gtk import filter_widget_items, remove_widget_children
 from widgets.channelbox import ChannelBox
 from widgets.filterbox import FilterBox
 
-GLib.threads_init()
-
 
 class ChannelHandler(object):
 
