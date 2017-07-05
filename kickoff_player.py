@@ -8,7 +8,7 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 gi.require_version('GLib', '2.0')
 
-from gi.repository import Gtk, Gdk, GLib, GObject
+from gi.repository import Gtk, Gdk, GLib
 
 from handlers.data import DataHandler
 from handlers.cache import CacheHandler
@@ -21,7 +21,7 @@ from apis.livefootball import LivefootballApi
 
 from helpers.gtk import add_custom_css
 
-GObject.threads_init()
+GLib.threads_init()
 
 
 class KickoffPlayer(object):
