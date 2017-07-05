@@ -1,7 +1,6 @@
-import os
 import json
 
-from playhouse.apsw_ext import CharField, DateTimeField, IntegerField
+from playhouse.sqlite_ext import CharField, DateTimeField, IntegerField
 
 from peewee import IntegrityError, Model
 from helpers.utils import database_connection
