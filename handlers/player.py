@@ -91,29 +91,27 @@ class PlayerHandler(object):
 
   def play(self):
     self.playbin.play()
-    self.update_status('PLAYING')
 
   def pause(self):
     self.playbin.pause()
-    self.update_status('PAUSED')
 
   def stop(self):
     self.playbin.stop()
-    self.update_status('READY')
 
   def set_volume(self, volume):
     self.playbin.set_volume(volume)
 
-  def update_status(self, text):
+  def update_status(self, status):
     labels = {
       'PLAYING': 'Playing',
-      'PAUSED': 'Paused',
-      'READY': 'Stopped',
-      'ERROR': 'Error',
+      'PAUSED':  'Paused',
+      'READY':   'Stopped',
+      'ERROR':   'Error',
+      'BUFFER':  'Buffering'
     }
 
-    text = labels.get(text, 'Not playing')
-    self.status.set_text(text)
+    status = labels.get(status, status)
+    self.status.set_text(status)
 
     return False
 

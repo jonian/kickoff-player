@@ -43,20 +43,28 @@ class GstBox(Gtk.Box):
 
   def play(self):
     self.playbin.set_state(Gst.State.PLAYING)
+    self.callback('PLAYING')
 
   def pause(self):
     self.playbin.set_state(Gst.State.PAUSED)
+    self.callback('PAUSED')
 
   def stop(self):
     self.playbin.set_state(Gst.State.READY)
+    self.callback('READY')
+
+  def buffer(self):
+    self.callback('BUFFER')
+    self.playbin.set_state(Gst.State.READY)
+    self.play()
 
   def set_volume(self, volume):
     self.playbin.set_property('volume', volume)
 
   def on_dbus_message(self, _bus, message):
-    if message.type == Gst.MessageType.EOS:
-      self.callback('READY')
-      self.stop()
-    elif message.type == Gst.MessageType.ERROR:
-      self.callback('ERROR')
-      self.stop()
+    eos  = Gst.MessageType.EOS
+    err  = Gst.MessageType.ERROR
+    buff = Gst.MessageType.BUFFERING
+
+    if message.type in [eos, err, buff]:
+      self.buffer()
