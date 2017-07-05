@@ -28,17 +28,17 @@ class ChannelHandler(object):
     self.channels_list    = self.channels.get_object('flow_box_channels_list')
 
   def do_channels_widgets(self):
-    if len(self.channels_filters.get_children()) == 0:
+    if not self.channels_filters.get_children():
       GLib.idle_add(self.do_channels_filters)
 
-    if len(self.channels_list.get_children()) == 0:
+    if not self.channels_list.get_children():
       GLib.idle_add(self.do_channels_list)
 
   def update_channels_widgets(self):
-    if len(self.channels_filters.get_children()) > 0:
+    if self.channels_filters.get_children():
       GLib.idle_add(self.update_channels_filters)
 
-    if len(self.channels_list.get_children()) > 0:
+    if self.channels_list.get_children():
       GLib.idle_add(self.update_channels_list)
 
   def update_channels_data(self):
@@ -50,7 +50,6 @@ class ChannelHandler(object):
 
     self.app.streams_api.save_streams()
 
-    GLib.idle_add(self.do_channels_widgets)
     GLib.idle_add(self.update_channels_widgets)
     GLib.idle_add(self.app.toggle_reload, True)
 
