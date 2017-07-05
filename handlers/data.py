@@ -1,6 +1,6 @@
 import os
 
-from playhouse.apsw_ext import CharField, DateTimeField, IntegerField, BooleanField, ForeignKeyField
+from playhouse.sqlite_ext import CharField, DateTimeField, IntegerField, BooleanField, ForeignKeyField
 
 from peewee import IntegrityError, Model
 from helpers.utils import database_connection
@@ -44,9 +44,8 @@ class DataHandler(object):
     return item
 
   def set_multiple(self, model, items, main_key, update=False):
-    with self.db.atomic():
-      for item in items:
-        self.set_single(model, item, main_key, update)
+    for item in items:
+      self.set_single(model, item, main_key, update)
 
   def load_settings(self):
     items = Setting.select()

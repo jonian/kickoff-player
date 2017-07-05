@@ -4,7 +4,7 @@ import socket
 import requests
 import dateutil.parser
 
-from playhouse.apsw_ext import APSWDatabase
+from playhouse.sqliteq import SqliteQueueDatabase
 from multiprocessing.pool import ThreadPool
 from datetime import datetime, timedelta, timezone
 
@@ -29,7 +29,7 @@ def database_dir(db_name):
 
 def database_connection(db_name):
   db_dir  = database_dir(db_name)
-  db_conn = APSWDatabase(db_dir)
+  db_conn = SqliteQueueDatabase(db_dir)
 
   return db_conn
 
