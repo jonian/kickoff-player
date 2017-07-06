@@ -130,8 +130,8 @@ class MatchTeamsBox(Gtk.Box):
     return box
 
   def do_team_box(self, team):
-    crest = getattr(self, team + '_crest')
-    tname = getattr(self, team + '_name')
+    crest = getattr(self, "%s_crest" % team)
+    tname = getattr(self, "%s_name" % team)
 
     box = self.do_column_box()
     box.pack_start(crest, True, True, 0)
@@ -152,8 +152,8 @@ class MatchTeamsBox(Gtk.Box):
     return label
 
   def update_team_name(self, team):
-    tname = getattr(self.fixture, team + '_team').name
-    label = getattr(self, team + '_name')
+    tname = getattr(self.fixture, "%s_team" % team).name
+    label = getattr(self, "%s_name" % team)
     label.set_label(tname)
     label.set_tooltip_text(tname)
     label.show()
@@ -166,8 +166,8 @@ class MatchTeamsBox(Gtk.Box):
     return image
 
   def update_team_crest(self, team):
-    crest = getattr(self.fixture, team + '_team').crest
-    image = getattr(self, team + '_crest')
+    crest = getattr(self.fixture, "%s_team" % team).crest
+    image = getattr(self, "%s_crest" % team)
     image_from_path(path=crest, image=image)
     image.show()
 
