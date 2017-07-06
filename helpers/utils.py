@@ -1,12 +1,12 @@
 import os
 import time
 import socket
-import requests
-import dateutil.parser
 
-from playhouse.sqliteq import SqliteQueueDatabase
 from multiprocessing.pool import ThreadPool
 from datetime import datetime, timedelta, timezone
+from dateutil import parser
+from requests import get
+from playhouse.sqliteq import SqliteQueueDatabase
 
 
 def user_data_dir():
@@ -78,7 +78,7 @@ def format_date(date, localize=False, date_format='%Y-%m-%d %H:%M:%S.%f'):
 
 
 def parse_date(date, localize=False):
-  date = date if type(date) is not str else dateutil.parser.parse(date)
+  date = date if not isinstance(date, str) else parser.parse(date)
   date = date if not localize else date.replace(tzinfo=timezone.utc).astimezone(tz=None)
 
   return date
@@ -129,7 +129,7 @@ def thread_pool(callback, args, flatten=True):
 
 def search_dict_key(iterable, keys, default=None):
   try:
-    keys = keys if type(keys) is list else [keys]
+    keys = keys if isinstance(keys, list) else [keys]
 
     for key in keys:
       iterable = iterable[key]
@@ -147,7 +147,7 @@ def cached_request(url, cache, base_url=None, ttl=300, json=False, params=None, 
 
   if response is None:
     try:
-      response = requests.get(url, headers=headers, params=params)
+      response = get(url, headers=headers, params=params)
 
       if response.status_code != 200:
         return None
@@ -157,10 +157,8 @@ def cached_request(url, cache, base_url=None, ttl=300, json=False, params=None, 
     except socket.error:
       return None
 
-  if json is True:
-    return response.json
-  else:
-    return response.text
+  response = response.json if json is True else response.text
+  return response
 
 
 def cache_key_from_url(url, params=None, cache_key=None):
@@ -201,13 +199,13 @@ def parse_url(url, base_url=None):
 
 def download_file(url, path, stream=False):
   try:
-    response = requests.get(url, stream=stream)
+    response = get(url, stream=stream)
 
     if response.status_code != 200:
       return None
 
-    with open(path, 'wb') as f:
-      f.write(response.content)
+    with open(path, 'wb') as filename:
+      filename.write(response.content)
   except socket.error:
     return None
 
