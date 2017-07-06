@@ -76,7 +76,6 @@ def filter_widget_items(window, container, selected, default, attr):
 def image_from_path(path, size=48, image=None):
   gimage = Gtk.Image() if image is None else image
   pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, size, size, True)
-
   gimage.set_from_pixbuf(pixbuf)
 
   return gimage

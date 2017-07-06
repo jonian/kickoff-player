@@ -44,9 +44,7 @@ def gmtime(date_format=None, round_time=False):
 
 
 def tzone(zone_format):
-  zone = time.strftime(zone_format)
-
-  return zone
+  return time.strftime(zone_format)
 
 
 def now(date_format=None):

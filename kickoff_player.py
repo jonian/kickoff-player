@@ -69,8 +69,7 @@ class KickoffPlayer(object):
     self.header_reload.set_sensitive(show)
 
   def get_stack_visible_child(self):
-    child = self.main_stack.get_visible_child()
-    return child
+    return self.main_stack.get_visible_child()
 
   def set_stack_visible_child(self, widget):
     self.main_stack.set_visible_child(widget)
