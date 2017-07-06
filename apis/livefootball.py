@@ -1,6 +1,6 @@
+from operator import itemgetter
 from lxml import html, etree
 from fuzzywuzzy import fuzz
-from operator import itemgetter
 from helpers.utils import cached_request
 
 
@@ -38,10 +38,10 @@ class LivefootballApi:
       return items
 
     try:
-      bar = data.xpath('//div[contains(@class, "headerbar")]')[0]
-      ace = bar.xpath('.//a//span[text()="AceStream"]//parent::a')[0]
+      hbr = data.xpath('//div[contains(@class, "headerbar")]')[0]
+      ace = hbr.xpath('.//a//span[text()="AceStream"]//parent::a')[0]
       ace = ace.attrib['href']
-      sop = bar.xpath('.//a//span[text()="Sopcast"]//parent::a')[0]
+      sop = hbr.xpath('.//a//span[text()="Sopcast"]//parent::a')[0]
       sop = sop.attrib['href']
 
       items.append({ 'name': 'AceStream', 'url': ace })
@@ -238,7 +238,7 @@ class LivefootballApi:
 
       items.append({ 'ratio': comb_ratio, 'event': event })
 
-    if len(items) > 0:
+    if items:
       sort = sorted(items, key=itemgetter('ratio'), reverse=True)[0]
 
       if sort['ratio'] > 70:
@@ -259,7 +259,7 @@ class LivefootballApi:
           'language': channel['language']
         })
 
-    if len(items) > 0:
+    if items:
       self.data.set_multiple('channel', items, 'name')
 
   def save_streams(self):
@@ -288,7 +288,7 @@ class LivefootballApi:
             'language': stream['lang']
           })
 
-    if len(items) > 0:
+    if items:
       self.data.set_multiple('stream', items, 'url')
 
   def save_events_channels(self):
@@ -310,7 +310,7 @@ class LivefootballApi:
           'language': streams[0]['language']
         })
 
-    if len(items) > 0:
+    if items:
       self.data.set_multiple('channel', items, 'name')
 
   def save_events_streams(self):
@@ -341,7 +341,7 @@ class LivefootballApi:
             'language': stream['lang']
           })
 
-    if len(items) > 0:
+    if items:
       self.data.set_multiple('stream', items, 'url')
 
   def save_events(self):
@@ -367,5 +367,5 @@ class LivefootballApi:
           'stream':  stream
         })
 
-    if len(items) > 0:
+    if items:
       self.data.set_multiple('event', items, 'fs_id')
