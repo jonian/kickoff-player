@@ -40,32 +40,29 @@ class MatchHandler(object):
 
     GLib.idle_add(self.update_competitions_data)
     GLib.idle_add(self.update_teams_data)
+
     GLib.timeout_add(10000, self.update_live_data)
 
   def do_matches_widgets(self):
-    if len(self.matches_filters.get_children()) == 0:
-      GLib.timeout_add(200, self.do_matches_filters)
+    if not self.matches_filters.get_children():
+      GLib.idle_add(self.do_matches_filters)
 
-    if len(self.matches_list.get_children()) == 0:
-      GLib.timeout_add(200, self.do_matches_list)
+    if not self.matches_list.get_children():
+      GLib.idle_add(self.do_matches_list)
 
   def update_matches_widgets(self):
-    if len(self.matches_filters.get_children()) > 0:
-      GLib.timeout_add(200, self.update_matches_filters)
+    if self.matches_filters.get_children():
+      GLib.idle_add(self.update_matches_filters)
 
-    if len(self.matches_list.get_children()) > 0:
-      GLib.timeout_add(200, self.update_matches_list)
+    if self.matches_list.get_children():
+      GLib.idle_add(self.update_matches_list)
 
   def update_competitions_data(self):
-    competitions = self.app.data.load_competitions()
-
-    if len(competitions) == 0:
+    if not self.app.data.load_competitions():
       self.app.scores_api.save_competitions()
 
   def update_teams_data(self):
-    teams = self.app.data.load_teams()
-
-    if len(teams) == 0:
+    if not self.app.data.load_teams():
       self.app.scores_api.save_teams()
 
   def update_matches_data(self):
@@ -78,7 +75,6 @@ class MatchHandler(object):
     self.app.scores_api.save_matches()
     self.app.streams_api.save_events()
 
-    GLib.idle_add(self.do_matches_widgets)
     GLib.idle_add(self.update_matches_widgets)
     GLib.idle_add(self.app.toggle_reload, True)
 
@@ -98,7 +94,7 @@ class MatchHandler(object):
   def update_live_data(self):
     match_items = self.matches_list.get_children()
 
-    if len(match_items) > 0 and match_items[0].fixture.date <= now():
+    if match_items and match_items[0].fixture.date <= now():
       thread = threading.Thread(target=self.do_update_live_data)
       thread.start()
 
@@ -112,9 +108,12 @@ class MatchHandler(object):
     filters = self.app.data.load_matches_filters()
     remove_widget_children(self.matches_filters)
 
-    for filter_name in filters:
-      filterbox = FilterBox(filter_name=filter_name)
-      self.matches_filters.add(filterbox)
+    for index, filter_name in enumerate(filters):
+      GLib.timeout_add(50 * index, self.do_filter_item, filter_name)
+
+  def do_filter_item(self, filter_name):
+    filterbox = FilterBox(filter_name=filter_name)
+    self.matches_filters.add(filterbox)
 
   def update_matches_filters(self):
     filters = self.app.data.load_matches_filters()
@@ -127,9 +126,12 @@ class MatchHandler(object):
     fixtures = self.app.data.load_fixtures(True)
     remove_widget_children(self.matches_list)
 
-    for fixture in fixtures:
-      matchbox = MatchBox(fixture=fixture, callback=self.on_match_activated)
-      self.matches_list.add(matchbox)
+    for index, fixture in enumerate(fixtures):
+      GLib.timeout_add(50 * index, self.do_match_item, fixture)
+
+  def do_match_item(self, fixture):
+    matchbox = MatchBox(fixture=fixture, callback=self.on_match_activated)
+    self.matches_list.add(matchbox)
 
   def update_matches_list(self):
     fixtures = self.app.data.load_fixtures(True, True)
@@ -148,7 +150,7 @@ class MatchHandler(object):
     teambox = MatchTeamsBox(fixture=fixture)
     self.match_teams.pack_start(teambox, True, True, 0)
 
-    if fixture.events.count() == 0:
+    if not fixture.events:
       streambox = MatchStreamBox(stream=None, callback=None)
       self.match_streams.add(streambox)
 
