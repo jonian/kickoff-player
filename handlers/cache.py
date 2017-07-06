@@ -10,12 +10,12 @@ from helpers.utils import now
 class CacheHandler(object):
 
   def __init__(self):
-    self.db = database_connection('cache.db')
+    self.dbs = database_connection('cache.db')
     self.register_models()
 
   def register_models(self):
-    self.db.connect()
-    self.db.create_tables([Cacheable], safe=True)
+    self.dbs.connect()
+    self.dbs.create_tables([Cacheable], safe=True)
 
   def get(self, key):
     try:

@@ -10,7 +10,7 @@ from helpers.utils import query_date_range, parse_date, format_date, now, today
 class DataHandler(object):
 
   def __init__(self):
-    self.db = database_connection('data.db')
+    self.dbs = database_connection('data.db')
     self.register_models()
 
     self.fx_limit = query_date_range({ 'days': 14 })
@@ -22,8 +22,8 @@ class DataHandler(object):
   def register_models(self):
     tables = [Setting, Competition, Team, Fixture, Channel, Stream, Event]
 
-    self.db.connect()
-    self.db.create_tables(tables, safe=True)
+    self.dbs.connect()
+    self.dbs.create_tables(tables, safe=True)
 
   def set_single(self, model, kwargs, main_key, update=False):
     key = kwargs.get(main_key, None)
