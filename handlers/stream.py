@@ -2,10 +2,9 @@ import time
 import socket
 import threading
 import hashlib
+import subprocess
 import pexpect
 import psutil
-
-from subprocess import PIPE
 
 
 class StreamHandler(object):
@@ -22,11 +21,11 @@ class StreamHandler(object):
     """Notify player on stream status changes"""
 
     messages = {
-      'starting': 'Starting stream engine...',
-      'running': 'Stream engine running...',
-      'error': 'Stream engine error!',
-      'playing': 'Playing',
-      'waiting': 'Waiting for response...',
+      'starting':    'Starting stream engine...',
+      'running':     'Stream engine running...',
+      'error':       'Stream engine error!',
+      'playing':     'Playing',
+      'waiting':     'Waiting for response...',
       'unavailable': 'Stream unavailable!'
     }
     message = messages[message]
@@ -73,7 +72,7 @@ class StreamHandler(object):
     self.stop_acestream()
 
     try:
-      self.acestream = psutil.Popen([engine, client], stdout=PIPE)
+      self.acestream = psutil.Popen([engine, client], stdout=subprocess.PIPE)
       self.notify('running')
       time.sleep(5)
     except FileNotFoundError:
@@ -144,7 +143,7 @@ class StreamHandler(object):
     self.stop_sopcast()
 
     try:
-      self.sopcast = psutil.Popen([eng, url, lpo, ppo], stdout=PIPE)
+      self.sopcast = psutil.Popen([eng, url, lpo, ppo], stdout=subprocess.PIPE)
       self.notify('running')
       time.sleep(5)
     except FileNotFoundError:
