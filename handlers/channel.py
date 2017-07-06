@@ -61,8 +61,8 @@ class ChannelHandler(object):
       GLib.timeout_add(50 * index, self.do_filter_item, filter_name)
 
   def do_filter_item(self, filter_name):
-      filterbox = FilterBox(filter_name=filter_name)
-      self.channels_filters.add(filterbox)
+    filterbox = FilterBox(filter_name=filter_name)
+    self.channels_filters.add(filterbox)
 
   def update_channels_filters(self):
     filters = self.app.data.load_channels_filters()
@@ -79,8 +79,8 @@ class ChannelHandler(object):
       GLib.timeout_add(50 * index, self.do_channel_item, channel)
 
   def do_channel_item(self, channel):
-      channbox = ChannelBox(channel=channel, callback=self.app.player.open_stream)
-      self.channels_list.add(channbox)
+    channbox = ChannelBox(channel=channel, callback=self.app.player.open_stream)
+    self.channels_list.add(channbox)
 
   def update_channels_list(self):
     channels = self.app.data.load_channels(True, True)
