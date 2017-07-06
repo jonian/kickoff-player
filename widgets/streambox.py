@@ -92,7 +92,7 @@ class StreamBox(Gtk.Box):
     return label
 
   def update_stream_rate(self):
-    ratio = str(getattr(self.stream, 'rate')) + 'Kbps'
+    ratio = "%sKbps" % str(getattr(self.stream, 'rate'))
     self.stream_rate.set_label(ratio)
     self.stream_rate.show()
 
