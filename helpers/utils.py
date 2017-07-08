@@ -151,6 +151,13 @@ def search_dict_key(iterable, keys, default=None):
   return iterable
 
 
+def replace_all(string, find, replace):
+  for item in list(find):
+    string = string.replace(item, replace)
+
+  return string
+
+
 def cached_request(url, cache, base_url=None, ttl=300, json=False, params=None, callback=None, cache_key=None):
   url       = parse_url(url, base_url)
   cache_key = cache_key_from_url(url, params, cache_key)
@@ -176,21 +183,11 @@ def cache_key_from_url(url, params=None, cache_key=None):
   key = url.split('://')[1]
 
   if cache_key is not None:
-    key = key + ':' + search_dict_key(params, cache_key)
+    key = "%s:%s" % (key, search_dict_key(params, cache_key))
 
-  key = key.replace('www.', '')
-  key = key.replace('.html', '')
-  key = key.replace('.php', '')
-  key = key.replace('/', ':')
-  key = key.replace('?', ':')
-  key = key.replace('-', ':')
-  key = key.replace('_', ':')
-  key = key.replace('.', ':')
-  key = key.replace(',', ':')
-  key = key.replace(' ', ':')
-  key = key.strip('/')
-  key = key.strip(':')
-  key = key.lower()
+  key = replace_all(key, ['www.', '.html', '.php'], '')
+  key = replace_all(key, ['/', '?', '-', '_', '.', ',', ' '], ':')
+  key = key.strip('/').strip(':').lower()
 
   return key
 
@@ -201,9 +198,9 @@ def parse_url(url, base_url=None):
   path = part[-1].strip('/')
 
   if base_url is not None and base_url not in path:
-    url = host + '://' + base_url.split('://')[0] + '/' + path
+    url = "%s://%s/%s" % (host, base_url.split('://')[0], path)
   else:
-    url = host + '://' + path
+    url = "%s://%s" % (host, path)
 
   return url
 
