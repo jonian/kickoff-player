@@ -34,7 +34,7 @@ class LivefootballApi:
     data  = self.get()
     items = []
 
-    if not data:
+    if data is None:
       return items
 
     try:
@@ -55,7 +55,7 @@ class LivefootballApi:
     data  = self.get(url)
     items = []
 
-    if not data:
+    if data is None:
       return items
 
     for stream in data.xpath('//div[@id="system"]//article//table//tr'):
@@ -94,7 +94,7 @@ class LivefootballApi:
     data  = self.get(url)
     items = []
 
-    if not data:
+    if data is None:
       return items
 
     try:
@@ -145,7 +145,7 @@ class LivefootballApi:
     data = self.get()
     link = None
 
-    if not data:
+    if data is None:
       return link
 
     try:
@@ -162,7 +162,7 @@ class LivefootballApi:
     data  = self.get(url=link, ttl=7200)
     items = []
 
-    if not data:
+    if data is None:
       return items
 
     for link in data.xpath('//div[@id="system"]//list[1]//a[contains(@href, "/streaming/")]'):
@@ -177,7 +177,7 @@ class LivefootballApi:
     data = self.get(url=url, ttl=60)
     item = None
 
-    if not data:
+    if data is None:
       return item
 
     try:
@@ -275,12 +275,11 @@ class LivefootballApi:
     items    = []
 
     for channel in channels:
+      streams = self.get_host_streams(channel['url'])
       channel = self.data.get_channel({ 'name': channel['name'] })
 
-      if not channel:
+      if channel is None:
         continue
-
-      streams = self.get_host_streams(channel['url'])
 
       for stream in streams:
         items.append({
@@ -315,12 +314,11 @@ class LivefootballApi:
 
     for item in channels:
       for channel in item['channels']:
+        streams = self.get_host_streams(channel['url'])
         channel = self.data.get_channel({ 'name': channel['name'] })
 
-        if not channel:
+        if channel is None:
           continue
-
-        streams = self.get_host_streams(channel['url'])
 
         for stream in streams:
           items.append({
@@ -343,7 +341,7 @@ class LivefootballApi:
 
     for fixture in fixtures:
       data    = self.get_fixture_match(fixture)
-      streams = [] if not data else data['streams']
+      streams = [] if data is None else data['streams']
 
       for stream in streams:
         items.append({
