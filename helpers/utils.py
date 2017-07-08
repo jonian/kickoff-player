@@ -119,7 +119,7 @@ def thread_pool(callback, args, flatten=True):
   pool.close()
   pool.join()
 
-  if flatten:
+  if flatten and isinstance(data[0], list):
     data = [item for sublist in data for item in sublist]
 
   return data

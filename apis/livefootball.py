@@ -1,5 +1,5 @@
 from operator import itemgetter
-from lxml import html, etree
+from lxml import html
 from fuzzywuzzy import fuzz
 from helpers.utils import cached_request, thread_pool
 
@@ -16,7 +16,7 @@ class LivefootballApi:
 
     try:
       response = html.fromstring(response)
-    except (TypeError, etree.XMLSyntaxError):
+    except TypeError:
       response = None
 
     return response
