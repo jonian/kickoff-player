@@ -1,6 +1,7 @@
 import os
 
-from playhouse.sqlite_ext import CharField, DateTimeField, IntegerField, BooleanField, ForeignKeyField
+from playhouse.sqlite_ext import CharField, IntegerField, BooleanField
+from playhouse.sqlite_ext import DateTimeField, ForeignKeyField
 
 from peewee import IntegrityError, Model
 from helpers.utils import database_connection
@@ -25,21 +26,62 @@ class DataHandler(object):
     self.dbs.connect()
     self.dbs.create_tables(tables, safe=True)
 
+  def get_model(self, model):
+    try:
+      model = globals()[model.title()]
+    except NameError:
+      return None
+
+    return model
+
+  def get_single(self, model, kwargs):
+    model = self.get_model(model)
+
+    try:
+      item = model.get(**kwargs)
+    except model.DoesNotExist:
+      item = None
+
+    return item
+
+  def create_single(self, model, kwargs):
+    model = self.get_model(model)
+
+    try:
+      item = model.create(**kwargs)
+    except IntegrityError:
+      item = None
+
+    return item
+
+  def update_single(self, model, item, kwargs, main_key):
+    model = self.get_model(model)
+
+    try:
+      kwargs['updated'] = now()
+
+      mkey  = getattr(model, main_key)
+      ikey  = getattr(item, main_key)
+      query = model.update(**kwargs).where(mkey == ikey)
+
+      query.execute()
+    except IntegrityError:
+      item = None
+
+    return item
+
   def set_single(self, model, kwargs, main_key, update=False):
     key = kwargs.get(main_key, None)
 
     if key is None:
       return None
 
-    get_item = getattr(self, 'get_' + model)
-    item     = get_item({ main_key: key })
+    item = self.get_single(model, { main_key: key })
 
     if item is None and not update:
-      create_item = getattr(self, 'create_' + model)
-      item        = create_item(kwargs)
+      item = self.create_single(model, kwargs)
     elif item is not None:
-      update_item = getattr(self, 'update_' + model)
-      update_item(item, kwargs)
+      item = self.update_single(model, item, kwargs, main_key)
 
     return item
 
@@ -52,28 +94,6 @@ class DataHandler(object):
 
     return items
 
-  def get_setting(self, kwargs):
-    try:
-      item = Setting.get(**kwargs)
-    except Setting.DoesNotExist:
-      item = None
-
-    return item
-
-  def create_setting(self, kwargs):
-    try:
-      item = Setting.create(**kwargs)
-    except IntegrityError:
-      item = None
-
-    return item
-
-  def update_setting(self, item, kwargs):
-    query = Setting.update(**kwargs).where(Setting.key == item.key)
-    query.execute()
-
-    return item
-
   def load_competitions(self, current=False, name_only=False, ids=None):
     items = Competition.select()
     items = items if not current else items.join(Fixture).where(self.fx_query)
@@ -83,57 +103,10 @@ class DataHandler(object):
 
     return items
 
-  def get_competition(self, kwargs):
-    try:
-      item = Competition.get(**kwargs)
-    except Competition.DoesNotExist:
-      item = None
-
-    return item
-
-  def create_competition(self, kwargs):
-    try:
-      item = Competition.create(**kwargs)
-    except IntegrityError:
-      item = None
-
-    return item
-
-  def update_competition(self, item, kwargs):
-    kwargs['updated'] = now()
-
-    query = Competition.update(**kwargs).where(Competition.api_id == item.api_id)
-    query.execute()
-
-    return item
-
   def load_teams(self):
     items = Team.select()
 
     return items
-
-  def get_team(self, kwargs):
-    try:
-      item = Team.get(**kwargs)
-    except Team.DoesNotExist:
-      item = None
-
-    return item
-
-  def create_team(self, kwargs):
-    try:
-      item = Team.create(**kwargs)
-    except IntegrityError:
-      item = None
-
-    return item
-
-  def update_team(self, item, kwargs):
-    kwargs['updated'] = now()
-    query = Team.update(**kwargs).where(Team.api_id == item.api_id)
-    query.execute()
-
-    return item
 
   def load_fixtures(self, current=False, id_only=False, today_only=False):
     items = Fixture.select().distinct()
@@ -143,30 +116,6 @@ class DataHandler(object):
     items = items if not id_only else list(sum(items.select(Fixture.id).tuples(), ()))
 
     return items
-
-  def get_fixture(self, kwargs):
-    try:
-      item = Fixture.get(**kwargs)
-    except Fixture.DoesNotExist:
-      item = None
-
-    return item
-
-  def create_fixture(self, kwargs):
-    try:
-      item = Fixture.create(**kwargs)
-    except IntegrityError:
-      item = None
-
-    return item
-
-  def update_fixture(self, item, kwargs):
-    kwargs['updated'] = now()
-
-    query = Fixture.update(**kwargs).where(Fixture.api_id == item.api_id)
-    query.execute()
-
-    return item
 
   def load_languages(self):
     items = Channel.select(Channel.language).join(Stream)
@@ -183,99 +132,28 @@ class DataHandler(object):
 
     return items
 
-  def get_channel(self, kwargs):
-    try:
-      item = Channel.get(**kwargs)
-    except Channel.DoesNotExist:
-      item = None
-
-    return item
-
-  def create_channel(self, kwargs):
-    try:
-      item = Channel.create(**kwargs)
-    except IntegrityError:
-      item = None
-
-    return item
-
-  def update_channel(self, item, kwargs):
-    kwargs['updated'] = now()
-
-    query = Channel.update(**kwargs).where(Channel.name == item.name)
-    query.execute()
-
-    return item
-
-  def get_stream(self, kwargs):
-    try:
-      item = Stream.get(**kwargs)
-    except Stream.DoesNotExist:
-      item = None
-
-    return item
-
-  def create_stream(self, kwargs):
-    try:
-      item = Stream.create(**kwargs)
-    except IntegrityError:
-      item = None
-
-    return item
-
-  def update_stream(self, item, kwargs):
-    kwargs['updated'] = now()
-
-    query = Stream.update(**kwargs).where(Stream.url == item.url)
-    query.execute()
-
-    return item
-
-  def get_event(self, kwargs):
-    try:
-      item = Event.get(**kwargs)
-    except Event.DoesNotExist:
-      item = None
-
-    return item
-
-  def create_event(self, kwargs):
-    try:
-      item = Event.create(**kwargs)
-    except IntegrityError:
-      item = None
-
-    return item
-
-  def update_event(self, item, kwargs):
-    kwargs['updated'] = now()
-
-    query = Event.update(**kwargs).where(Event.fs_id == item.fs_id)
-    query.execute()
-
-    return item
-
   def load_matches_filters(self):
-    filters = self.load_competitions(True, True)
-    filters = ['All Competitions'] + filters if len(filters) else filters
+    filters = self.load_active_competitions(True)
+    filters = list(sum(filters.select(Competition.name).tuples(), ()))
+    filters = ['All Competitions'] + filters
 
     return filters
 
   def load_channels_filters(self):
-    filters = self.load_languages()
-    filters = ['All Languages'] + filters if len(filters) else filters
+    filters = list(self.load_languages())
+    filters = ['All Languages'] + filters
 
     return filters
 
   def load_active_competitions(self, records=False):
-    default = '1 2 5 9 17 13 19 10 18 23 33'.split(' ')
-    setting = self.get_setting({ 'key': 'competitions' })
+    default = '1 4 5 9 17 13 19 10 18 23 33'.split(' ')
+    setting = self.get_single('setting', { 'key': 'competitions' })
     setting = default if setting is None else setting
 
     if records:
-      return self.load_competitions(ids=setting)
-    else:
-      return setting
+      setting = self.load_competitions(ids=setting)
+
+    return setting
 
 
 class BasicModel(Model):
@@ -391,7 +269,7 @@ class Fixture(BasicModel):
   def today(self):
     fdate = parse_date(date=self.date, localize=False).date()
 
-    if fdate == today() and not self.period == 'Postponed':
+    if fdate == today() and self.period != 'Postponed':
       return True
 
     return False

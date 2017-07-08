@@ -88,7 +88,7 @@ class ChannelHandler(object):
 
     for item in self.channels_list.get_children():
       if item.channel.id in channels:
-        updated = self.app.data.get_channel({ 'id': item.channel.id })
+        updated = self.app.data.get_single('channel', { 'id': item.channel.id })
         item.set_property('channel', updated)
       else:
         item.destroy()

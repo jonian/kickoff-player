@@ -229,7 +229,7 @@ class LivefootballApi:
       streams = self.get_all_host_streams(channel['channels'])
 
       for stream in streams:
-        stream = self.data.get_stream({ 'url': stream['url'] })
+        stream = self.data.get_single('stream', { 'url': stream['url'] })
 
         if stream:
           item['streams'].append(stream.id)
@@ -279,7 +279,7 @@ class LivefootballApi:
 
     for channel in channels:
       streams = self.get_host_streams(channel['url'])
-      channel = self.data.get_channel({ 'name': channel['name'] })
+      channel = self.data.get_single('channel', { 'name': channel['name'] })
 
       if channel is None:
         continue
@@ -316,7 +316,7 @@ class LivefootballApi:
 
     for channel in channels:
       streams = self.get_host_streams(channel['url'])
-      channel = self.data.get_channel({ 'name': channel['name'] })
+      channel = self.data.get_single('channel', { 'name': channel['name'] })
 
       if channel is None:
         continue

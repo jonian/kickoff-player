@@ -138,7 +138,7 @@ class MatchHandler(object):
 
     for item in self.matches_list.get_children():
       if item.fixture.id in fixtures:
-        updated = self.app.data.get_fixture({ 'id': item.fixture.id })
+        updated = self.app.data.get_single('fixture', { 'id': item.fixture.id })
         item.set_property('fixture', updated)
       else:
         item.destroy()
@@ -160,7 +160,7 @@ class MatchHandler(object):
 
   def update_match_details(self):
     fixture = self.match_teams.get_children()[0].fixture.id
-    fixture = self.app.data.get_fixture({ 'id': fixture })
+    fixture = self.app.data.get_single('fixture', { 'id': fixture })
 
     self.do_match_details(fixture)
 

@@ -133,9 +133,9 @@ class OnefootballApi:
 
     for item in matches:
       try:
-        competition = self.data.get_competition({ 'api_id': item['competition']['id'] })
-        home_team   = self.data.get_team({ 'api_id': item['team_home']['id'] })
-        away_team   = self.data.get_team({ 'api_id': item['team_away']['id'] })
+        competition = self.data.get_single('competition', { 'api_id': item['competition']['id'] })
+        home_team   = self.data.get_single('team', { 'api_id': item['team_home']['id'] })
+        away_team   = self.data.get_single('team', { 'api_id': item['team_away']['id'] })
         form_date   = format_date(date=item['kickoff'], localize=True)
 
         items.append({
