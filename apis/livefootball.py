@@ -1,7 +1,7 @@
 from operator import itemgetter
 from lxml import html, etree
 from fuzzywuzzy import fuzz
-from helpers.utils import cached_request
+from helpers.utils import cached_request, thread_pool
 
 
 class LivefootballApi:
@@ -84,6 +84,12 @@ class LivefootballApi:
 
     return items
 
+  def get_all_host_channels(self):
+    links = [x['url'] for x in self.get_host_links()]
+    items = thread_pool(self.get_host_channels, list(links))
+
+    return items
+
   def get_host_streams(self, url):
     data  = self.get(url)
     items = []
@@ -126,6 +132,12 @@ class LivefootballApi:
         items.append(item)
     except (IndexError, ValueError):
       pass
+
+    return items
+
+  def get_all_host_streams(self, channels):
+    links = [x['url'] for x in channels]
+    items = thread_pool(self.get_host_streams, list(links))
 
     return items
 
