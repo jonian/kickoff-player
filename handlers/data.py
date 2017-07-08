@@ -94,6 +94,16 @@ class DataHandler(object):
 
     return items
 
+  def load_active_competitions(self, records=False):
+    default = '1 4 5 9 17 13 19 10 18 23 33'.split(' ')
+    setting = self.get_single('setting', { 'key': 'competitions' })
+    setting = default if setting is None else setting
+
+    if records:
+      setting = self.load_competitions(ids=setting)
+
+    return setting
+
   def load_competitions(self, current=False, name_only=False, ids=None):
     items = Competition.select()
     items = items if not current else items.join(Fixture).where(self.fx_query)
@@ -144,16 +154,6 @@ class DataHandler(object):
     filters = ['All Languages'] + filters
 
     return filters
-
-  def load_active_competitions(self, records=False):
-    default = '1 4 5 9 17 13 19 10 18 23 33'.split(' ')
-    setting = self.get_single('setting', { 'key': 'competitions' })
-    setting = default if setting is None else setting
-
-    if records:
-      setting = self.load_competitions(ids=setting)
-
-    return setting
 
 
 class BasicModel(Model):
@@ -257,30 +257,24 @@ class Fixture(BasicModel):
   @property
 
   def live(self):
+    pastp = ['PreMatch', 'FullTime', 'Postponed']
     fdate = parse_date(date=self.date, localize=False).date()
+    fdate = fdate == today() and self.period not in pastp
 
-    if fdate == today() and self.period not in ['PreMatch', 'FullTime', 'Postponed']:
-      return True
-
-    return False
+    return fdate
 
   @property
 
   def today(self):
     fdate = parse_date(date=self.date, localize=False).date()
+    fdate = fdate == today() and self.period != 'Postponed'
 
-    if fdate == today() and self.period != 'Postponed':
-      return True
-
-    return False
+    return fdate
 
   @property
 
   def past(self):
-    if self.period == 'FullTime':
-      return True
-
-    return False
+    return self.period == 'FullTime'
 
   @property
 
@@ -336,7 +330,7 @@ class Stream(BasicModel):
 
   def logo(self):
     fname = str(self.host).lower()
-    image = 'images/' + fname + '.svg'
+    image = "images/%s.svg" % fname
 
     return image
 
