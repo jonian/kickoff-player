@@ -34,7 +34,7 @@ class LivefootballApi:
     data  = self.get()
     items = []
 
-    if data is None:
+    if not data:
       return items
 
     try:
@@ -55,7 +55,7 @@ class LivefootballApi:
     data  = self.get(url)
     items = []
 
-    if data is None:
+    if not data:
       return items
 
     for stream in data.xpath('//div[@id="system"]//article//table//tr'):
@@ -85,10 +85,10 @@ class LivefootballApi:
     return items
 
   def get_host_streams(self, url):
-    data = self.get(url)
+    data  = self.get(url)
     items = []
 
-    if data is None:
+    if not data:
       return items
 
     try:
@@ -133,7 +133,7 @@ class LivefootballApi:
     data = self.get()
     link = None
 
-    if data is None:
+    if not data:
       return link
 
     try:
@@ -149,7 +149,7 @@ class LivefootballApi:
     data  = self.get(url=url, ttl=7200)
     items = []
 
-    if data is None:
+    if not data:
       return items
 
     for link in data.xpath('//div[@id="system"]//list[1]//a[contains(@href, "/streaming/")]'):
@@ -164,7 +164,7 @@ class LivefootballApi:
     data = self.get(url=url, ttl=60)
     item = None
 
-    if data is None:
+    if not data:
       return item
 
     try:
@@ -221,7 +221,7 @@ class LivefootballApi:
 
           item['streams'].append(stream.id)
 
-      if len(item['streams']) > 1:
+      if item['streams']:
         items.append(item)
 
     return items
@@ -259,8 +259,7 @@ class LivefootballApi:
           'language': channel['language']
         })
 
-    if items:
-      self.data.set_multiple('channel', items, 'name')
+    self.data.set_multiple('channel', items, 'name')
 
   def save_streams(self):
     self.save_channels()
@@ -288,8 +287,7 @@ class LivefootballApi:
             'language': stream['lang']
           })
 
-    if items:
-      self.data.set_multiple('stream', items, 'url')
+    self.data.set_multiple('stream', items, 'url')
 
   def save_events_channels(self):
     elink = self.get_events_link()
@@ -310,8 +308,7 @@ class LivefootballApi:
           'language': streams[0]['language']
         })
 
-    if items:
-      self.data.set_multiple('channel', items, 'name')
+    self.data.set_multiple('channel', items, 'name')
 
   def save_events_streams(self):
     elink = self.get_events_link()
@@ -328,7 +325,7 @@ class LivefootballApi:
         streams = self.get_host_streams(channel['url'])
         channel = self.data.get_channel({ 'name': channel['name'] })
 
-        if channel is None:
+        if not channel:
           continue
 
         for stream in streams:
@@ -341,8 +338,7 @@ class LivefootballApi:
             'language': stream['lang']
           })
 
-    if items:
-      self.data.set_multiple('stream', items, 'url')
+    self.data.set_multiple('stream', items, 'url')
 
   def save_events(self):
     self.save_events_channels()
@@ -367,5 +363,4 @@ class LivefootballApi:
           'stream':  stream
         })
 
-    if items:
-      self.data.set_multiple('event', items, 'fs_id')
+    self.data.set_multiple('event', items, 'fs_id')
