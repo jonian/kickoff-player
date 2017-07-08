@@ -157,8 +157,9 @@ class LivefootballApi:
 
     return link
 
-  def get_events_links(self, url):
-    data  = self.get(url=url, ttl=7200)
+  def get_events_links(self):
+    link  = self.get_events_link()
+    data  = self.get(url=link, ttl=7200)
     items = []
 
     if not data:
@@ -204,33 +205,30 @@ class LivefootballApi:
 
     return item
 
+  def get_all_event_channels(self):
+    links = self.get_events_links()
+    items = thread_pool(self.get_event_channels, list(links))
+
+    return items
+
   def get_events_streams(self):
-    elink = self.get_events_link()
-    links = self.get_events_links(elink)
-    items = []
+    channels = self.get_all_event_channels()
+    items    = []
 
-    for link in links:
-      data = self.get_event_channels(link)
-
-      if data is None:
-        continue
-
+    for channel in channels:
       item = {
-        'competition': data['competition'],
-        'home':        data['home'],
-        'away':        data['away'],
+        'competition': channel['competition'],
+        'home':        channel['home'],
+        'away':        channel['away'],
         'streams':     []
       }
 
-      for channel in data['channels']:
-        streams = self.get_host_streams(channel['url'])
+      streams = self.get_all_host_streams(channel['channels'])
 
-        for stream in streams:
-          stream = self.data.get_stream({ 'url': stream['url'] })
+      for stream in streams:
+        stream = self.data.get_stream({ 'url': stream['url'] })
 
-          if stream is None:
-            continue
-
+        if stream:
           item['streams'].append(stream.id)
 
       if item['streams']:
@@ -259,60 +257,49 @@ class LivefootballApi:
     return match
 
   def save_channels(self):
-    links = self.get_host_links()
-    items = []
+    channels = self.get_all_host_channels()
+    items    = []
 
-    for link in links:
-      channels = self.get_host_channels(link['url'])
-
-      for channel in channels:
-        items.append({
-          'name':     channel['name'],
-          'language': channel['language']
-        })
+    for channel in channels:
+      items.append({
+        'name':     channel['name'],
+        'language': channel['language']
+      })
 
     self.data.set_multiple('channel', items, 'name')
 
   def save_streams(self):
     self.save_channels()
 
-    links = self.get_host_links()
-    items = []
+    channels = self.get_all_host_channels()
+    items    = []
 
-    for link in links:
-      channels = self.get_host_channels(link['url'])
+    for channel in channels:
+      channel = self.data.get_channel({ 'name': channel['name'] })
 
-      for channel in channels:
-        streams = self.get_host_streams(channel['url'])
-        channel = self.data.get_channel({ 'name': channel['name'] })
+      if not channel:
+        continue
 
-        if channel is None:
-          continue
+      streams = self.get_host_streams(channel['url'])
 
-        for stream in streams:
-          items.append({
-            'channel':  channel.id,
-            'host':     stream['host'],
-            'rate':     stream['rate'],
-            'url':      stream['url'],
-            'hd_url':   stream['hd_url'],
-            'language': stream['lang']
-          })
+      for stream in streams:
+        items.append({
+          'channel':  channel.id,
+          'host':     stream['host'],
+          'rate':     stream['rate'],
+          'url':      stream['url'],
+          'hd_url':   stream['hd_url'],
+          'language': stream['lang']
+        })
 
     self.data.set_multiple('stream', items, 'url')
 
   def save_events_channels(self):
-    elink = self.get_events_link()
-    links = self.get_events_links(elink)
-    items = []
+    channels = self.get_all_event_channels()
+    items    = []
 
-    for link in links:
-      data = self.get_event_channels(link)
-
-      if data is None:
-        continue
-
-      for channel in data['channels']:
+    for item in channels:
+      for channel in item['channels']:
         streams = self.get_host_streams(channel['url'])
 
         items.append({
@@ -323,22 +310,17 @@ class LivefootballApi:
     self.data.set_multiple('channel', items, 'name')
 
   def save_events_streams(self):
-    elink = self.get_events_link()
-    links = self.get_events_links(elink)
-    items = []
+    channels = self.get_all_event_channels()
+    items    = []
 
-    for link in links:
-      data = self.get_event_channels(link)
-
-      if data is None:
-        continue
-
-      for channel in data['channels']:
-        streams = self.get_host_streams(channel['url'])
+    for item in channels:
+      for channel in item['channels']:
         channel = self.data.get_channel({ 'name': channel['name'] })
 
         if not channel:
           continue
+
+        streams = self.get_host_streams(channel['url'])
 
         for stream in streams:
           items.append({
@@ -356,21 +338,16 @@ class LivefootballApi:
     self.save_events_channels()
     self.save_events_streams()
 
-    fixts = self.data.load_fixtures(today_only=True)
-    items = []
+    fixtures = self.data.load_fixtures(today_only=True)
+    items    = []
 
-    for fixture in fixts:
-      if not fixture.today:
-        continue
+    for fixture in fixtures:
+      data    = self.get_fixture_match(fixture)
+      streams = [] if not data else data['streams']
 
-      data = self.get_fixture_match(fixture)
-
-      if data is None:
-        continue
-
-      for stream in data['streams']:
+      for stream in streams:
         items.append({
-          'fs_id':   str(fixture.id) + '_' + str(stream),
+          'fs_id':   "%s_%s" % (fixture.id, stream),
           'fixture': fixture.id,
           'stream':  stream
         })
