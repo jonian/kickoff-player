@@ -1,7 +1,7 @@
 from operator import itemgetter
 from lxml import html
 from fuzzywuzzy import fuzz
-from helpers.utils import cached_request, thread_pool
+from helpers.utils import cached_request, thread_pool, merge_dict_keys
 
 
 class LivefootballApi:
@@ -205,9 +205,12 @@ class LivefootballApi:
 
     return item
 
-  def get_all_event_channels(self):
+  def get_all_event_channels(self, key_name=None):
     links = self.get_events_links()
     items = thread_pool(self.get_event_channels, list(links))
+
+    if key_name is not None:
+      items = merge_dict_keys(items, key_name)
 
     return items
 
@@ -294,41 +297,39 @@ class LivefootballApi:
     self.data.set_multiple('stream', items, 'url')
 
   def save_events_channels(self):
-    channels = self.get_all_event_channels()
+    channels = self.get_all_event_channels('channels')
     items    = []
 
-    for item in channels:
-      for channel in item['channels']:
-        streams = self.get_host_streams(channel['url'])
+    for channel in channels:
+      streams = self.get_host_streams(channel['url'])
 
-        items.append({
-          'name':     channel['name'],
-          'language': streams[0]['language']
-        })
+      items.append({
+        'name':     channel['name'],
+        'language': streams[0]['language']
+      })
 
     self.data.set_multiple('channel', items, 'name')
 
   def save_events_streams(self):
-    channels = self.get_all_event_channels()
+    channels = self.get_all_event_channels('channels')
     items    = []
 
-    for item in channels:
-      for channel in item['channels']:
-        streams = self.get_host_streams(channel['url'])
-        channel = self.data.get_channel({ 'name': channel['name'] })
+    for channel in channels:
+      streams = self.get_host_streams(channel['url'])
+      channel = self.data.get_channel({ 'name': channel['name'] })
 
-        if channel is None:
-          continue
+      if channel is None:
+        continue
 
-        for stream in streams:
-          items.append({
-            'channel':  channel.id,
-            'host':     stream['host'],
-            'rate':     stream['rate'],
-            'url':      stream['url'],
-            'hd_url':   stream['hd_url'],
-            'language': stream['lang']
-          })
+      for stream in streams:
+        items.append({
+          'channel':  channel.id,
+          'host':     stream['host'],
+          'rate':     stream['rate'],
+          'url':      stream['url'],
+          'hd_url':   stream['hd_url'],
+          'language': stream['lang']
+        })
 
     self.data.set_multiple('stream', items, 'url')
 
