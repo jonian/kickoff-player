@@ -75,9 +75,9 @@ class OnefootballApi:
 
   def get_teams(self):
     comps = self.data.load_active_competitions(True)
-    itesm = thread_pool(self.get_competition_teams, list(comps))
+    items = thread_pool(self.get_competition_teams, list(comps))
 
-    return itesm
+    return items
 
   def save_teams(self):
     teams = self.get_teams()
