@@ -119,10 +119,24 @@ def thread_pool(callback, args, flatten=True):
   pool.close()
   pool.join()
 
-  if flatten and isinstance(data[0], list):
-    data = [item for sublist in data for item in sublist]
+  if flatten:
+    data = flatten_list(data)
 
   return data
+
+
+def flatten_list(iterable):
+  if isinstance(iterable[0], list):
+    iterable = [item for sublist in iterable for item in sublist]
+
+  return iterable
+
+
+def merge_dict_keys(iterable, key_name):
+  iterable = [item[key_name] for item in iterable]
+  iterable = flatten_list(iterable)
+
+  return iterable
 
 
 def search_dict_key(iterable, keys, default=None):
