@@ -44,8 +44,7 @@ class PlayerHandler(object):
     self.volume_button  = self.player.get_object('button_volume')
     self.full_button    = self.player.get_object('button_fullscreen')
     self.restore_button = self.player.get_object('button_unfullscreen')
-
-    GLib.timeout_add(3000, self.toggle_toolbar, True)
+    self.toolbar_event  = GLib.timeout_add(3000, self.toggle_toolbar, True)
 
   @property
 
@@ -192,7 +191,11 @@ class PlayerHandler(object):
 
   def on_gstbox_player_motion_notify_event(self, _widget, _event):
     self.toolbar_stick = False
+
+    GLib.source_remove(self.toolbar_event)
     GLib.idle_add(self.toggle_toolbar, False)
+
+    self.toolbar_event = GLib.timeout_add(3000, self.toggle_toolbar, True)
 
   def on_toolbar_player_enter_notify_event(self, _widget, _event):
     self.toolbar_stick = True
