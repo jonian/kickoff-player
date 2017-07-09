@@ -1,6 +1,6 @@
 import os
 
-from helpers.utils import format_date, gmtime, tzone, today
+from helpers.utils import format_date, gmtime, tzone, today, user_data_dir
 from helpers.utils import cached_request, download_file, batch, search_dict_key, thread_pool
 
 
@@ -15,7 +15,7 @@ class OnefootballApi:
     self.feedm_url = 'feedmonster.onefootball.com/feeds/il/en/competitions'
     self.image_url = 'images.onefootball.com/icons/teams'
 
-    self.img_path = os.path.expanduser('~') + '/.kickoff-player/images/'
+    self.img_path = "%s/images/" % user_data_dir()
     self.create_images_folder()
 
   def get(self, url, base_url, key=None, **kwargs):

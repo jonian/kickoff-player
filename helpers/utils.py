@@ -240,9 +240,14 @@ def parse_url(url, base_url=None):
 def download_file(url, path, stream=False):
   try:
     response = get(url, stream=stream)
+    path     = os.path.normpath(path)
+    folder   = os.path.dirname(path)
 
     if response.status_code != 200:
       return None
+
+    if not os.path.exists(folder):
+      os.makedirs(folder)
 
     with open(path, 'wb') as filename:
       filename.write(response.content)
