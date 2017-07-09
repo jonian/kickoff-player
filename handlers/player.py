@@ -35,6 +35,7 @@ class PlayerHandler(object):
 
     self.playbin = GstBox(callback=self.update_status)
     self.overlay.add(self.playbin)
+    self.playbin.connect('button-press-event', self.on_gstbox_player_button_press_event)
     self.playbin.connect('motion-notify-event', self.on_gstbox_player_motion_notify_event)
 
     self.status = self.player.get_object('label_player_status')
@@ -197,6 +198,10 @@ class PlayerHandler(object):
 
   def on_button_unfullscreen_clicked(self, _event):
     self.toggle_fullscreen()
+
+  def on_gstbox_player_button_press_event(self, _widget, event):
+    if event.type == Gdk.EventType._2BUTTON_PRESS:
+      self.toggle_fullscreen()
 
   def on_gstbox_player_motion_notify_event(self, _widget, _event):
     self.toolbar_stick = False
