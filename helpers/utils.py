@@ -162,7 +162,7 @@ def merge_dicts(first, second):
 
 def merge_dict_keys(iterable, key_name):
   if isinstance(iterable, list):
-    iterable = [item[key_name] for item in iterable]
+    iterable = [item[key_name] for item in iterable if item is not None]
     iterable = flatten_list(iterable)
 
   if iterable is None:
