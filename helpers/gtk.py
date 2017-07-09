@@ -56,10 +56,7 @@ def add_custom_css(style):
 
 
 def remove_widget_children(widget):
-  children = widget.get_children()
-
-  for child in children:
-    child.destroy()
+  widget.foreach(lambda x: x.destroy())
 
 
 def image_from_path(path, size=48, image=None):

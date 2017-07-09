@@ -199,6 +199,5 @@ class MatchHandler(object):
     return self.filter is None or item.filter_name == self.filter
 
   def on_list_box_matches_filters_row_activated(self, _listbox, item):
-    if item.filter_name != 'All Competitions':
-      self.filter = item.filter_name
-      self.matches_list.invalidate_filter()
+    self.filter = None if item.filter_name == 'All Competitions' else item.filter_name
+    self.matches_list.invalidate_filter()

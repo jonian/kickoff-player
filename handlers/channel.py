@@ -106,6 +106,5 @@ class ChannelHandler(object):
     return self.filter is None or item.filter_name == self.filter
 
   def on_list_box_channels_filters_row_activated(self, _listbox, item):
-    if item.filter_name != 'All Languages':
-      self.filter = item.filter_name
-      self.channels_list.invalidate_filter()
+    self.filter = None if item.filter_name == 'All Languages' else item.filter_name
+    self.channels_list.invalidate_filter()

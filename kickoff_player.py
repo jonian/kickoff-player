@@ -21,8 +21,6 @@ from apis.livefootball import LivefootballApi
 
 from helpers.gtk import add_custom_css
 
-GLib.threads_init()
-
 
 class KickoffPlayer(object):
 
