@@ -62,18 +62,6 @@ def remove_widget_children(widget):
     child.destroy()
 
 
-def filter_widget_items(window, container, selected, default, attr):
-  selected = getattr(selected, attr)
-
-  for child in container.get_children():
-    if selected == default or getattr(child, attr) == selected:
-      child.show()
-    else:
-      child.hide()
-
-  window.queue_resize_no_redraw()
-
-
 def image_from_path(path, size=48, image=None):
   gimage = Gtk.Image() if image is None else image
 

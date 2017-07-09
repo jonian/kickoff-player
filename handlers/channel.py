@@ -4,7 +4,7 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, GLib
-from helpers.gtk import filter_widget_items, remove_widget_children
+from helpers.gtk import remove_widget_children
 from helpers.utils import in_thread
 
 from widgets.channelbox import ChannelBox
@@ -14,8 +14,9 @@ from widgets.filterbox import FilterBox
 class ChannelHandler(object):
 
   def __init__(self, app):
-    self.app   = app
-    self.stack = app.channels_stack
+    self.app    = app
+    self.stack  = app.channels_stack
+    self.filter = None
 
     self.channels = Gtk.Builder()
     self.channels.add_from_file('ui/channels.ui')
@@ -26,6 +27,7 @@ class ChannelHandler(object):
 
     self.channels_filters = self.channels.get_object('list_box_channels_filters')
     self.channels_list    = self.channels.get_object('flow_box_channels_list')
+    self.channels_list.set_filter_func(self.on_channels_list_row_changed)
 
   def do_channels_widgets(self):
     if not self.channels_filters.get_children():
@@ -100,5 +102,10 @@ class ChannelHandler(object):
     if self.app.get_stack_visible_child() == self.stack:
       self.update_channels_data()
 
+  def on_channels_list_row_changed(self, item):
+    return self.filter is None or item.filter_name == self.filter
+
   def on_list_box_channels_filters_row_activated(self, _listbox, item):
-    filter_widget_items(self.app.window, self.channels_list, item, 'All Languages', 'filter_name')
+    if item.filter_name != 'All Languages':
+      self.filter = item.filter_name
+      self.channels_list.invalidate_filter()

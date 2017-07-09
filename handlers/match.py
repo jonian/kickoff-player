@@ -5,7 +5,7 @@ gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, GLib
 from helpers.utils import now, in_thread
-from helpers.gtk import filter_widget_items, remove_widget_children
+from helpers.gtk import remove_widget_children
 
 from widgets.matchbox import MatchBox, MatchTeamsBox, MatchStreamBox
 from widgets.filterbox import FilterBox
@@ -14,8 +14,9 @@ from widgets.filterbox import FilterBox
 class MatchHandler(object):
 
   def __init__(self, app):
-    self.app   = app
-    self.stack = app.matches_stack
+    self.app    = app
+    self.stack  = app.matches_stack
+    self.filter = None
 
     self.matches = Gtk.Builder()
     self.matches.add_from_file('ui/matches.ui')
@@ -26,6 +27,7 @@ class MatchHandler(object):
 
     self.matches_filters = self.matches.get_object('list_box_matches_filters')
     self.matches_list    = self.matches.get_object('flow_box_matches_list')
+    self.matches_list.set_filter_func(self.on_matches_list_row_changed)
 
     self.match = Gtk.Builder()
     self.match.add_from_file('ui/match.ui')
@@ -193,5 +195,10 @@ class MatchHandler(object):
 
     self.app.header_back.show()
 
+  def on_matches_list_row_changed(self, item):
+    return self.filter is None or item.filter_name == self.filter
+
   def on_list_box_matches_filters_row_activated(self, _listbox, item):
-    filter_widget_items(self.app.window, self.matches_list, item, 'All Competitions', 'filter_name')
+    if item.filter_name != 'All Competitions':
+      self.filter = item.filter_name
+      self.matches_list.invalidate_filter()
