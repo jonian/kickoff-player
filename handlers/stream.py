@@ -1,9 +1,9 @@
 import time
 import socket
 import hashlib
-import subprocess
 import pexpect
-import psutil
+
+from helpers.utils import in_thread, run_command, active_processes
 
 
 class StreamHandler(object):
@@ -69,7 +69,7 @@ class StreamHandler(object):
     self.stop_acestream()
 
     try:
-      self.acestream = psutil.Popen([engine, client], stdout=subprocess.PIPE)
+      self.acestream = run_command([engine, client])
       self.notify('running')
       time.sleep(5)
     except FileNotFoundError:
@@ -88,7 +88,7 @@ class StreamHandler(object):
     if not self.session is None:
       self.session.close()
 
-    for process in psutil.process_iter():
+    for process in active_processes():
       if 'acestreamengine' in process.name():
         process.kill()
 
@@ -140,7 +140,7 @@ class StreamHandler(object):
     self.stop_sopcast()
 
     try:
-      self.sopcast = psutil.Popen([eng, url, lpo, ppo], stdout=subprocess.PIPE)
+      self.sopcast = run_command([eng, url, lpo, ppo])
       self.notify('running')
       time.sleep(5)
     except FileNotFoundError:
@@ -158,7 +158,7 @@ class StreamHandler(object):
     if not self.session is None:
       self.session.close()
 
-    for process in psutil.process_iter():
+    for process in active_processes():
       if 'sp-sc' in process.name():
         process.kill()
 

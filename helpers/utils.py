@@ -1,11 +1,13 @@
 import os
 import time
 import socket
+import subprocess
 import threading
 
 from multiprocessing.pool import ThreadPool
 from datetime import datetime, timedelta, timezone
 from dateutil import parser
+from psutil import Popen, process_iter
 from requests import get
 from playhouse.sqliteq import SqliteQueueDatabase
 
@@ -131,6 +133,17 @@ def thread_pool(callback, args, flatten=True):
   return data
 
 
+def run_command(args, **kwargs):
+  kwargs  = merge_dicts({ 'stdout': subprocess.PIPE }, kwargs)
+  command = Popen(args, **kwargs)
+
+  return command
+
+
+def active_processes():
+  return process_iter()
+
+
 def flatten_list(iterable):
   if isinstance(iterable[0], list):
     iterable = [item for sublist in iterable for item in sublist]
@@ -139,6 +152,13 @@ def flatten_list(iterable):
     iterable = []
 
   return iterable
+
+
+def merge_dicts(first, second):
+  merged = first.copy()
+  merged.update(second)
+
+  return merged
 
 
 def merge_dict_keys(iterable, key_name):
