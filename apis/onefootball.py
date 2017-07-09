@@ -25,8 +25,8 @@ class OnefootballApi:
       'base_url':  base_url,
       'json':      True,
       'ttl':       kwargs.get('ttl', 3600),
-      'params':    kwargs['params'],
-      'cache_key': kwargs['cache_key']
+      'params':    kwargs.get('params'),
+      'cache_key': kwargs.get('cache_key')
     }
 
     response = cached_request(**kwargs)
