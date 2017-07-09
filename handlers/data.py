@@ -151,13 +151,13 @@ class DataHandler(object):
 
   def load_matches_filters(self):
     filters = self.load_competitions(True, True)
-    filters = ['All Competitions'] + filters
+    filters = ['All Competitions'] + filters if filters else []
 
     return filters
 
   def load_channels_filters(self):
     filters = self.load_languages()
-    filters = ['All Languages'] + filters
+    filters = ['All Languages'] + filters if filters else []
 
     return filters
 

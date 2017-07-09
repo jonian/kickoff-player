@@ -39,11 +39,19 @@ class MatchHandler(object):
     self.match_teams   = self.match.get_object('box_match_teams')
     self.match_streams = self.match.get_object('list_box_match_streams')
 
-    GLib.idle_add(self.update_competitions_data)
-    GLib.idle_add(self.update_teams_data)
+    GLib.idle_add(self.do_initial_setup)
     GLib.idle_add(self.do_matches_widgets)
 
     GLib.timeout_add(10000, self.update_live_data)
+
+  def initial_setup(self):
+    if not self.app.data.load_competitions():
+      self.update_competitions_data()
+      self.update_teams_data()
+      self.update_matches_data()
+
+  def do_initial_setup(self):
+    in_thread(target=self.initial_setup)
 
   def do_matches_widgets(self):
     if not self.matches_filters.get_children():
@@ -76,6 +84,7 @@ class MatchHandler(object):
     self.app.scores_api.save_matches()
     self.app.streams_api.save_events()
 
+    GLib.idle_add(self.do_matches_widgets)
     GLib.idle_add(self.update_matches_widgets)
     GLib.idle_add(self.app.toggle_reload, True)
 

@@ -29,6 +29,15 @@ class ChannelHandler(object):
     self.channels_list    = self.channels.get_object('flow_box_channels_list')
     self.channels_list.set_filter_func(self.on_channels_list_row_changed)
 
+    GLib.idle_add(self.do_initial_setup)
+
+  def initial_setup(self):
+    if not self.app.data.load_channels():
+      self.update_channels_data()
+
+  def do_initial_setup(self):
+    in_thread(target=self.initial_setup)
+
   def do_channels_widgets(self):
     if not self.channels_filters.get_children():
       GLib.idle_add(self.do_channels_filters)

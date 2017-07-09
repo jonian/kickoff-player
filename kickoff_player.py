@@ -30,8 +30,8 @@ class KickoffPlayer(object):
 
     add_custom_css('ui/styles.css')
 
-    self.data  = DataHandler()
     self.cache = CacheHandler()
+    self.data  = DataHandler()
 
     self.scores_api  = OnefootballApi(self.data, self.cache)
     self.streams_api = LivefootballApi(self.data, self.cache)
