@@ -122,3 +122,4 @@ class ChannelHandler(object):
     self.filter = None if item.filter_name == 'All Languages' else item.filter_name
     self.channels_list.invalidate_filter()
     set_scroll_position(self.channels_list, 0)
+    self.app.window.queue_resize_no_redraw()

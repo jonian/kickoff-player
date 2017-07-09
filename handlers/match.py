@@ -215,3 +215,4 @@ class MatchHandler(object):
     self.filter = None if item.filter_name == 'All Competitions' else item.filter_name
     self.matches_list.invalidate_filter()
     set_scroll_position(self.matches_list, 0)
+    self.app.window.queue_resize_no_redraw()
