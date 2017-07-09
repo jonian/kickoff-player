@@ -58,17 +58,13 @@ class MatchBox(Gtk.FlowBoxChild):
     self.add(self.outer_box)
 
   def do_teams_box(self):
-    box = MatchTeamsBox(fixture=self.fixture)
-
-    return box
+    return MatchTeamsBox(fixture=self.fixture)
 
   def update_teams_box(self):
     self.teams_box.set_property('fixture', self.fixture)
 
   def do_details_box(self):
-    box = MatchDetailsBox(fixture=self.fixture, callback=self.callback)
-
-    return box
+    return MatchDetailsBox(fixture=self.fixture, callback=self.callback)
 
   def update_details_box(self):
     self.details_box.set_property('fixture', self.fixture)

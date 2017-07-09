@@ -58,17 +58,13 @@ class ChannelBox(Gtk.FlowBoxChild):
     self.outer_box.show()
 
   def do_header_box(self):
-    header = ChannelHeaderBox(channel=self.channel)
-
-    return header
+    return ChannelHeaderBox(channel=self.channel)
 
   def update_header_box(self):
     self.header_box.set_property('channel', self.channel)
 
   def do_streams_box(self):
-    streams = ChannelStreamsBox(channel=self.channel, callback=self.callback)
-
-    return streams
+    return ChannelStreamsBox(channel=self.channel, callback=self.callback)
 
   def update_streams_box(self):
     self.streams_box.set_property('channel', self.channel)

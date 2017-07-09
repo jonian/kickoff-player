@@ -158,9 +158,11 @@ def replace_all(string, find, replace):
   return string
 
 
-def cached_request(url, cache, base_url=None, ttl=300, json=False, params=None, callback=None, cache_key=None):
-  url       = parse_url(url, base_url)
-  cache_key = cache_key_from_url(url, params, cache_key)
+def cached_request(url, cache, **kwargs):
+  params    = kwargs['params']
+  callback  = kwargs['callback']
+  url       = parse_url(url, kwargs['base_url'])
+  cache_key = cache_key_from_url(url, params, kwargs['cache_key'])
   response  = cache.load(cache_key)
 
   if response is None:
@@ -171,11 +173,11 @@ def cached_request(url, cache, base_url=None, ttl=300, json=False, params=None, 
         return None
 
       response = response.text if callback is None else callback(response.text)
-      response = cache.save(cache_key, response, ttl)
+      response = cache.save(cache_key, response, kwargs.get('ttl', 300))
     except socket.error:
       return None
 
-  response = response.json if json is True else response.text
+  response = response.json if kwargs['json'] else response.text
   return response
 
 
