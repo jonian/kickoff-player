@@ -18,32 +18,28 @@ class OnefootballApi:
     self.img_path = os.path.expanduser('~') + '/.kickoff-player/images/'
     self.create_images_folder()
 
-  def get(self, url, base_url, params=None, ttl=3600, key=None, cache_key=None):
-    reparams = {
+  def get(self, url, base_url, key=None, **kwargs):
+    kwargs = {
       'url':       url,
       'cache':     self.cache,
       'base_url':  base_url,
       'json':      True,
-      'ttl':       ttl,
-      'params':    params,
-      'cache_key': cache_key
+      'ttl':       kwargs.get('ttl', 3600),
+      'params':    kwargs['params'],
+      'cache_key': kwargs['cache_key']
     }
 
-    response = cached_request(**reparams)
+    response = cached_request(**kwargs)
     response = response if response is not None else {}
     response = response if key is None else search_dict_key(response, key, [])
 
     return response
 
   def get_sections(self):
-    response = self.get(url='en.json', base_url=self.sconf_url, key='sections')
-
-    return response
+    return self.get(url='en.json', base_url=self.sconf_url, key='sections')
 
   def get_competitions(self):
-    response = self.get(url='en.json', base_url=self.sconf_url, key='competitions')
-
-    return response
+    return self.get(url='en.json', base_url=self.sconf_url, key='competitions')
 
   def save_competitions(self):
     codes = self.get_sections()
@@ -98,7 +94,7 @@ class OnefootballApi:
     self.data.set_multiple('team', items, 'api_id')
 
   def get_matchdays(self, comp_ids=None):
-    reparams = {
+    kwargs = {
       'base_url':  self.score_url,
       'url':       'en/search/matchdays',
       'key':       ['data', 'matchdays'],
@@ -111,7 +107,7 @@ class OnefootballApi:
       }
     }
 
-    response = self.get(**reparams)
+    response = self.get(**kwargs)
     combined = []
 
     for item in response:
@@ -155,7 +151,7 @@ class OnefootballApi:
     self.data.set_multiple('fixture', items, 'api_id')
 
   def get_live(self):
-    reparams = {
+    kwargs = {
       'base_url': self.score_url,
       'url':      'matches/updates',
       'key':      ['data', 'match_updates'],
@@ -165,9 +161,7 @@ class OnefootballApi:
       }
     }
 
-    response = self.get(**reparams)
-
-    return response
+    return self.get(**kwargs)
 
   def save_live(self):
     lives = self.get_live()
