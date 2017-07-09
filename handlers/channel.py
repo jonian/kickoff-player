@@ -4,8 +4,8 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, GLib
-from helpers.gtk import remove_widget_children
 from helpers.utils import in_thread
+from helpers.gtk import remove_widget_children, set_scroll_position
 
 from widgets.channelbox import ChannelBox
 from widgets.filterbox import FilterBox
@@ -108,3 +108,4 @@ class ChannelHandler(object):
   def on_list_box_channels_filters_row_activated(self, _listbox, item):
     self.filter = None if item.filter_name == 'All Languages' else item.filter_name
     self.channels_list.invalidate_filter()
+    set_scroll_position(self.channels_list, 0)

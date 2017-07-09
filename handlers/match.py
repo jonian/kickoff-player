@@ -5,7 +5,7 @@ gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, GLib
 from helpers.utils import now, in_thread
-from helpers.gtk import remove_widget_children
+from helpers.gtk import remove_widget_children, set_scroll_position
 
 from widgets.matchbox import MatchBox, MatchTeamsBox, MatchStreamBox
 from widgets.filterbox import FilterBox
@@ -201,3 +201,4 @@ class MatchHandler(object):
   def on_list_box_matches_filters_row_activated(self, _listbox, item):
     self.filter = None if item.filter_name == 'All Competitions' else item.filter_name
     self.matches_list.invalidate_filter()
+    set_scroll_position(self.matches_list, 0)

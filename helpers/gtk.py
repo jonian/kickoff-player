@@ -71,6 +71,16 @@ def image_from_path(path, size=48, image=None):
   return gimage
 
 
+def set_scroll_position(widget, value, direction='vertical'):
+  viewport = widget.get_ancestor(Gtk.Viewport)
+
+  if direction == 'vertical':
+    viewport.get_vadjustment().set_value(value)
+
+  if direction == 'horizontal':
+    viewport.get_hadjustment().set_value(value)
+
+
 def toggle_cursor(widget, hide=False):
   window = widget.get_window()
 
