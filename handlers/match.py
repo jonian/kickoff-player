@@ -40,6 +40,7 @@ class MatchHandler(object):
 
     GLib.idle_add(self.update_competitions_data)
     GLib.idle_add(self.update_teams_data)
+    GLib.idle_add(self.do_matches_widgets)
 
     GLib.timeout_add(10000, self.update_live_data)
 
@@ -189,9 +190,6 @@ class MatchHandler(object):
       self.app.header_back.show()
     else:
       self.app.header_back.hide()
-
-    if outer == self.stack:
-      self.do_matches_widgets()
 
   def on_match_activated(self, fixture):
     self.stack.set_visible_child(self.match_box)

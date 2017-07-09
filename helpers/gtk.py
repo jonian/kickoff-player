@@ -83,7 +83,8 @@ def image_from_path(path, size=48, image=None):
 
 def toggle_cursor(widget, hide=False):
   window = widget.get_window()
-  blank  = Gdk.CursorType.BLANK_CURSOR
-  cursor = Gdk.Cursor(blank) if hide else None
 
-  window.set_cursor(cursor)
+  if window:
+    blank  = Gdk.CursorType.BLANK_CURSOR
+    cursor = Gdk.Cursor(blank) if hide else None
+    window.set_cursor(cursor)

@@ -66,7 +66,7 @@ class PlayerHandler(object):
     self.cstream = stream
     self.stream.open(stream.url)
 
-    self.toolbar.show()
+    self.toggle_controls()
     self.app.set_stack_visible_child(self.stack)
 
   def reload_stream(self):
@@ -114,11 +114,9 @@ class PlayerHandler(object):
     status = labels.get(status, status)
     self.status.set_text(status)
 
-    return False
-
   def toggle_fullscreen(self):
     if not self.visible:
-      return False
+      return
 
     if self.is_fullscreen:
       self.restore_button.hide()
@@ -137,15 +135,17 @@ class PlayerHandler(object):
     visible = self.toolbar.is_visible()
 
     if not self.toolbar_stick and self.actionable:
-      if timer and visible:
-        self.toolbar.hide()
-        toggle_cursor(self.overlay, True)
-
-      if not timer and not visible:
-        self.toolbar.show()
-        toggle_cursor(self.overlay, False)
+      self.toggle_controls(timer and visible)
 
     return timer
+
+  def toggle_controls(self, hide=False):
+    if hide:
+      self.toolbar.hide()
+      toggle_cursor(self.overlay, True)
+    else:
+      self.toolbar.show()
+      toggle_cursor(self.overlay, False)
 
   def on_stream_activated(self, _widget, stream):
     self.open_stream(stream)
