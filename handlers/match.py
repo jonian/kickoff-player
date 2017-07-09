@@ -1,11 +1,10 @@
 import gi
-import threading
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, GLib
-from helpers.utils import now
+from helpers.utils import now, in_thread
 from helpers.gtk import filter_widget_items, remove_widget_children
 
 from widgets.matchbox import MatchBox, MatchTeamsBox, MatchStreamBox
@@ -67,8 +66,7 @@ class MatchHandler(object):
       self.app.scores_api.save_teams()
 
   def update_matches_data(self):
-    thread = threading.Thread(target=self.do_update_matches_data)
-    thread.start()
+    in_thread(target=self.do_update_matches_data)
 
   def do_update_matches_data(self):
     GLib.idle_add(self.app.toggle_reload, False)
@@ -80,8 +78,7 @@ class MatchHandler(object):
     GLib.idle_add(self.app.toggle_reload, True)
 
   def update_match_data(self):
-    thread = threading.Thread(target=self.do_update_match_data)
-    thread.start()
+    in_thread(target=self.do_update_match_data)
 
   def do_update_match_data(self):
     GLib.idle_add(self.app.toggle_reload, False)
@@ -96,8 +93,7 @@ class MatchHandler(object):
     match_items = self.matches_list.get_children()
 
     if match_items and match_items[0].fixture.date <= now():
-      thread = threading.Thread(target=self.do_update_live_data)
-      thread.start()
+      in_thread(target=self.do_update_live_data)
 
     return True
 

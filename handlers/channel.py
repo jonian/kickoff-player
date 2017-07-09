@@ -1,11 +1,11 @@
 import gi
-import threading
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, GLib
 from helpers.gtk import filter_widget_items, remove_widget_children
+from helpers.utils import in_thread
 
 from widgets.channelbox import ChannelBox
 from widgets.filterbox import FilterBox
@@ -42,8 +42,7 @@ class ChannelHandler(object):
       GLib.idle_add(self.update_channels_list)
 
   def update_channels_data(self):
-    thread = threading.Thread(target=self.do_update_channels_data)
-    thread.start()
+    in_thread(target=self.do_update_channels_data)
 
   def do_update_channels_data(self):
     GLib.idle_add(self.app.toggle_reload, False)

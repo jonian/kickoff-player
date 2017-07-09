@@ -1,6 +1,7 @@
 import os
 import time
 import socket
+import threading
 
 from multiprocessing.pool import ThreadPool
 from datetime import datetime, timedelta, timezone
@@ -110,6 +111,11 @@ def batch(iterable, size=1, delimiter=None):
     result.append(subset)
 
   return result
+
+
+def in_thread(**kwargs):
+  thread = threading.Thread(**kwargs)
+  thread.start()
 
 
 def thread_pool(callback, args, flatten=True):

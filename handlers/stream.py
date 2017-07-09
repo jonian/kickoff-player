@@ -1,6 +1,5 @@
 import time
 import socket
-import threading
 import hashlib
 import subprocess
 import pexpect
@@ -34,10 +33,8 @@ class StreamHandler(object):
   def open(self, url):
     """Opean stream in a new thread"""
 
-    thread = threading.Thread(target=self.open_stream, args=[url])
-    thread.start()
-
     self.player.loading = True
+    in_thread(target=self.open_stream, args=[url])
 
   def close(self):
     """Close all streaming engines"""
