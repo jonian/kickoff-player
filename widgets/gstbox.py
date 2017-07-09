@@ -1,10 +1,11 @@
 import gi
 
 gi.require_version('Gtk', '3.0')
+gi.require_version('GLib', '2.0')
 gi.require_version('Gst', '1.0')
 gi.require_version('GstVideo', '1.0')
 
-from gi.repository import Gtk, Gst, GObject
+from gi.repository import Gtk, GLib, Gst, GObject
 
 Gst.init(None)
 Gst.init_check(None)
@@ -45,18 +46,24 @@ class GstBox(Gtk.Box):
     self.playbin.set_state(Gst.State.PLAYING)
     self.callback('PLAYING')
 
+    return False
+
   def pause(self):
     self.playbin.set_state(Gst.State.PAUSED)
     self.callback('PAUSED')
+
+    return False
 
   def stop(self):
     self.playbin.set_state(Gst.State.READY)
     self.callback('READY')
 
+    return False
+
   def buffer(self):
     self.callback('BUFFER')
-    self.playbin.set_state(Gst.State.READY)
-    self.play()
+    self.playbin.set_state(Gst.State.PAUSED)
+    GLib.timeout_add(5000, self.play)
 
   def set_volume(self, volume):
     self.playbin.set_property('volume', volume)
