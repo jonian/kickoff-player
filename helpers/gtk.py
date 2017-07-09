@@ -3,8 +3,9 @@ import gi
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
+gi.require_version('GLib', '2.0')
 
-from gi.repository import Gtk, Gdk, GdkPixbuf
+from gi.repository import Gtk, Gdk, GLib, GdkPixbuf
 
 
 def add_widget_class(widget, classes):
@@ -75,8 +76,12 @@ def filter_widget_items(window, container, selected, default, attr):
 
 def image_from_path(path, size=48, image=None):
   gimage = Gtk.Image() if image is None else image
-  pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, size, size, True)
-  gimage.set_from_pixbuf(pixbuf)
+
+  try:
+    pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, size, size, True)
+    gimage.set_from_pixbuf(pixbuf)
+  except GLib.Error:
+    pass
 
   return gimage
 

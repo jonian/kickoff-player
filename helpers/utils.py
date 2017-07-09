@@ -4,6 +4,7 @@ import socket
 import subprocess
 import threading
 
+from multiprocessing import cpu_count
 from multiprocessing.pool import ThreadPool
 from datetime import datetime, timedelta, timezone
 from dateutil import parser
@@ -121,7 +122,7 @@ def in_thread(**kwargs):
 
 
 def thread_pool(callback, args, flatten=True):
-  pool = ThreadPool(processes=int(len(args)))
+  pool = ThreadPool(processes=cpu_count())
   data = pool.map(callback, args)
 
   pool.close()
