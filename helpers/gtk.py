@@ -29,7 +29,6 @@ def remove_widget_class(widget, classes):
 
 
 def add_widget_custom_css(widget, style):
-  screen   = Gdk.Screen.get_default()
   priority = Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
   provider = Gtk.CssProvider()
   context  = widget.get_style_context()
