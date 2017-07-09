@@ -80,4 +80,4 @@ def toggle_cursor(widget, hide=False):
   if window:
     blank  = Gdk.CursorType.BLANK_CURSOR
     cursor = Gdk.Cursor(blank) if hide else None
-    window.set_cursor(cursor)
+    GLib.idle_add(window.set_cursor, cursor)
