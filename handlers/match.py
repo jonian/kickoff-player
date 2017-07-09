@@ -74,6 +74,7 @@ class MatchHandler(object):
   def update_teams_data(self):
     if not self.app.data.load_teams():
       self.app.scores_api.save_teams()
+      self.app.scores_api.save_crests()
 
   def update_matches_data(self):
     in_thread(target=self.do_update_matches_data)
