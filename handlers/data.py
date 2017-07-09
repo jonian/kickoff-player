@@ -102,7 +102,7 @@ class DataHandler(object):
     return Setting.select()
 
   def load_active_competitions(self, records=False):
-    default = '1 4 5 9 17 13 19 10 18 23 33'.split(' ')
+    default = '1 4 5 7 9 17 13 19 10 18 23 33'.split(' ')
     setting = self.get_single('setting', { 'key': 'competitions' })
     setting = default if setting is None else setting
 
