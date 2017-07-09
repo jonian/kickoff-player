@@ -150,7 +150,8 @@ class DataHandler(object):
     return items
 
   def load_matches_filters(self):
-    filters = self.load_competitions(True, True)
+    filters = self.load_active_competitions(True)
+    filters = list(sum(filters.select(Competition.name).tuples(), ()))
     filters = ['All Competitions'] + filters if filters else []
 
     return filters
