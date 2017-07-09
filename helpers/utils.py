@@ -4,11 +4,10 @@ import socket
 import subprocess
 import threading
 
-from multiprocessing import cpu_count
 from multiprocessing.pool import ThreadPool
 from datetime import datetime, timedelta, timezone
 from dateutil import parser
-from psutil import Popen, process_iter
+from psutil import Popen, process_iter, cpu_count
 from requests import get
 from playhouse.sqliteq import SqliteQueueDatabase
 
