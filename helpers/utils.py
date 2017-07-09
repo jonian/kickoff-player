@@ -129,12 +129,19 @@ def flatten_list(iterable):
   if isinstance(iterable[0], list):
     iterable = [item for sublist in iterable for item in sublist]
 
+  if iterable is None:
+    iterable = []
+
   return iterable
 
 
 def merge_dict_keys(iterable, key_name):
-  iterable = [item[key_name] for item in iterable]
-  iterable = flatten_list(iterable)
+  if isinstance(iterable, list):
+    iterable = [item[key_name] for item in iterable]
+    iterable = flatten_list(iterable)
+
+  if iterable is None:
+    iterable = []
 
   return iterable
 

@@ -135,7 +135,11 @@ class PlayerHandler(object):
     visible = self.toolbar.is_visible()
 
     if not self.toolbar_stick and self.actionable:
-      self.toggle_controls(timer and visible)
+      if timer and visible:
+        self.toggle_controls(True)
+
+      if not timer and not visible:
+        self.toggle_controls(False)
 
     return timer
 
