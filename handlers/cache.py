@@ -40,8 +40,11 @@ class CacheHandler(object):
       'updated': now()
     }
 
-    query = Cacheable.update(**kwargs).where(Cacheable.key == item.key)
-    query.execute()
+    try:
+      query = Cacheable.update(**kwargs).where(Cacheable.key == item.key)
+      query.execute()
+    except IntegrityError:
+      pass
 
     return item
 
@@ -88,9 +91,7 @@ class Cacheable(Model):
   @property
 
   def text(self):
-    data = '' if self.value is None else str(self.value)
-
-    return data
+    return '' if self.value is None else str(self.value)
 
   @property
 
