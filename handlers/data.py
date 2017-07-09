@@ -54,23 +54,20 @@ class DataHandler(object):
 
     return item
 
-  def update_single(self, model, item, kwargs, main_key):
+  def update_single(self, model, item, kwargs):
     model = self.get_model(model)
 
     try:
       kwargs['updated'] = now()
 
-      mkey  = getattr(model, main_key)
-      ikey  = getattr(item, main_key)
-      query = model.update(**kwargs).where(mkey == ikey)
-
+      query = model.update(**kwargs).where(model.id == item.id)
       query.execute()
     except IntegrityError:
       item = None
 
     return item
 
-  def set_single(self, model, kwargs, main_key, update=False):
+  def set_single(self, model, kwargs, main_key='id', update=False):
     key = kwargs.get(main_key, None)
 
     if key is None:
@@ -81,7 +78,7 @@ class DataHandler(object):
     if item is None and not update:
       item = self.create_single(model, kwargs)
     elif item is not None:
-      item = self.update_single(model, item, kwargs, main_key)
+      item = self.update_single(model, item, kwargs)
 
     return item
 
