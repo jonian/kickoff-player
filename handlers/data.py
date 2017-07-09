@@ -90,9 +90,7 @@ class DataHandler(object):
       self.set_single(model, item, main_key, update)
 
   def load_settings(self):
-    items = Setting.select()
-
-    return items
+    return Setting.select()
 
   def load_active_competitions(self, records=False):
     default = '1 4 5 9 17 13 19 10 18 23 33'.split(' ')
@@ -114,9 +112,7 @@ class DataHandler(object):
     return items
 
   def load_teams(self):
-    items = Team.select()
-
-    return items
+    return Team.select()
 
   def load_fixtures(self, current=False, id_only=False, today_only=False):
     items = Fixture.select().distinct()
@@ -193,9 +189,7 @@ class Competition(BasicModel):
   @property
 
   def fixtures(self):
-    fixtures = Fixture.select().where((Fixture.competition == self))
-
-    return fixtures
+    return Fixture.select().where((Fixture.competition == self))
 
 
 class Team(BasicModel):
@@ -250,9 +244,7 @@ class Fixture(BasicModel):
   @property
 
   def events(self):
-    events = Event.select().where(Event.fixture == self)
-
-    return events
+    return Event.select().where(Event.fixture == self)
 
   @property
 
