@@ -66,6 +66,10 @@ class ChannelHandler(object):
     filterbox = FilterBox(filter_name=filter_name)
     self.channels_filters.add(filterbox)
 
+    if filter_name == 'All Languages':
+      if not self.channels_filters.get_selected_row():
+        self.channels_filters.select_row(filterbox)
+
   def update_channels_filters(self):
     filters = self.app.data.load_channels_filters()
 

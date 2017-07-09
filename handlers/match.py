@@ -114,6 +114,10 @@ class MatchHandler(object):
     filterbox = FilterBox(filter_name=filter_name)
     self.matches_filters.add(filterbox)
 
+    if filter_name == 'All Competitions':
+      if not self.matches_filters.get_selected_row():
+        self.matches_filters.select_row(filterbox)
+
   def update_matches_filters(self):
     filters = self.app.data.load_matches_filters()
 
