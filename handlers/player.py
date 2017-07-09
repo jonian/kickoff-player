@@ -44,6 +44,9 @@ class PlayerHandler(object):
     self.volume_button  = self.player.get_object('button_volume')
     self.full_button    = self.player.get_object('button_fullscreen')
     self.restore_button = self.player.get_object('button_unfullscreen')
+    self.play_button    = self.player.get_object('button_play')
+    self.pause_button   = self.player.get_object('button_pause')
+    self.stop_button    = self.player.get_object('button_stop')
     self.toolbar_event  = GLib.timeout_add(3000, self.toggle_toolbar, True)
 
   @property
@@ -91,11 +94,13 @@ class PlayerHandler(object):
 
   def play(self):
     self.playbin.play()
+    self.toggle_buttons(True)
 
   def pause(self):
     self.playbin.pause()
 
   def stop(self):
+    self.toggle_buttons(False)
     self.playbin.stop()
 
   def set_volume(self, volume):
@@ -112,6 +117,10 @@ class PlayerHandler(object):
 
     status = labels.get(status, status)
     self.status.set_text(status)
+
+  def toggle_buttons(self, active=True):
+    self.pause_button.set_sensitive(active)
+    self.stop_button.set_sensitive(active)
 
   def toggle_fullscreen(self):
     if not self.visible:

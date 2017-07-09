@@ -55,7 +55,6 @@ class StreamHandler(object):
       self.start_sopcast(url)
 
     if not self.url is None:
-      self.player.url = self.url
       self.player.open(self.url)
 
     self.player.loading = False
