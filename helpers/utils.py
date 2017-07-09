@@ -93,10 +93,9 @@ def round_datetime(date, round_to=10):
   return date
 
 
-def query_date_range(kwargs):
-  now_d = datetime.now()
-  min_d = now_d - timedelta(hours=3)
-  max_d = now_d + timedelta(**kwargs)
+def query_date_range(kwargs, date=datetime.now()):
+  min_d = date - timedelta(hours=3)
+  max_d = date + timedelta(**kwargs)
   dates = [min_d, max_d]
 
   return dates

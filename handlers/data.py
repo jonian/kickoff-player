@@ -14,11 +14,23 @@ class DataHandler(object):
     self.dbs = database_connection('data.db')
     self.register_models()
 
-    self.fx_limit = query_date_range({ 'days': 14 })
-    self.fx_query = (Fixture.date > self.fx_limit[0]) & (Fixture.date < self.fx_limit[1])
+  @property
 
-    self.fl_limit = query_date_range({ 'hours': 3 })
-    self.fl_query = (Fixture.date > self.fl_limit[0]) & (Fixture.date < self.fl_limit[1])
+  def fx_query(self):
+    first = Fixture.select().where(Fixture.date >= today()).order_by(Fixture.date).limit(1)
+    odate = now() if not first else first[0].date
+    limit = query_date_range({ 'days': 21 }, odate)
+    query = (Fixture.date > limit[0]) & (Fixture.date < limit[1])
+
+    return query
+
+  @property
+
+  def fl_query(self):
+    limit = query_date_range({ 'hours': 3 })
+    query = (Fixture.date > limit[0]) & (Fixture.date < limit[1])
+
+    return query
 
   def register_models(self):
     tables = [Setting, Competition, Team, Fixture, Channel, Stream, Event]
@@ -101,6 +113,7 @@ class DataHandler(object):
 
   def load_competitions(self, current=False, name_only=False, ids=None):
     items = Competition.select()
+    items = items.where(Competition.api_id << self.load_active_competitions())
     items = items if not current else items.join(Fixture).where(self.fx_query)
     items = items.distinct().order_by(Competition.section_name, Competition.api_id)
     items = items if not name_only else list(sum(items.select(Competition.name).tuples(), ()))
@@ -114,6 +127,7 @@ class DataHandler(object):
   def load_fixtures(self, current=False, id_only=False, today_only=False):
     items = Fixture.select().distinct()
     items = items.order_by(Fixture.date, Fixture.competition)
+    items = items.where(Fixture.competition << self.load_active_competitions(True))
     items = items if not current else items.where(self.fx_query)
     items = items if not today_only else items.where(self.fl_query)
     items = items if not id_only else list(sum(items.select(Fixture.id).tuples(), ()))
@@ -136,14 +150,13 @@ class DataHandler(object):
     return items
 
   def load_matches_filters(self):
-    filters = self.load_active_competitions(True)
-    filters = list(sum(filters.select(Competition.name).tuples(), ()))
+    filters = self.load_competitions(True, True)
     filters = ['All Competitions'] + filters
 
     return filters
 
   def load_channels_filters(self):
-    filters = list(self.load_languages())
+    filters = self.load_languages()
     filters = ['All Languages'] + filters
 
     return filters
