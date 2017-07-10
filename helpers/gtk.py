@@ -58,6 +58,11 @@ def remove_widget_children(widget):
   widget.foreach(lambda x: x.destroy())
 
 
+def run_generator(function):
+  gen = function()
+  GLib.idle_add(lambda: next(gen, False), priority=GLib.PRIORITY_LOW)
+
+
 def image_from_path(path, size=48, image=None):
   gimage = Gtk.Image() if image is None else image
 
