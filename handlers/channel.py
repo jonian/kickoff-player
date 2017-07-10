@@ -5,7 +5,7 @@ gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, GLib
 from helpers.utils import in_thread
-from helpers.gtk import remove_widget_children, set_scroll_position
+from helpers.gtk import remove_widget_children, set_scroll_position, run_generator
 
 from widgets.channelbox import ChannelBox
 from widgets.filterbox import FilterBox
@@ -40,10 +40,10 @@ class ChannelHandler(object):
 
   def do_channels_widgets(self):
     if not self.channels_filters.get_children():
-      GLib.idle_add(self.do_channels_filters)
+      run_generator(self.do_channels_filters)
 
     if not self.channels_list.get_children():
-      GLib.idle_add(self.do_channels_list)
+      run_generator(self.do_channels_list)
 
   def update_channels_widgets(self):
     if self.channels_filters.get_children():
@@ -68,8 +68,9 @@ class ChannelHandler(object):
     filters = self.app.data.load_channels_filters()
     remove_widget_children(self.channels_filters)
 
-    for index, filter_name in enumerate(filters):
-      GLib.timeout_add(50 * index, self.do_filter_item, filter_name)
+    for filter_name in filters:
+      self.do_filter_item(filter_name)
+      yield True
 
   def do_filter_item(self, filter_name):
     filterbox = FilterBox(filter_name=filter_name)
@@ -90,8 +91,9 @@ class ChannelHandler(object):
     channels = self.app.data.load_channels(True)
     remove_widget_children(self.channels_list)
 
-    for index, channel in enumerate(channels):
-      GLib.timeout_add(50 * index, self.do_channel_item, channel)
+    for channel in channels:
+      self.do_channel_item(channel)
+      yield True
 
   def do_channel_item(self, channel):
     channbox = ChannelBox(channel=channel, callback=self.app.player.open_stream)

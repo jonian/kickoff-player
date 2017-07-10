@@ -5,7 +5,7 @@ gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, GLib
 from helpers.utils import now, in_thread
-from helpers.gtk import remove_widget_children, set_scroll_position
+from helpers.gtk import remove_widget_children, set_scroll_position, run_generator
 
 from widgets.matchbox import MatchBox, MatchTeamsBox, MatchStreamBox
 from widgets.filterbox import FilterBox
@@ -55,10 +55,10 @@ class MatchHandler(object):
 
   def do_matches_widgets(self):
     if not self.matches_filters.get_children():
-      GLib.idle_add(self.do_matches_filters)
+      run_generator(self.do_matches_filters)
 
     if not self.matches_list.get_children():
-      GLib.idle_add(self.do_matches_list)
+      run_generator(self.do_matches_list)
 
   def update_matches_widgets(self):
     if self.matches_filters.get_children():
@@ -117,8 +117,9 @@ class MatchHandler(object):
     filters = self.app.data.load_matches_filters()
     remove_widget_children(self.matches_filters)
 
-    for index, filter_name in enumerate(filters):
-      GLib.timeout_add(50 * index, self.do_filter_item, filter_name)
+    for filter_name in filters:
+      self.do_filter_item(filter_name)
+      yield True
 
   def do_filter_item(self, filter_name):
     filterbox = FilterBox(filter_name=filter_name)
@@ -139,8 +140,9 @@ class MatchHandler(object):
     fixtures = self.app.data.load_fixtures(True)
     remove_widget_children(self.matches_list)
 
-    for index, fixture in enumerate(fixtures):
-      GLib.timeout_add(50 * index, self.do_match_item, fixture)
+    for fixture in fixtures:
+      self.do_match_item(fixture)
+      yield True
 
   def do_match_item(self, fixture):
     matchbox = MatchBox(fixture=fixture, callback=self.on_match_activated)
