@@ -62,10 +62,10 @@ class MatchHandler(object):
 
   def update_matches_widgets(self):
     if self.matches_filters.get_children():
-      GLib.idle_add(self.update_matches_filters)
+      run_generator(self.update_matches_filters)
 
     if self.matches_list.get_children():
-      GLib.idle_add(self.update_matches_list)
+      run_generator(self.update_matches_list)
 
   def update_competitions_data(self):
     if not self.app.data.load_competitions():
@@ -121,6 +121,8 @@ class MatchHandler(object):
       self.do_filter_item(filter_name)
       yield True
 
+    run_generator(self.update_matches_filters)
+
   def do_filter_item(self, filter_name):
     filterbox = FilterBox(filter_name=filter_name)
     self.matches_filters.add(filterbox)
@@ -130,11 +132,19 @@ class MatchHandler(object):
         self.matches_filters.select_row(filterbox)
 
   def update_matches_filters(self):
+    active  = self.app.data.load_matches_filters(True)
     filters = self.app.data.load_matches_filters()
 
     for item in self.matches_filters.get_children():
       if item.filter_name not in filters:
         item.destroy()
+
+      if item.filter_name not in active:
+        item.set_sensitive(False)
+      else:
+        item.set_sensitive(True)
+
+      yield True
 
   def do_matches_list(self):
     fixtures = self.app.data.load_fixtures(True)
@@ -157,6 +167,8 @@ class MatchHandler(object):
         item.set_property('fixture', updated)
       else:
         item.destroy()
+
+      yield True
 
   def do_match_details(self, fixture):
     remove_widget_children(self.match_teams)

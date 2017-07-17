@@ -101,13 +101,16 @@ class DataHandler(object):
   def load_settings(self):
     return Setting.select()
 
-  def load_active_competitions(self, records=False):
+  def load_active_competitions(self, records=False, name_only=False):
     default = '1 4 5 7 9 17 13 19 10 18 23 33'.split(' ')
     setting = self.get_single('setting', { 'key': 'competitions' })
     setting = default if setting is None else setting
 
-    if records:
+    if records or name_only:
       setting = self.load_competitions(ids=setting)
+
+    if name_only:
+      setting = list(sum(setting.select(Competition.name).tuples(), ()))
 
     return setting
 
@@ -149,9 +152,8 @@ class DataHandler(object):
 
     return items
 
-  def load_matches_filters(self):
-    filters = self.load_active_competitions(True)
-    filters = list(sum(filters.select(Competition.name).tuples(), ()))
+  def load_matches_filters(self, current=False):
+    filters = self.load_competitions(True, True) if current else self.load_active_competitions(True, True)
     filters = ['All Competitions'] + filters if filters else []
 
     return filters
