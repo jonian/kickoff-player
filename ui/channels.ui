@@ -5,7 +5,7 @@
   <!-- interface-css-provider-path styles.css -->
   <object class="GtkBox" id="box_channels">
     <property name="width_request">980</property>
-    <property name="height_request">580</property>
+    <property name="height_request">585</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <child>
@@ -13,7 +13,7 @@
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="min_content_width">220</property>
-        <property name="min_content_height">580</property>
+        <property name="min_content_height">585</property>
         <child>
           <object class="GtkViewport">
             <property name="visible">True</property>
@@ -43,7 +43,7 @@
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="min_content_width">760</property>
-        <property name="min_content_height">580</property>
+        <property name="min_content_height">585</property>
         <child>
           <object class="GtkViewport">
             <property name="visible">True</property>

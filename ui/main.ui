@@ -6,7 +6,7 @@
   <object class="GtkApplicationWindow" id="window_main">
     <property name="can_focus">False</property>
     <property name="default_width">980</property>
-    <property name="default_height">580</property>
+    <property name="default_height">585</property>
     <property name="icon_name">vlc</property>
     <property name="show_menubar">False</property>
     <signal name="destroy" handler="on_window_main_destroy" swapped="no"/>
@@ -14,7 +14,7 @@
     <child>
       <object class="GtkStack" id="stack_main">
         <property name="width_request">980</property>
-        <property name="height_request">580</property>
+        <property name="height_request">585</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <signal name="notify::visible-child" handler="on_stack_main_visible_child_notify" swapped="no"/>
