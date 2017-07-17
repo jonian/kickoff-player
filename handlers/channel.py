@@ -47,10 +47,10 @@ class ChannelHandler(object):
 
   def update_channels_widgets(self):
     if self.channels_filters.get_children():
-      GLib.idle_add(self.update_channels_filters)
+      run_generator(self.update_channels_filters)
 
     if self.channels_list.get_children():
-      GLib.idle_add(self.update_channels_list)
+      run_generator(self.update_channels_list)
 
   def update_channels_data(self):
     in_thread(target=self.do_update_channels_data)
@@ -87,6 +87,8 @@ class ChannelHandler(object):
       if item.filter_name not in filters:
         item.destroy()
 
+      yield True
+
   def do_channels_list(self):
     channels = self.app.data.load_channels(True)
     remove_widget_children(self.channels_list)
@@ -108,6 +110,8 @@ class ChannelHandler(object):
         item.set_property('channel', updated)
       else:
         item.destroy()
+
+      yield True
 
   def on_stack_main_visible_child_notify(self, _widget, _params):
     if self.app.get_stack_visible_child() == self.stack:
