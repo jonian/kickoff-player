@@ -14,7 +14,7 @@ from handlers.match import MatchHandler
 from handlers.channel import ChannelHandler
 from handlers.player import PlayerHandler
 
-from apis.onefootball import OnefootballApi
+from apis.scores import ScoresApi
 from apis.livefootball import LivefootballApi
 
 from helpers.gtk import add_custom_css
@@ -31,7 +31,7 @@ class KickoffPlayer(object):
     self.cache = CacheHandler()
     self.data  = DataHandler()
 
-    self.scores_api  = OnefootballApi(self.data, self.cache)
+    self.scores_api  = ScoresApi(self.data, self.cache)
     self.streams_api = LivefootballApi(self.data, self.cache)
 
     self.main = Gtk.Builder()

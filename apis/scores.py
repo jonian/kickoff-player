@@ -4,7 +4,7 @@ from helpers.utils import format_date, gmtime, tzone, today, user_data_dir, sear
 from helpers.utils import cached_request, download_file, batch, in_thread, thread_pool
 
 
-class OnefootballApi:
+class ScoresApi:
 
   def __init__(self, data, cache):
     self.data  = data
@@ -14,8 +14,8 @@ class OnefootballApi:
     self.sconf_url = 'config.onefootball.com/api/scoreconfig2'
     self.feedm_url = 'feedmonster.onefootball.com/feeds/il/en/competitions'
     self.image_url = 'images.onefootball.com/icons/teams'
+    self.img_path  = "%s/images/" % user_data_dir()
 
-    self.img_path = "%s/images/" % user_data_dir()
     self.create_images_folder()
 
   def get(self, url, base_url, key=None, **kwargs):
