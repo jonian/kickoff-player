@@ -1,7 +1,7 @@
 from operator import itemgetter
 from lxml import html
 from fuzzywuzzy import fuzz
-from helpers.utils import cached_request, thread_pool, merge_dict_keys
+from helpers.utils import cached_request, thread_pool, merge_dict_keys, replace_all
 
 
 class LivefootballApi:
@@ -22,11 +22,8 @@ class LivefootballApi:
     return response
 
   def parse_name(self, name):
-    name = name.replace('Sopcast', '')
-    name = name.replace('SopCast', '')
-    name = name.replace('Acestream', '')
-    name = name.replace('AceStream', '')
-    name = name.strip()
+    find = ['Acestream', 'AceStream', 'Sopcast', 'SopCast']
+    name = replace_all(name, find, '').strip()
 
     return name
 
