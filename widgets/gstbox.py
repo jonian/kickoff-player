@@ -1,10 +1,9 @@
 import gi
 
 gi.require_version('Gtk', '3.0')
-gi.require_version('GLib', '2.0')
 gi.require_version('Gst', '1.0')
 
-from gi.repository import Gtk, GLib, Gst, GObject
+from gi.repository import Gtk, Gst, GObject
 
 Gst.init(None)
 Gst.init_check(None)
