@@ -39,38 +39,45 @@ class GstBox(Gtk.Box):
     return state
 
   def open(self, url):
+    self.playbin.set_state(Gst.State.NULL)
     self.playbin.set_property('uri', url)
 
   def play(self):
-    self.playbin.set_state(Gst.State.PLAYING)
-    self.callback('PLAYING')
-
-    return False
+    if self.get_state() != 'PLAYING':
+      self.playbin.set_state(Gst.State.PLAYING)
+      self.callback('PLAYING')
 
   def pause(self):
-    self.playbin.set_state(Gst.State.PAUSED)
-    self.callback('PAUSED')
-
-    return False
+    if self.get_state() != 'PAUSED':
+      self.playbin.set_state(Gst.State.PAUSED)
+      self.callback('PAUSED')
 
   def stop(self):
-    self.playbin.set_state(Gst.State.READY)
-    self.callback('READY')
-
-    return False
-
-  def buffer(self):
-    self.callback('BUFFER')
-    self.playbin.set_state(Gst.State.PAUSED)
-    GLib.timeout_add(5000, self.play)
+    if self.get_state() != 'READY':
+      self.playbin.set_state(Gst.State.READY)
+      self.callback('READY')
 
   def set_volume(self, volume):
     self.playbin.set_property('volume', volume)
 
-  def on_dbus_message(self, _bus, message):
-    eos  = Gst.MessageType.EOS
-    err  = Gst.MessageType.ERROR
-    buff = Gst.MessageType.BUFFERING
+  def buffer(self, message):
+    self.callback('BUFFER')
 
-    if message.type in [eos, err, buff]:
-      self.buffer()
+    if self.get_state() != 'PAUSED':
+      self.playbin.set_state(Gst.State.PAUSED)
+
+    if message.parse_buffering() == 100:
+      self.play()
+
+  def restart(self):
+    self.callback('BUFFER')
+    self.playbin.set_state(Gst.State.NULL)
+    self.play()
+
+  def on_dbus_message(self, _bus, message):
+    if message.type == Gst.MessageType.ERROR:
+      self.callback('ERROR')
+    elif message.type == Gst.MessageType.EOS:
+      self.restart()
+    elif message.type == Gst.MessageType.BUFFERING:
+      self.buffer(message)
