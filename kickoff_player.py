@@ -15,7 +15,7 @@ from handlers.channel import ChannelHandler
 from handlers.player import PlayerHandler
 
 from apis.scores import ScoresApi
-from apis.livefootball import LivefootballApi
+from apis.streams import StreamsApi
 
 from helpers.gtk import add_custom_css
 
@@ -32,7 +32,7 @@ class KickoffPlayer(object):
     self.data  = DataHandler()
 
     self.scores_api  = ScoresApi(self.data, self.cache)
-    self.streams_api = LivefootballApi(self.data, self.cache)
+    self.streams_api = StreamsApi(self.data, self.cache)
 
     self.main = Gtk.Builder()
     self.main.add_from_file('ui/main.ui')
