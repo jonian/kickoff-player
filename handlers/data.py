@@ -95,15 +95,20 @@ class DataHandler(object):
     return item
 
   def get_multiple(self, model, key, values):
-    model = self.get_model(model)
+    model  = self.get_model(model)
+    values = list(values)
+    items  = []
+
+    if not values:
+      return items
 
     try:
-      key  = getattr(model, key)
-      item = model.select().where(key << list(values))
+      key   = getattr(model, key)
+      items = model.select().where(key << values)
     except model.DoesNotExist:
-      item = None
+      pass
 
-    return item
+    return items
 
   def set_multiple(self, model, items, main_key, update=False):
     for item in items:
