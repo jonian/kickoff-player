@@ -111,7 +111,7 @@ class PlayerHandler(object):
     labels = {
       'PLAYING': 'Playing',
       'PAUSED':  'Paused',
-      'READY':   'Stopped',
+      'NULL':    'Stopped',
       'ERROR':   'Error',
       'BUFFER':  'Buffering'
     }

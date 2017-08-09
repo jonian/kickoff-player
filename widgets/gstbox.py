@@ -53,9 +53,9 @@ class GstBox(Gtk.Box):
       self.callback('PAUSED')
 
   def stop(self):
-    if self.get_state() != 'READY':
-      self.playbin.set_state(Gst.State.READY)
-      self.callback('READY')
+    if self.get_state() != 'NULL':
+      self.playbin.set_state(Gst.State.NULL)
+      self.callback('NULL')
 
   def set_volume(self, volume):
     self.playbin.set_property('volume', volume)
