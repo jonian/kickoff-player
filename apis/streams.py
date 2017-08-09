@@ -131,7 +131,7 @@ class StreamsApi:
     items = []
 
     if data is not None:
-      for link in data.xpath('//div[@id="system"]//a[contains(@href, "/streaming/")]'):
+      for link in data.xpath('//div[@id="system"]//list[1]//a[contains(@href, "/streaming/")]'):
         items.append(link.get('href'))
 
     return items
