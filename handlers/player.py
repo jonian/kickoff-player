@@ -81,7 +81,6 @@ class PlayerHandler(object):
     GLib.idle_add(self.app.toggle_reload, True)
 
   def close_stream(self):
-    self.url = None
     self.stop()
     self.stream.close()
 
@@ -91,6 +90,7 @@ class PlayerHandler(object):
     self.play()
 
   def close(self):
+    self.url = None
     self.close_stream()
 
   def play(self):
