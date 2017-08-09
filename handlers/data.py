@@ -94,6 +94,17 @@ class DataHandler(object):
 
     return item
 
+  def get_multiple(self, model, key, values):
+    model = self.get_model(model)
+
+    try:
+      key  = getattr(model, key)
+      item = model.select().where(key << list(values))
+    except model.DoesNotExist:
+      item = None
+
+    return item
+
   def set_multiple(self, model, items, main_key, update=False):
     for item in items:
       self.set_single(model, item, main_key, update)
