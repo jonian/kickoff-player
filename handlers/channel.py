@@ -58,7 +58,7 @@ class ChannelHandler(object):
   def do_update_channels_data(self):
     GLib.idle_add(self.app.toggle_reload, False)
 
-    self.app.streams_api.save_streams()
+    self.app.streams_api.save_channels()
 
     GLib.idle_add(self.do_channels_widgets)
     GLib.idle_add(self.update_channels_widgets)
