@@ -156,7 +156,7 @@ class StreamsApi:
       event = { 'competition': comp, 'home': home, 'away': away }
       chann = []
 
-      for link in data.xpath('//div[@id="system"]//a[contains(@href, "/channel/")]'):
+      for link in data.xpath('//div[@id="system"]//a[contains(@href, "/channels/")]'):
         name = link.text_content()
         name = self.parse_name(name)
 
