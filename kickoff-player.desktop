@@ -1,5 +1,4 @@
 #!/usr/bin/env xdg-open
-
 [Desktop Entry]
 Version=1.0
 Name=Kickoff Player
@@ -7,7 +6,7 @@ GenericName=Media player
 Comment=Stream football matches and channels
 Exec=kickoff-player %u
 TryExec=kickoff-player
-Icon=vlc
+Icon=kickoff-player
 Terminal=false
 Type=Application
 MimeType=x-scheme-handler/acestream;x-scheme-handler/sop;
