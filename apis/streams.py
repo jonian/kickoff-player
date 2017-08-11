@@ -186,7 +186,7 @@ class StreamsApi:
 
       for stream in streams:
         items.append({
-          'fs_id':   "%s_%s" % (fixture.id, stream),
+          'fs_id':   "%s_%s" % (fixture.id, stream.id),
           'fixture': fixture.id,
           'stream':  stream
         })
