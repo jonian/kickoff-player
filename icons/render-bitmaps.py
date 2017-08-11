@@ -25,7 +25,7 @@ import argparse
 
 INKSCAPE = '/usr/bin/inkscape'
 OPTIPNG = '/usr/bin/optipng'
-MAINDIR = 'bitmap'
+MAINDIR = 'hicolor'
 SRC = 'src'
 
 # the resolution that non-hi-dpi icons are rendered at
