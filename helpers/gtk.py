@@ -6,6 +6,7 @@ gi.require_version('Gdk', '3.0')
 gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, Gdk, GLib, GdkPixbuf
+from helpers.utils import relative_path
 
 
 def add_widget_class(widget, classes):
@@ -32,9 +33,10 @@ def add_widget_custom_css(widget, style):
   priority = Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
   provider = Gtk.CssProvider()
   context  = widget.get_style_context()
+  filename = relative_path(style)
 
-  if os.path.exists(style):
-    provider.load_from_path(style)
+  if os.path.exists(filename):
+    provider.load_from_path(filename)
   else:
     provider.load_from_data(style.encode())
 
@@ -45,9 +47,10 @@ def add_custom_css(style):
   screen   = Gdk.Screen.get_default()
   priority = Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
   provider = Gtk.CssProvider()
+  filename = relative_path(style)
 
-  if os.path.exists(style):
-    provider.load_from_path(style)
+  if os.path.exists(filename):
+    provider.load_from_path(filename)
   else:
     provider.load_from_data(style.encode())
 

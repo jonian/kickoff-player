@@ -4,7 +4,7 @@ from playhouse.sqlite_ext import CharField, IntegerField, BooleanField
 from playhouse.sqlite_ext import DateTimeField, ForeignKeyField
 
 from peewee import IntegrityError, Model
-from helpers.utils import database_connection
+from helpers.utils import database_connection, relative_path
 from helpers.utils import query_date_range, parse_date, format_date, now, today
 
 
@@ -251,8 +251,9 @@ class Team(BasicModel):
   @property
 
   def crest(self):
-    path = str(self.crest_path)
-    path = path if os.path.exists(path) else 'images/team-emblem.svg'
+    stock = relative_path('images/team-emblem.svg')
+    path  = str(self.crest_path)
+    path  = path if os.path.exists(path) else stock
 
     return path
 
@@ -322,8 +323,9 @@ class Channel(BasicModel):
   @property
 
   def logo(self):
-    path = str(self.logo_path)
-    path = path if os.path.exists(path) else 'images/channel-logo.svg'
+    stock = relative_path('images/channel-logo.svg')
+    path  = str(self.logo_path)
+    path  = path if os.path.exists(path) else stock
 
     return path
 
@@ -352,7 +354,7 @@ class Stream(BasicModel):
 
   def logo(self):
     fname = str(self.host).lower()
-    image = "images/%s.svg" % fname
+    image = relative_path("images/%s.svg" % fname)
 
     return image
 

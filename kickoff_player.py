@@ -17,7 +17,7 @@ from handlers.player import PlayerHandler
 from apis.scores import ScoresApi
 from apis.streams import StreamsApi
 
-from helpers.gtk import add_custom_css
+from helpers.gtk import add_custom_css, relative_path
 
 
 class KickoffPlayer(object):
@@ -35,7 +35,7 @@ class KickoffPlayer(object):
     self.streams_api = StreamsApi(self.data, self.cache)
 
     self.main = Gtk.Builder()
-    self.main.add_from_file('ui/main.ui')
+    self.main.add_from_file(relative_path('ui/main.ui'))
     self.main.connect_signals(self)
 
     self.window        = self.main.get_object('window_main')

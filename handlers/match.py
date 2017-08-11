@@ -4,7 +4,7 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, GLib
-from helpers.utils import now, in_thread
+from helpers.utils import now, in_thread, relative_path
 from helpers.gtk import remove_widget_children, set_scroll_position, run_generator
 
 from widgets.matchbox import MatchBox, MatchTeamsBox, MatchStreamBox
@@ -19,7 +19,7 @@ class MatchHandler(object):
     self.filter = None
 
     self.matches = Gtk.Builder()
-    self.matches.add_from_file('ui/matches.ui')
+    self.matches.add_from_file(relative_path('ui/matches.ui'))
     self.matches.connect_signals(self)
 
     self.matches_box = self.matches.get_object('box_matches')
@@ -30,7 +30,7 @@ class MatchHandler(object):
     self.matches_list.set_filter_func(self.on_matches_list_row_changed)
 
     self.match = Gtk.Builder()
-    self.match.add_from_file('ui/match.ui')
+    self.match.add_from_file(relative_path('ui/match.ui'))
     self.match.connect_signals(self)
 
     self.match_box = self.match.get_object('box_match')

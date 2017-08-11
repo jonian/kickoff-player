@@ -4,7 +4,7 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, GLib
-from helpers.utils import in_thread
+from helpers.utils import in_thread, relative_path
 from helpers.gtk import remove_widget_children, set_scroll_position, run_generator
 
 from widgets.channelbox import ChannelBox
@@ -19,7 +19,7 @@ class ChannelHandler(object):
     self.filter = None
 
     self.channels = Gtk.Builder()
-    self.channels.add_from_file('ui/channels.ui')
+    self.channels.add_from_file(relative_path('ui/channels.ui'))
     self.channels.connect_signals(self)
 
     self.channels_box = self.channels.get_object('box_channels')

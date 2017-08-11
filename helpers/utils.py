@@ -12,6 +12,13 @@ from requests import get
 from playhouse.sqliteq import SqliteQueueDatabase
 
 
+def relative_path(filepath):
+  root = os.path.dirname(os.path.realpath(__file__))
+  root = os.path.dirname(root)
+
+  return os.path.join(root, filepath)
+
+
 def user_data_dir():
   path = "%s/.config/kickoff-player" % os.path.expanduser('~')
 

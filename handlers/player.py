@@ -8,6 +8,7 @@ from gi.repository import Gtk, Gdk, GLib
 from handlers.stream import StreamHandler
 from widgets.gstbox import GstBox
 from helpers.gtk import toggle_cursor
+from helpers.utils import relative_path
 
 
 class PlayerHandler(object):
@@ -27,7 +28,7 @@ class PlayerHandler(object):
     self.toolbar_stick = True
 
     self.player = Gtk.Builder()
-    self.player.add_from_file('ui/player.ui')
+    self.player.add_from_file(relative_path('ui/player.ui'))
     self.player.connect_signals(self)
 
     self.overlay = self.player.get_object('overlay_player')
