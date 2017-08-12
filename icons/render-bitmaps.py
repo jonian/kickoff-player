@@ -27,11 +27,18 @@ INKSCAPE = '/usr/bin/inkscape'
 OPTIPNG = '/usr/bin/optipng'
 MAINDIR = 'hicolor'
 SRC = 'src'
-
-# the resolution that non-hi-dpi icons are rendered at
-DPI_1_TO_1 = 96
-# DPI multipliers to render at
-DPIS = [1, 2]
+SIZES = {
+  16: [16, 96],
+  24: [24, 96],
+  32: [32, 96],
+  48: [48, 96],
+  64: [48, 128],
+  96: [512, 18],
+  128: [512, 24],
+  256: [512, 48],
+  512: [512, 96],
+  1024: [512, 192]
+}
 
 inkscape_process = None
 
@@ -147,34 +154,37 @@ def main(args, SRC):
           return
 
         print (self.context, self.icon_name)
+
+        rects = {}
+
         for rect in self.rects:
-          for dpi_factor in DPIS:
-            width = rect['width']
-            height = rect['height']
-            id = rect['id']
-            dpi = DPI_1_TO_1 * dpi_factor
+          width = int(rect['width'])
+          rects[width] = rect
 
-            size_str = "%sx%s" % (width, height)
-            if dpi_factor != 1:
-              size_str += "@%sx" % dpi_factor
+        for size, value in SIZES.items():
+          src, dpi = value
+          rect = rects[src]
+          id = rect['id']
+          size_str = "%sx%s" % (size, size)
 
-            dir = os.path.join(MAINDIR, size_str, self.context)
-            outfile = os.path.join(dir, self.icon_name+'.png')
-            if not os.path.exists(dir):
-              os.makedirs(dir)
-            # Do a time based check!
-            if self.force or not os.path.exists(outfile):
+          dir = os.path.join(MAINDIR, size_str, self.context)
+          outfile = os.path.join(dir, self.icon_name+'.png')
+          if not os.path.exists(dir):
+            os.makedirs(dir)
+          # Do a time based check!
+          if self.force or not os.path.exists(outfile):
+            inkscape_render_rect(self.path, id, dpi, outfile)
+            sys.stdout.write('.')
+          else:
+            stat_in = os.stat(self.path)
+            stat_out = os.stat(outfile)
+            if stat_in.st_mtime > stat_out.st_mtime:
               inkscape_render_rect(self.path, id, dpi, outfile)
               sys.stdout.write('.')
             else:
-              stat_in = os.stat(self.path)
-              stat_out = os.stat(outfile)
-              if stat_in.st_mtime > stat_out.st_mtime:
-                inkscape_render_rect(self.path, id, dpi, outfile)
-                sys.stdout.write('.')
-              else:
-                sys.stdout.write('-')
-            sys.stdout.flush()
+              sys.stdout.write('-')
+          sys.stdout.flush()
+
         sys.stdout.write('\n')
         sys.stdout.flush()
 
