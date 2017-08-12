@@ -53,6 +53,8 @@ class KickoffPlayer(object):
     self.channels = ChannelHandler(self)
     self.player   = PlayerHandler(self)
 
+    GLib.timeout_add(5000, self.toggle_reload, True)
+
   def run(self):
     self.window.show_all()
     Gtk.main()

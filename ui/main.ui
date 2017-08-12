@@ -91,6 +91,7 @@
         <child>
           <object class="GtkButton" id="header_button_reload">
             <property name="visible">True</property>
+            <property name="sensitive">False</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <signal name="clicked" handler="on_header_button_reload_clicked" swapped="no"/>
