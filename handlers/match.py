@@ -42,7 +42,7 @@ class MatchHandler(object):
     GLib.idle_add(self.do_initial_setup)
     GLib.idle_add(self.do_matches_widgets)
 
-    GLib.timeout_add(10000, self.update_live_data)
+    # GLib.timeout_add(30000, self.update_live_data)
 
   def initial_setup(self):
     if not self.app.data.load_competitions():
@@ -102,16 +102,16 @@ class MatchHandler(object):
     GLib.idle_add(self.app.toggle_reload, True)
 
   def update_live_data(self):
-    match_items = self.matches_list.get_children()
+    fixtures = self.app.data.load_fixtures(current=True, today_only=True)
 
-    if match_items and match_items[0].fixture.date <= now():
+    if fixtures and fixtures[0].date <= now():
       in_thread(target=self.do_update_live_data)
 
     return True
 
   def do_update_live_data(self):
     self.app.scores_api.save_live()
-    GLib.idle_add(self.update_matches_list)
+    GLib.idle_add(self.update_matches_widgets)
 
   def do_matches_filters(self):
     filters = self.app.data.load_matches_filters()
