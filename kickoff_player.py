@@ -2,13 +2,14 @@
 
 import gi
 import signal
+import argparse
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, GLib
 
-from handlers.data import DataHandler
+from handlers.data import DataHandler, StaticStream
 from handlers.cache import CacheHandler
 from handlers.match import MatchHandler
 from handlers.channel import ChannelHandler
@@ -27,6 +28,9 @@ class KickoffPlayer(object):
     GLib.set_application_name('Kickoff Player')
 
     add_custom_css('ui/styles.css')
+
+    self.argparse = argparse.ArgumentParser(prog='kickoff-player')
+    self.argparse.add_argument('url', metavar='URL', nargs='?', default=None)
 
     self.cache = CacheHandler()
     self.data  = DataHandler()
@@ -54,6 +58,7 @@ class KickoffPlayer(object):
     self.player   = PlayerHandler(self)
 
     GLib.timeout_add(5000, self.toggle_reload, True)
+    self.open_stream_url()
 
   def run(self):
     self.window.show_all()
@@ -62,6 +67,15 @@ class KickoffPlayer(object):
   def quit(self):
     self.player.close()
     Gtk.main_quit()
+
+  def open_stream_url(self):
+    url = self.argparse.parse_args().url
+
+    if url is not None:
+      stream = StaticStream(url)
+      self.player.open_stream(stream)
+
+      self.set_stack_visible_child(self.player_stack)
 
   def toggle_reload(self, show):
     self.header_reload.set_sensitive(show)

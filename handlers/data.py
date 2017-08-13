@@ -365,3 +365,9 @@ class Event(BasicModel):
   stream  = ForeignKeyField(Stream, related_name='stream')
   created = DateTimeField(default=now())
   updated = DateTimeField(default=now())
+
+
+class StaticStream(object):
+
+  def __init__(self, url):
+    self.url = url
