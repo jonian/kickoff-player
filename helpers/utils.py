@@ -150,6 +150,12 @@ def active_processes():
   return process_iter()
 
 
+def kill_proccess(name):
+  for process in active_processes():
+    if name in process.name():
+      process.kill()
+
+
 def flatten_list(iterable):
   if iterable and isinstance(iterable[0], list):
     iterable = [item for sublist in iterable for item in sublist]

@@ -3,7 +3,7 @@ import socket
 import hashlib
 import pexpect
 
-from helpers.utils import in_thread, run_command, active_processes
+from helpers.utils import in_thread, run_command, kill_proccess
 
 
 class StreamHandler(object):
@@ -87,9 +87,7 @@ class StreamHandler(object):
     if not self.session is None:
       self.session.close()
 
-    for process in active_processes():
-      if 'acestreamengine' in process.name():
-        process.kill()
+    kill_proccess('acestreamengine')
 
     self.player.loading = False
 
@@ -157,9 +155,7 @@ class StreamHandler(object):
     if not self.session is None:
       self.session.close()
 
-    for process in active_processes():
-      if 'sp-sc' in process.name():
-        process.kill()
+    kill_proccess('sp-sc')
 
     self.player.loading = False
 
