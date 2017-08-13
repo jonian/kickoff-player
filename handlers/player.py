@@ -1,4 +1,5 @@
 import gi
+import dbus
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
@@ -17,6 +18,11 @@ class PlayerHandler(object):
     self.stream = StreamHandler(self)
     self.app    = app
     self.stack  = app.player_stack
+
+    self.sesbus = dbus.SessionBus()
+    self.ssaver = self.sesbus.get_object('org.freedesktop.ScreenSaver', '/ScreenSaver')
+    self.isaver = dbus.Interface(self.ssaver, dbus_interface='org.freedesktop.ScreenSaver')
+    self.cookie = None
 
     self.url = None
     self.xid = None
@@ -132,12 +138,14 @@ class PlayerHandler(object):
       self.restore_button.hide()
       self.full_button.show()
       self.app.window.unfullscreen()
+      self.uninhibit_ssaver()
 
       self.is_fullscreen = False
     else:
       self.full_button.hide()
       self.restore_button.show()
       self.app.window.fullscreen()
+      self.inhibit_ssaver()
 
       self.is_fullscreen = True
 
@@ -160,6 +168,15 @@ class PlayerHandler(object):
     else:
       self.toolbar.show()
       toggle_cursor(self.overlay, False)
+
+  def inhibit_ssaver(self):
+    if self.cookie is None:
+      self.cookie = self.isaver.Inhibit('kickoff-player', 'Playing video')
+
+  def uninhibit_ssaver(self):
+    if self.cookie is not None:
+      self.isaver.UnInhibit(self.cookie)
+      self.cookie = None
 
   def on_stream_activated(self, _widget, stream):
     self.open_stream(stream)
