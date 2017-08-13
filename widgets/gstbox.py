@@ -4,6 +4,7 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
 
 from gi.repository import Gtk, Gst, GObject
+from helpers.gtk import add_widget_class
 
 
 class GstBox(Gtk.Box):
@@ -29,6 +30,8 @@ class GstBox(Gtk.Box):
     self.dbus = self.playbin.get_bus()
     self.dbus.add_signal_watch()
     self.dbus.connect('message', self.on_dbus_message)
+
+    add_widget_class(self, 'player-video')
 
   def get_state(self):
     state = self.playbin.get_state(1)
