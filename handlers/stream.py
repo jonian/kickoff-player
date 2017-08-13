@@ -65,7 +65,7 @@ class StreamHandler(object):
     engine = '/usr/bin/acestreamengine'
     client = '--client-console'
 
-    self.stop_acestream()
+    self.close()
 
     try:
       self.acestream = run_command([engine, client])
@@ -134,7 +134,7 @@ class StreamHandler(object):
     lpo = '3000'
     ppo = '3001'
 
-    self.stop_sopcast()
+    self.close()
 
     try:
       self.sopcast = run_command([eng, url, lpo, ppo])
