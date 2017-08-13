@@ -165,16 +165,16 @@ class PlayerHandler(object):
     self.open_stream(stream)
 
   def on_button_play_clicked(self, _event):
-    if not self.loading:
+    if not self.loading and self.actionable:
       self.play()
       self.set_volume(self.volume_button.get_value())
 
   def on_button_pause_clicked(self, _event):
-    if not self.loading:
+    if not self.loading and self.actionable:
       self.pause()
 
   def on_button_stop_clicked(self, _event):
-    if not self.loading:
+    if not self.loading and self.actionable:
       self.stop()
 
   def on_button_volume_value_changed(self, _event, value):
