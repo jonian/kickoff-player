@@ -5,9 +5,6 @@ gi.require_version('Gst', '1.0')
 
 from gi.repository import Gtk, Gst, GObject
 
-Gst.init(None)
-Gst.init_check(None)
-
 
 class GstBox(Gtk.Box):
 
@@ -17,6 +14,9 @@ class GstBox(Gtk.Box):
 
   def __init__(self, *args, **kwargs):
     Gtk.Box.__init__(self, *args, **kwargs)
+
+    if not Gst.is_initialized():
+      Gst.init(None)
 
     self.gtksink = Gst.ElementFactory.make('gtksink')
     self.pack_start(self.gtksink.props.widget, True, True, 0)
