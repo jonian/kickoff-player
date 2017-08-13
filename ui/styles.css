@@ -10,8 +10,12 @@
   background: #000;
 }
 
+.osd .linked .image-button:not(:first-child) {
+  border-left: 1px solid rgba(0, 0, 0, 0.2);
+}
+
 .osd .linked .image-button:not(:last-child) {
-  border-right: 1px solid rgba(0, 0, 0, 0.2);
+  border-right: 0;
 }
 
 .osd .linked .image-button {
