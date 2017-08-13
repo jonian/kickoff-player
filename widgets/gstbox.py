@@ -19,13 +19,16 @@ class GstBox(Gtk.Box):
     if not Gst.is_initialized():
       Gst.init(None)
 
-    self.gtksink = Gst.ElementFactory.make('gtksink')
+    self.gtksink = Gst.ElementFactory.make('gtkglsink', None)
     self.swidget = self.gtksink.props.widget
     self.swidget.connect('draw', self.on_draw)
     self.pack_start(self.swidget, True, True, 0)
 
+    self.sinkbin = Gst.ElementFactory.make('glsinkbin', None)
+    self.sinkbin.set_property('sink', self.gtksink)
+
     self.playbin = Gst.ElementFactory.make('playbin')
-    self.playbin.set_property('video-sink', self.gtksink)
+    self.playbin.set_property('video-sink', self.sinkbin)
     self.playbin.set_property('force-aspect-ratio', True)
 
     self.dbus = self.playbin.get_bus()
