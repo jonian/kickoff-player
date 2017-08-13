@@ -163,8 +163,10 @@ class MatchHandler(object):
 
     for item in self.matches_list.get_children():
       if item.fixture.id in fixtures:
-        updated = self.app.data.get_single('fixture', { 'id': item.fixture.id })
-        item.set_property('fixture', updated)
+        kwargs = { 'id': item.fixture.id }
+        update = self.app.data.get_single('fixture', kwargs)
+
+        item.set_property('fixture', update)
       else:
         item.destroy()
 
