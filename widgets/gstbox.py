@@ -20,8 +20,9 @@ class GstBox(Gtk.Box):
       Gst.init(None)
 
     self.gtksink = Gst.ElementFactory.make('gtksink')
-    self.pack_start(self.gtksink.props.widget, True, True, 0)
-    self.gtksink.props.widget.show()
+    self.swidget = self.gtksink.props.widget
+    self.swidget.connect('draw', self.on_draw)
+    self.pack_start(self.swidget, True, True, 0)
 
     self.playbin = Gst.ElementFactory.make('playbin')
     self.playbin.set_property('video-sink', self.gtksink)
@@ -32,6 +33,10 @@ class GstBox(Gtk.Box):
     self.dbus.connect('message', self.on_dbus_message)
 
     add_widget_class(self, 'player-video')
+
+  def on_draw(self, widget, cairo_context):
+    if self.get_state() == 'NULL':
+      return cairo_context
 
   def get_state(self):
     state = self.playbin.get_state(1)
