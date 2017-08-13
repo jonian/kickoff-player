@@ -47,11 +47,9 @@ class KickoffPlayer(object):
     self.header_reload = self.main.get_object('header_button_reload')
     self.main_stack    = self.main.get_object('stack_main')
 
-    self.player_stack    = self.main.get_object('stack_player')
-    self.matches_stack   = self.main.get_object('stack_matches')
-    self.matches_loader  = self.main.get_object('spinner_matches')
-    self.channels_loader = self.main.get_object('spinner_channels')
-    self.channels_stack  = self.main.get_object('stack_channels')
+    self.player_stack   = self.main.get_object('stack_player')
+    self.matches_stack  = self.main.get_object('stack_matches')
+    self.channels_stack = self.main.get_object('stack_channels')
 
     self.matches  = MatchHandler(self)
     self.channels = ChannelHandler(self)
