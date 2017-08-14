@@ -63,12 +63,15 @@ class GstBox(Gtk.Box):
     self.playbin.set_property('volume', volume)
 
   def buffer(self, message):
-    self.callback('BUFFER')
+    percent = message.parse_buffering()
+    message = "%s %s%s" % ('Buffering', percent, '%')
+
+    self.callback(message)
 
     if self.get_state() != 'PAUSED':
       self.playbin.set_state(Gst.State.PAUSED)
 
-    if message.parse_buffering() == 100:
+    if percent == 100:
       self.play()
 
   def restart(self):
@@ -77,9 +80,9 @@ class GstBox(Gtk.Box):
     self.play()
 
   def on_dbus_message(self, _bus, message):
-    if message.type == Gst.MessageType.ERROR:
-      self.callback('ERROR')
+    if message.type == Gst.MessageType.BUFFERING:
+      self.buffer(message)
     elif message.type == Gst.MessageType.EOS:
       self.restart()
-    elif message.type == Gst.MessageType.BUFFERING:
-      self.buffer(message)
+    elif message.type == Gst.MessageType.ERROR:
+      self.callback('ERROR')
