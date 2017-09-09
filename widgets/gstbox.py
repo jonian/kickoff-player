@@ -77,11 +77,11 @@ class GstBox(Gtk.Box):
     self.playbin.set_state(Gst.State.NULL)
 
   def resume(self):
-    if self.restart:
+    if self.restart and self.buffer == 0:
       self.restart = False
       self.play()
 
-    if self.buffer == 100:
+    if self.buffer == 100 and not self.restart:
       self.buffer = 0
       self.play()
 
