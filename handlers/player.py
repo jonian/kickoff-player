@@ -102,33 +102,43 @@ class PlayerHandler(object):
 
   def play(self):
     self.playbin.play()
-    self.toggle_buttons(True)
 
   def pause(self):
     self.playbin.pause()
 
   def stop(self):
-    self.toggle_buttons(False)
     self.playbin.stop()
 
   def set_volume(self, volume):
     self.playbin.set_volume(volume)
 
-  def update_status(self, status):
+  def update_status(self, status, text=None):
     labels = {
       'PLAYING': 'Playing',
       'PAUSED':  'Paused',
-      'NULL':    'Stopped',
+      'STOPPED': 'Stopped',
       'ERROR':   'Error',
       'BUFFER':  'Buffering'
     }
 
+    if status in ['PLAYING', 'BUFFER']:
+      self.toggle_buttons(True)
+    else:
+      self.toggle_buttons(False)
+
     status = labels.get(status, status)
+    status = status if text is None else "%s %s" % (status, text)
     self.status.set_text(status)
 
-  def toggle_buttons(self, active=True):
-    self.pause_button.set_sensitive(active)
-    self.stop_button.set_sensitive(active)
+  def toggle_buttons(self, playing=True):
+    if playing:
+      self.pause_button.set_sensitive(True)
+      self.stop_button.set_sensitive(True)
+      self.play_button.set_sensitive(False)
+    else:
+      self.pause_button.set_sensitive(False)
+      self.stop_button.set_sensitive(False)
+      self.play_button.set_sensitive(True)
 
   def toggle_fullscreen(self):
     if not self.visible:

@@ -56,14 +56,14 @@ class GstBox(Gtk.Box):
   def stop(self):
     if self.get_state() != 'NULL':
       self.playbin.set_state(Gst.State.NULL)
-      self.callback('NULL')
+      self.callback('STOPPED')
 
   def set_volume(self, volume):
     self.playbin.set_property('volume', volume)
 
   def buffer(self, message):
     percent = int(message.parse_buffering())
-    self.callback("%s %s%s" % ('Buffering', percent, '%'))
+    self.callback('BUFFER', "%s%s" % (percent, '%'))
 
     if self.get_state() != 'PAUSED':
       self.playbin.set_state(Gst.State.PAUSED)
