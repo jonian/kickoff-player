@@ -76,18 +76,23 @@ class GstBox(Gtk.Box):
     self.callback('BUFFER')
     self.playbin.set_state(Gst.State.NULL)
 
+  def resume(self):
+    if self.restart or self.buffer == 100:
+      self.play()
+
+    self.restart = False
+    self.buffer  = 0
+
+  def close(self):
+    self.callback('ERROR')
+    self.playbin.set_state(Gst.State.NULL)
+
   def on_dbus_message(self, _bus, message):
     if message.type == Gst.MessageType.BUFFERING:
       self.buffer(message)
     elif message.type == Gst.MessageType.EOS:
       self.restart()
     elif message.type == Gst.MessageType.ERROR:
-      self.callback('ERROR')
-
-    if self.buffer == 100:
-      self.buffer = 0
-      self.play()
-
-    if self.restart:
-      self.restart = False
-      self.play()
+      self.close()
+    else:
+      self.resume()
