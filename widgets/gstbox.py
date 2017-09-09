@@ -65,7 +65,7 @@ class GstBox(Gtk.Box):
     self.playbin.set_property('volume', volume)
 
   def buffer(self, message):
-    self.buffer = message.parse_buffering()
+    self.buffer = int(message.parse_buffering())
     self.callback("%s %s%s" % ('Buffering', self.buffer, '%'))
 
     if self.get_state() != 'PAUSED':
@@ -77,11 +77,13 @@ class GstBox(Gtk.Box):
     self.playbin.set_state(Gst.State.NULL)
 
   def resume(self):
-    if self.restart or self.buffer == 100:
+    if self.restart:
+      self.restart = False
       self.play()
 
-    self.restart = False
-    self.buffer  = 0
+    if self.buffer == 100:
+      self.buffer = 0
+      self.play()
 
   def close(self):
     self.callback('ERROR')
