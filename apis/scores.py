@@ -118,7 +118,7 @@ class ScoresApi:
 
   def get_matches(self):
     settings = self.data.load_active_competitions()
-    comp_ids = batch(settings, 5, ',')
+    comp_ids = batch(settings, 2, ',')
     combined = thread_pool(self.get_matchdays, comp_ids)
 
     return combined

@@ -55,7 +55,7 @@ class KickoffPlayer(object):
     self.channels = ChannelHandler(self)
     self.player   = PlayerHandler(self)
 
-    GLib.timeout_add(5000, self.toggle_reload, True)
+    GLib.timeout_add(2000, self.toggle_reload, True)
     self.open_stream_url()
 
   def run(self):
