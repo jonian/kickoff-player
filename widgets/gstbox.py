@@ -18,7 +18,9 @@ class GstBox(Gtk.Box):
   def __init__(self, *args, **kwargs):
     Gtk.Box.__init__(self, *args, **kwargs)
 
+    self.restart = False
     self.buffer  = 0
+
     self.gtksink = Gst.ElementFactory.make('gtksink')
     self.swidget = self.gtksink.props.widget
     self.pack_start(self.swidget, True, True, 0)
@@ -70,9 +72,9 @@ class GstBox(Gtk.Box):
       self.playbin.set_state(Gst.State.PAUSED)
 
   def restart(self):
+    self.restart = True
     self.callback('BUFFER')
     self.playbin.set_state(Gst.State.NULL)
-    self.play()
 
   def on_dbus_message(self, _bus, message):
     if message.type == Gst.MessageType.BUFFERING:
@@ -84,4 +86,8 @@ class GstBox(Gtk.Box):
 
     if self.buffer == 100:
       self.buffer = 0
+      self.play()
+
+    if self.restart:
+      self.restart = False
       self.play()
