@@ -116,7 +116,6 @@ class PlayerHandler(object):
       'PLAYING': 'Playing',
       'PAUSED':  'Paused',
       'STOPPED': 'Stopped',
-      'ERROR':   'Error',
       'BUFFER':  'Buffering'
     }
 

@@ -71,12 +71,14 @@ class GstBox(Gtk.Box):
     if percent == 100:
       self.play()
 
-  def close(self):
-    self.callback('ERROR')
-    self.playbin.set_state(Gst.State.NULL)
+  def wait(self):
+    self.callback('BUFFER', '0%')
+
+    if self.get_state() != 'PAUSED':
+      self.playbin.set_state(Gst.State.PAUSED)
 
   def on_dbus_message(self, _bus, message):
     if message.type == Gst.MessageType.BUFFERING:
       self.buffer(message)
     elif message.type == Gst.MessageType.ERROR:
-      self.close()
+      self.wait()
