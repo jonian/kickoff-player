@@ -20,7 +20,10 @@ class PlayerHandler(object):
     self.stack  = app.player_stack
 
     self.sesbus = dbus.SessionBus()
-    self.ssaver = self.sesbus.get_object('org.freedesktop.ScreenSaver', '/ScreenSaver')
+    try:
+        self.ssaver = self.sesbus.get_object('org.freedesktop.ScreenSaver', '/ScreenSaver')
+    except dbus.exceptions.DBusException:
+        self.ssaver = None
     self.isaver = dbus.Interface(self.ssaver, dbus_interface='org.freedesktop.ScreenSaver')
     self.cookie = None
 
