@@ -7,7 +7,7 @@ GTK3 player with GStreamer backend, for streaming Acestream and Sopcast sports c
 * Watch football games in the built-in player
 * Open Acestream and Sopcast links
 
-![Screenshot](https://raw.githubusercontent.com/jonian/kickoff-player/master/screenshots/overview.png)
+![Screenshot](https://raw.githubusercontent.com/jonian/kickoff-player/master/screenshot.jpg)
 
 ## Dependencies
     gtk3 gstreamer python python-gobject python-psutil python-pexpect python-peewee python-requests python-fuzzywuzzy python-levenshtein python-dateutil python-lxml acestream-engine sopcast
