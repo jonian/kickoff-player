@@ -185,7 +185,7 @@ class ScoresApi:
     teams = self.data.load_teams()
 
     for team in teams:
-      in_thread(target = self.download_team_crest, args=[team])
+      in_thread(target=self.download_team_crest, args=[team])
 
   def section_name(self, codes, code):
     name = list(filter(lambda ccode: ccode['key'] == code, codes))
