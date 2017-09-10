@@ -20,11 +20,7 @@ class PlayerHandler(object):
     self.stack  = app.player_stack
 
     self.sesbus = dbus.SessionBus()
-    try:
-        self.ssaver = self.sesbus.get_object('org.freedesktop.ScreenSaver', '/ScreenSaver')
-    except dbus.exceptions.DBusException:
-        self.ssaver = None
-    self.isaver = dbus.Interface(self.ssaver, dbus_interface='org.freedesktop.ScreenSaver')
+    self.isaver = self.get_isaver()
     self.cookie = None
 
     self.url = None
@@ -182,12 +178,21 @@ class PlayerHandler(object):
       self.toolbar.show()
       toggle_cursor(self.overlay, False)
 
+  def get_isaver(self):
+    try:
+      ssaver = self.sesbus.get_object('org.freedesktop.ScreenSaver', '/ScreenSaver')
+      isaver = dbus.Interface(ssaver, dbus_interface='org.freedesktop.ScreenSaver')
+    except dbus.exceptions.DBusException:
+      isaver = None
+
+    return isaver
+
   def inhibit_ssaver(self):
-    if self.cookie is None:
+    if self.isaver is not None and self.cookie is None:
       self.cookie = self.isaver.Inhibit('kickoff-player', 'Playing video')
 
   def uninhibit_ssaver(self):
-    if self.cookie is not None:
+    if self.isaver is not None and self.cookie is not None:
       self.isaver.UnInhibit(self.cookie)
       self.cookie = None
 
