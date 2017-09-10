@@ -138,8 +138,7 @@ class MatchHandler(object):
     for item in self.matches_filters.get_children():
       if item.filter_name not in filters:
         item.destroy()
-
-      if item.filter_name not in active:
+      elif item.filter_name not in active:
         item.set_sensitive(False)
       else:
         item.set_sensitive(True)
@@ -163,10 +162,8 @@ class MatchHandler(object):
 
     for item in self.matches_list.get_children():
       if item.fixture.id in fixtures:
-        kwargs = { 'id': item.fixture.id }
-        update = self.app.data.get_single('fixture', kwargs)
-
-        item.set_property('fixture', update)
+        updated = self.app.data.get_single('fixture', { 'id': item.fixture.id })
+        item.set_property('fixture', updated)
       else:
         item.destroy()
 
