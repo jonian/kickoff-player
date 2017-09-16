@@ -179,7 +179,7 @@ class ScoresApi:
       except KeyError:
         pass
 
-    self.data.set_multiple('fixture', items, 'api_id', True)
+    self.data.set_multiple('fixture', items, 'api_id')
 
   def save_crests(self):
     teams = self.data.load_teams()

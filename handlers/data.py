@@ -79,7 +79,7 @@ class DataHandler(object):
 
     return item
 
-  def set_single(self, model, kwargs, main_key='id', update=False):
+  def set_single(self, model, kwargs, main_key='id'):
     key = kwargs.get(main_key, None)
 
     if key is None:
@@ -87,9 +87,9 @@ class DataHandler(object):
 
     item = self.get_single(model, { main_key: key })
 
-    if item is None and not update:
+    if item is None:
       item = self.create_single(model, kwargs)
-    elif item is not None:
+    else:
       item = self.update_single(model, item, kwargs)
 
     return item
@@ -110,9 +110,9 @@ class DataHandler(object):
 
     return items
 
-  def set_multiple(self, model, items, main_key, update=False):
+  def set_multiple(self, model, items, main_key):
     for item in items:
-      self.set_single(model, item, main_key, update)
+      self.set_single(model, item, main_key)
 
   def load_settings(self):
     return Setting.select()
