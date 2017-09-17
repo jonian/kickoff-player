@@ -10,7 +10,7 @@ GTK3 player with GStreamer backend, for streaming Acestream and Sopcast sports c
 ![Screenshot](https://raw.githubusercontent.com/jonian/kickoff-player/master/screenshot.jpg)
 
 ## Dependencies
-    gtk3 gstreamer python python-gobject python-psutil python-pexpect python-peewee python-requests python-fuzzywuzzy python-levenshtein python-dateutil python-lxml acestream-engine sopcast
+    gtk3 gstreamer gst-plugins-bad python python-gobject python-psutil python-pexpect python-peewee python-requests python-fuzzywuzzy python-levenshtein python-dateutil python-lxml acestream-engine sopcast
 
 ## Usage
     kickoff-player URL
