@@ -33,6 +33,9 @@ class StreamHandler(object):
   def open(self, url):
     """Opean stream in a new thread"""
 
+    self.player.url = None
+    self.player.stop()
+
     self.player.loading = True
     in_thread(target=self.open_stream, args=[url])
 
@@ -45,7 +48,7 @@ class StreamHandler(object):
   def open_stream(self, url):
     """Open stream url and start player"""
 
-    self.player.close()
+    self.close()
     self.notify('starting')
 
     if url.startswith('acestream://'):
@@ -64,8 +67,6 @@ class StreamHandler(object):
 
     engine = '/usr/bin/acestreamengine'
     client = '--client-console'
-
-    self.close()
 
     try:
       self.acestream = run_command([engine, client])
@@ -133,8 +134,6 @@ class StreamHandler(object):
     eng = '/usr/bin/sp-sc'
     lpo = '3000'
     ppo = '3001'
-
-    self.close()
 
     try:
       self.sopcast = run_command([eng, url, lpo, ppo])
