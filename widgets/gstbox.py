@@ -3,7 +3,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
 
-from gi.repository import Gtk, Gst, GObject
+from gi.repository import Gtk, Gst, GObject, GLib
 from helpers.gtk import add_widget_class
 
 Gst.init(None)
@@ -18,6 +18,7 @@ class GstBox(Gtk.Box):
   def __init__(self, *args, **kwargs):
     Gtk.Box.__init__(self, *args, **kwargs)
 
+    self.timeout = None
     self.gtksink = Gst.ElementFactory.make('gtksink')
     self.swidget = self.gtksink.props.widget
     self.pack_start(self.swidget, True, True, 0)
@@ -45,16 +46,19 @@ class GstBox(Gtk.Box):
 
   def play(self):
     if self.get_state() != 'PLAYING':
+      self.timeout_clear()
       self.playbin.set_state(Gst.State.PLAYING)
       self.callback('PLAYING')
 
   def pause(self):
     if self.get_state() != 'PAUSED':
+      self.timeout_clear()
       self.playbin.set_state(Gst.State.PAUSED)
       self.callback('PAUSED')
 
   def stop(self):
     if self.get_state() != 'NULL':
+      self.timeout_clear()
       self.playbin.set_state(Gst.State.NULL)
       self.callback('STOPPED')
 
@@ -69,13 +73,26 @@ class GstBox(Gtk.Box):
       self.playbin.set_state(Gst.State.PAUSED)
 
     if percent == 100:
-      self.play()
+      self.timeout_play(2000)
 
   def wait(self):
     self.callback('BUFFER', '0%')
 
     if self.get_state() != 'PAUSED':
       self.playbin.set_state(Gst.State.PAUSED)
+      self.timeout_play(5000)
+
+  def timeout_play(self, time):
+    self.timeout_clear()
+
+    if self.get_state() != 'PLAYING':
+      self.timeout = GLib.timeout_add(5000, self.play)
+
+  def timeout_clear(self):
+    if self.timeout is not None:
+      GLib.source_remove(self.timeout)
+
+    self.timeout = None
 
   def on_dbus_message(self, _bus, message):
     if message.type == Gst.MessageType.BUFFERING:
