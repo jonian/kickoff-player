@@ -24,7 +24,7 @@ class ScoresApi:
       'cache':     self.cache,
       'base_url':  base_url,
       'json':      True,
-      'ttl':       kwargs.get('ttl', 3600),
+      'ttl':       kwargs.get('ttl', 1800),
       'params':    kwargs.get('params'),
       'cache_key': kwargs.get('cache_key')
     }

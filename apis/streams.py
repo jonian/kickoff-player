@@ -10,7 +10,7 @@ class StreamsApi:
     self.data  = data
     self.cache = cache
 
-  def get(self, url='', ttl=86400):
+  def get(self, url='', ttl=3600):
     base_url = 'livefootballol.me'
     response = cached_request(url=url, cache=self.cache, base_url=base_url, ttl=ttl)
 
