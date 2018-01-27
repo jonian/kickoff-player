@@ -18,7 +18,6 @@ class GstBox(Gtk.Box):
   def __init__(self, *args, **kwargs):
     Gtk.Box.__init__(self, *args, **kwargs)
 
-    self.timeout = None
     self.gtksink = Gst.ElementFactory.make('gtksink')
     self.swidget = self.gtksink.props.widget
     self.pack_start(self.swidget, True, True, 0)
@@ -33,7 +32,9 @@ class GstBox(Gtk.Box):
 
     add_widget_class(self, 'player-video')
 
-  def get_state(self):
+  @property
+
+  def state(self):
     state = self.playbin.get_state(1)
     state = list(state)[1]
     state = state.value_name.split('_')[-1]
@@ -45,57 +46,52 @@ class GstBox(Gtk.Box):
     self.playbin.set_property('uri', url)
 
   def play(self):
-    if self.get_state() != 'PLAYING':
-      self.timeout_clear()
+    if self.state != 'PLAYING':
       self.playbin.set_state(Gst.State.PLAYING)
       self.callback('PLAYING')
 
   def pause(self):
-    if self.get_state() != 'PAUSED':
-      self.timeout_clear()
+    if self.state != 'PAUSED':
       self.playbin.set_state(Gst.State.PAUSED)
       self.callback('PAUSED')
 
   def stop(self):
-    if self.get_state() != 'NULL':
-      self.timeout_clear()
-      self.playbin.set_state(Gst.State.NULL)
+    if self.state != 'READY':
+      self.playbin.set_state(Gst.State.READY)
       self.callback('STOPPED')
 
   def set_volume(self, volume):
     self.playbin.set_property('volume', volume)
 
-  def buffer(self, message):
+  def on_buffering(self, message):
     percent = int(message.parse_buffering())
     self.callback('BUFFER', "%s%s" % (percent, '%'))
 
-    if self.get_state() != 'PAUSED':
+    if percent < 100:
       self.playbin.set_state(Gst.State.PAUSED)
+    else:
+      self.playbin.set_state(Gst.State.PLAYING)
+      self.callback('PLAYING')
 
-    if percent == 100:
-      self.timeout_play(2000)
+  def on_error(self, message):
+    error = message.parse_error()
+    self.playbin.set_state(Gst.State.READY)
+    self.callback("%s.." % error[0].message)
 
-  def wait(self):
-    self.callback('BUFFER', '0%')
+  def on_eos(self):
+    self.playbin.set_state(Gst.State.READY)
+    self.callback('End of stream...')
 
-    if self.get_state() != 'PAUSED':
-      self.playbin.set_state(Gst.State.PAUSED)
-      self.timeout_play(5000)
-
-  def timeout_play(self, time):
-    self.timeout_clear()
-
-    if self.get_state() != 'PLAYING':
-      self.timeout = GLib.timeout_add(5000, self.play)
-
-  def timeout_clear(self):
-    if self.timeout is not None:
-      GLib.source_remove(self.timeout)
-
-    self.timeout = None
+  def on_clock_lost(self):
+    self.playbin.set_state(Gst.State.PAUSED)
+    self.playbin.set_state(Gst.State.PLAYING)
 
   def on_dbus_message(self, _bus, message):
-    if message.type == Gst.MessageType.BUFFERING:
-      self.buffer(message)
-    elif message.type == Gst.MessageType.ERROR:
-      self.wait()
+    if message.type == Gst.MessageType.ERROR:
+      self.on_error(message)
+    elif message.type == Gst.MessageType.EOS:
+      self.on_eos()
+    elif message.type == Gst.MessageType.BUFFERING:
+      self.on_buffering(message)
+    elif message.type == Gst.MessageType.CLOCK_LOST:
+      self.on_clock_lost()
