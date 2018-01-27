@@ -32,15 +32,6 @@ class GstBox(Gtk.Box):
 
     add_widget_class(self, 'player-video')
 
-  @property
-
-  def state(self):
-    state = self.playbin.get_state(1)
-    state = list(state)[1]
-    state = state.value_name.split('_')[-1]
-
-    return state
-
   def open(self, url):
     self.playbin.set_state(Gst.State.NULL)
     self.playbin.set_property('uri', url)
