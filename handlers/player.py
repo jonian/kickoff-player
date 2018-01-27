@@ -63,11 +63,6 @@ class PlayerHandler(object):
 
   @property
 
-  def state(self):
-    return self.playbin.get_state()
-
-  @property
-
   def actionable(self):
     return self.url is not None
 
