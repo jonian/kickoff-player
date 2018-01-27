@@ -46,19 +46,16 @@ class GstBox(Gtk.Box):
     self.playbin.set_property('uri', url)
 
   def play(self):
-    if self.state != 'PLAYING':
-      self.playbin.set_state(Gst.State.PLAYING)
-      self.callback('PLAYING')
+    self.playbin.set_state(Gst.State.PLAYING)
+    self.callback('PLAYING')
 
   def pause(self):
-    if self.state != 'PAUSED':
-      self.playbin.set_state(Gst.State.PAUSED)
-      self.callback('PAUSED')
+    self.playbin.set_state(Gst.State.PAUSED)
+    self.callback('PAUSED')
 
   def stop(self):
-    if self.state != 'READY':
-      self.playbin.set_state(Gst.State.READY)
-      self.callback('STOPPED')
+    self.playbin.set_state(Gst.State.NULL)
+    self.callback('STOPPED')
 
   def set_volume(self, volume):
     self.playbin.set_property('volume', volume)
@@ -80,7 +77,7 @@ class GstBox(Gtk.Box):
 
   def on_eos(self):
     self.playbin.set_state(Gst.State.READY)
-    self.callback('End of stream...')
+    self.callback('End of stream reached...')
 
   def on_clock_lost(self):
     self.playbin.set_state(Gst.State.PAUSED)
