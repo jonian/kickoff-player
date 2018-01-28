@@ -48,25 +48,19 @@ class MatchHandler(object):
 
   def is_visible(self):
     visible = self.app.get_stack_visible_child()
-    visible = visible == self.stack
-
-    return visible
+    return visible == self.stack
 
   @property
 
   def in_match(self):
     visible = self.stack.get_visible_child()
-    visible = self.is_visible and visible == self.match_box
-
-    return visible
+    return self.is_visible and visible == self.match_box
 
   @property
 
   def live_fixtures(self):
     fixtures = self.app.data.load_fixtures(current=True, today_only=True)
-    fixtures = fixtures and fixtures[0].date <= now()
-
-    return fixtures
+    return fixtures and fixtures[0].date <= now()
 
   def initial_setup(self):
     if not self.app.data.load_competitions():
@@ -235,6 +229,6 @@ class MatchHandler(object):
 
   def on_list_box_matches_filters_row_activated(self, _listbox, item):
     self.filter = None if item.filter_name == 'All Competitions' else item.filter_name
+
     self.matches_list.invalidate_filter()
-    set_scroll_position(self.matches_list, 0)
-    self.app.window.queue_resize_no_redraw()
+    set_scroll_position(self.matches_list, 0, 'vertical', self.app.window)
