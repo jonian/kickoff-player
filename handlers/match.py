@@ -46,15 +46,13 @@ class MatchHandler(object):
 
   @property
 
-  def is_visible(self):
-    visible = self.app.get_stack_visible_child()
-    return visible == self.stack
+  def visible(self):
+    return self.app.get_stack_visible_child() == self.stack
 
   @property
 
   def in_match(self):
-    visible = self.stack.get_visible_child()
-    return self.is_visible and visible == self.match_box
+    return self.visible and self.stack.get_visible_child() == self.match_box
 
   @property
 
@@ -205,7 +203,7 @@ class MatchHandler(object):
     self.do_match_details(fixture)
 
   def on_header_button_reload_clicked(self, _widget):
-    if self.is_visible:
+    if self.visible:
       self.update_matches_data()
 
   def on_header_button_back_clicked(self, widget):
