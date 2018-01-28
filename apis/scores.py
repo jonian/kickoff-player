@@ -1,6 +1,6 @@
 import os
 
-from helpers.utils import format_date, gmtime, tzone, today, user_data_dir, search_dict_key
+from helpers.utils import format_date, tzone, today, user_data_dir, search_dict_key
 from helpers.utils import cached_request, download_file, batch, in_thread, thread_pool
 
 
