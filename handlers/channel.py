@@ -31,6 +31,11 @@ class ChannelHandler(object):
 
     GLib.idle_add(self.do_initial_setup)
 
+  @property
+
+  def visible(self):
+    return self.app.get_stack_visible_child() == self.stack
+
   def initial_setup(self):
     if not self.app.data.load_channels():
       self.update_channels_data()
@@ -114,11 +119,11 @@ class ChannelHandler(object):
       yield True
 
   def on_stack_main_visible_child_notify(self, _widget, _params):
-    if self.app.get_stack_visible_child() == self.stack:
+    if self.visible:
       self.do_channels_widgets()
 
   def on_header_button_reload_clicked(self, _event):
-    if self.app.get_stack_visible_child() == self.stack:
+    if self.visible:
       self.update_channels_data()
 
   def on_channels_list_row_changed(self, item):
