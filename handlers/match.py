@@ -115,17 +115,10 @@ class MatchHandler(object):
 
     GLib.idle_add(self.do_matches_widgets)
     GLib.idle_add(self.update_matches_widgets)
-    GLib.idle_add(self.app.toggle_reload, True)
 
-  def update_match_data(self):
-    in_thread(target=self.do_update_match_data)
+    if self.in_match:
+      GLib.idle_add(self.update_match_details)
 
-  def do_update_match_data(self):
-    GLib.idle_add(self.app.toggle_reload, False)
-
-    self.update_events_data()
-
-    GLib.idle_add(self.update_match_details)
     GLib.idle_add(self.app.toggle_reload, True)
 
   def update_live_data(self):
@@ -218,11 +211,8 @@ class MatchHandler(object):
     self.do_match_details(fixture)
 
   def on_header_button_reload_clicked(self, _widget):
-    if not self.in_match:
+    if self.is_visible:
       self.update_matches_data()
-
-    if self.in_match:
-      self.update_match_data()
 
   def on_header_button_back_clicked(self, widget):
     self.stack.set_visible_child(self.matches_box)
