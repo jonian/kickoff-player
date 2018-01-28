@@ -46,6 +46,22 @@ class MatchHandler(object):
 
   @property
 
+  def is_visible(self):
+    visible = self.app.get_stack_visible_child()
+    visible = visible == self.stack
+
+    return visible
+
+  @property
+
+  def in_match(self):
+    visible = self.stack.get_visible_child()
+    visible = self.is_visible and visible == self.match_box
+
+    return visible
+
+  @property
+
   def live_fixtures(self):
     fixtures = self.app.data.load_fixtures(current=True, today_only=True)
     fixtures = fixtures and fixtures[0].date <= now()
@@ -202,27 +218,18 @@ class MatchHandler(object):
     self.do_match_details(fixture)
 
   def on_header_button_reload_clicked(self, _widget):
-    outer = self.app.get_stack_visible_child()
-    inner = self.stack.get_visible_child()
-
-    if outer != self.stack:
-      return
-
-    if inner == self.matches_box:
+    if not self.in_match:
       self.update_matches_data()
 
-    if inner == self.match_box:
+    if self.in_match:
       self.update_match_data()
 
   def on_header_button_back_clicked(self, widget):
     self.stack.set_visible_child(self.matches_box)
     widget.hide()
 
-  def on_stack_main_visible_child_notify(self, widget, _params):
-    outer = widget.get_visible_child()
-    inner = self.stack.get_visible_child()
-
-    if outer == self.stack and inner == self.match_box:
+  def on_stack_main_visible_child_notify(self, _widget, _params):
+    if self.in_match:
       self.app.header_back.show()
     else:
       self.app.header_back.hide()
