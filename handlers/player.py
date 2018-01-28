@@ -59,7 +59,7 @@ class PlayerHandler(object):
   @property
 
   def visible(self):
-    return self.stack.get_visible_child() == self.overlay
+    return self.app.get_stack_visible_child() == self.stack
 
   @property
 
@@ -211,16 +211,11 @@ class PlayerHandler(object):
       self.set_volume(value)
 
   def on_window_main_key_release_event(self, _widget, event):
-    stack = self.app.get_stack_visible_child()
-    kname = Gdk.keyval_name(event.keyval)
-
-    if stack == self.stack and kname == 'F11':
+    if self.visible and Gdk.keyval_name(event.keyval) == 'F11':
       self.toggle_fullscreen()
 
   def on_header_button_reload_clicked(self, _event):
-    stack = self.app.get_stack_visible_child()
-
-    if stack == self.stack and self.cstream is not None:
+    if self.visible and self.cstream is not None:
       self.reload_stream()
 
   def on_button_fullscreen_clicked(self, _event):
