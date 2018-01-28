@@ -136,12 +136,11 @@ class MatchHandler(object):
     run_generator(self.update_matches_filters)
 
   def do_filter_item(self, filter_name):
-    filterbox = FilterBox(filter_name=filter_name)
+    filterbox = FilterBox(filter_name=filter_name, filter_all='All Competitions')
     self.matches_filters.add(filterbox)
 
-    if filter_name == 'All Competitions':
-      if not self.matches_filters.get_selected_row():
-        self.matches_filters.select_row(filterbox)
+    if not self.matches_filters.get_selected_row():
+      self.matches_filters.select_row(filterbox)
 
   def update_matches_filters(self):
     active  = self.app.data.load_matches_filters(True)
@@ -226,7 +225,7 @@ class MatchHandler(object):
     return self.filter is None or item.filter_name == self.filter
 
   def on_list_box_matches_filters_row_activated(self, _listbox, item):
-    self.filter = None if item.filter_name == 'All Competitions' else item.filter_name
+    self.filter = item.filter_value
 
     self.matches_list.invalidate_filter()
     set_scroll_position(self.matches_list, 0, 'vertical', self.app.window)

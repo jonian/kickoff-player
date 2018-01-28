@@ -78,12 +78,11 @@ class ChannelHandler(object):
       yield True
 
   def do_filter_item(self, filter_name):
-    filterbox = FilterBox(filter_name=filter_name)
+    filterbox = FilterBox(filter_name=filter_name, filter_all='All Languages')
     self.channels_filters.add(filterbox)
 
-    if filter_name == 'All Languages':
-      if not self.channels_filters.get_selected_row():
-        self.channels_filters.select_row(filterbox)
+    if not self.channels_filters.get_selected_row():
+      self.channels_filters.select_row(filterbox)
 
   def update_channels_filters(self):
     filters = self.app.data.load_channels_filters()
@@ -130,7 +129,7 @@ class ChannelHandler(object):
     return self.filter is None or item.filter_name == self.filter
 
   def on_list_box_channels_filters_row_activated(self, _listbox, item):
-    self.filter = None if item.filter_name == 'All Languages' else item.filter_name
+    self.filter = item.filter_value
+
     self.channels_list.invalidate_filter()
-    set_scroll_position(self.channels_list, 0)
-    self.app.window.queue_resize_no_redraw()
+    set_scroll_position(self.channels_list, 0, 'vertical', self.app.window)
