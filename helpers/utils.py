@@ -190,7 +190,7 @@ def search_dict_key(iterable, keys, default=None):
 
     for key in keys:
       iterable = iterable[key]
-  except KeyError:
+  except(KeyError, TypeError):
     iterable = default
 
   return iterable
