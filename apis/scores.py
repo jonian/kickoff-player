@@ -152,13 +152,11 @@ class ScoresApi:
 
   def get_live(self):
     kwargs = {
-      'base_url': self.score_url,
-      'url':      'matches/updates',
-      'key':      ['data', 'match_updates'],
-      'ttl':      10,
-      'params':   {
-        'since': gmtime('%Y-%m-%dT%H:%M:%SZ', True)
-      }
+      'base_url':  self.score_url,
+      'url':       'matches/updates',
+      'key':       ['data', 'match_updates'],
+      'cache_key': 'live',
+      'ttl':       10
     }
 
     return self.get(**kwargs)
