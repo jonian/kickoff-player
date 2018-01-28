@@ -10,17 +10,24 @@ class FilterBox(Gtk.ListBoxRow):
   __gtype_name__ = 'FilterBox'
 
   filter_name = GObject.property(type=str, flags=GObject.PARAM_READWRITE)
+  filter_all  = GObject.property(type=str, flags=GObject.PARAM_READWRITE)
 
   def __init__(self, *args, **kwargs):
     Gtk.ListBoxRow.__init__(self, *args, **kwargs)
 
     self.filter_name  = self.get_property('filter-name')
+    self.filter_all   = self.get_property('filter-all')
     self.filter_label = self.do_filter_label()
+    self.filter_value = self.set_filter_value()
 
     self.connect('realize', self.on_filter_name_updated)
     self.connect('notify::filter_name', self.on_filter_name_updated)
 
     self.show()
+
+  def set_filter_value(self):
+    value = None if self.filter_name == self.filter_all else self.filter_name
+    return value
 
   def on_filter_name_updated(self, *_args):
     self.update_filter_label()
