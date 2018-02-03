@@ -1,4 +1,5 @@
 import gi
+import time
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('GLib', '2.0')
@@ -64,6 +65,7 @@ class ChannelHandler(object):
     GLib.idle_add(self.app.toggle_reload, False)
 
     self.app.streams_api.save_channels()
+    time.sleep(5)
 
     GLib.idle_add(self.do_channels_widgets)
     GLib.idle_add(self.update_channels_widgets)

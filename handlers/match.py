@@ -1,4 +1,5 @@
 import gi
+import time
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('GLib', '2.0')
@@ -104,6 +105,7 @@ class MatchHandler(object):
     GLib.idle_add(self.app.toggle_reload, False)
 
     self.update_events_data()
+    time.sleep(5)
 
     GLib.idle_add(self.do_matches_widgets)
     GLib.idle_add(self.update_matches_widgets)
@@ -122,6 +124,7 @@ class MatchHandler(object):
   def do_update_live_data(self):
     self.app.streams_api.save_events()
     self.app.scores_api.save_live()
+    time.sleep(5)
 
     GLib.idle_add(self.update_matches_widgets)
 
