@@ -155,7 +155,7 @@ class DataHandler(object):
 
   def load_languages(self):
     items = Channel.select(Channel.language).join(Stream)
-    items = items.distinct(Channel.language).tuples()
+    items = items.distinct().tuples()
     items = sorted(list(set(sum(items, ()))))
 
     return items
@@ -209,7 +209,7 @@ class Competition(BasicModel):
 
   def teams(self):
     fixtures = self.fixtures.select(Fixture.home_team, Fixture.away_team)
-    fixtures = fixtures.distinct(Fixture.home_team).distinct(Fixture.away_team).tuples()
+    fixtures = fixtures.distinct().tuples()
     team_ids = list(set(sum(fixtures, ())))
     teams    = Team.select().where(Team.id << team_ids)
 
@@ -234,8 +234,8 @@ class Team(BasicModel):
 
   def competitions(self):
     fixtures     = self.fixtures.select(Fixture.competition)
-    fixtures     = fixtures.distinct(Fixture.competition).tuples()
-    comp_ids     = list(sum(fixtures, ()))
+    fixtures     = fixtures.distinct().tuples()
+    comp_ids     = list(set(sum(fixtures, ())))
     competitions = Competition.select().where(Competition.id << comp_ids)
 
     return competitions
@@ -333,7 +333,7 @@ class Channel(BasicModel):
 
   def streams(self):
     streams = Stream.select().where(Stream.channel == self).limit(2)
-    streams = streams.distinct(Stream.host).order_by(Stream.created)
+    streams = streams.distinct().order_by(Stream.created)
 
     return streams
 
