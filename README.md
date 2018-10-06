@@ -1,6 +1,6 @@
 ## Kickoff Player
 
-GTK3 player with GStreamer backend, for streaming Acestream sports channels.
+GTK3 player with MPV, VLC and GStreamer backends, for streaming Acestream sports channels.
 
 * Browse through popular football competitions
 * Watch Acestream sports channels
