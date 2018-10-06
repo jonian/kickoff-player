@@ -1,5 +1,4 @@
 import time
-import socket
 import hashlib
 import pexpect
 
@@ -7,18 +6,13 @@ from helpers.utils import in_thread, run_command, kill_proccess
 
 
 class StreamHandler(object):
-  """Handler for acestream and sopcast streams"""
-
   def __init__(self, player):
     self.player    = player
     self.acestream = None
-    self.sopcast   = None
     self.url       = None
     self.session   = None
 
   def notify(self, message):
-    """Notify player on stream status changes"""
-
     messages = {
       'starting':    'Starting stream engine...',
       'running':     'Stream engine running...',
@@ -31,8 +25,6 @@ class StreamHandler(object):
     self.player.update_status(message)
 
   def open(self, url):
-    """Opean stream in a new thread"""
-
     self.player.url = None
     self.player.stop()
 
@@ -40,22 +32,14 @@ class StreamHandler(object):
     in_thread(target=self.open_stream, args=[url])
 
   def close(self):
-    """Close all streaming engines"""
-
     self.stop_acestream()
-    self.stop_sopcast()
 
   def open_stream(self, url):
-    """Open stream url and start player"""
-
     self.close()
     self.notify('starting')
 
     if url.startswith('acestream://'):
       self.start_acestream(url)
-
-    if url.startswith('sop://'):
-      self.start_sopcast(url)
 
     if not self.url is None:
       self.player.open(self.url)
@@ -63,8 +47,6 @@ class StreamHandler(object):
     self.player.loading = False
 
   def start_acestream(self, url):
-    """Start acestream engine"""
-
     engine = '/usr/bin/acestreamengine'
     client = '--client-console'
 
@@ -80,8 +62,6 @@ class StreamHandler(object):
     self.start_acestream_session(pid)
 
   def stop_acestream(self):
-    """Stop acestream engine"""
-
     if not self.acestream is None:
       self.acestream.kill()
 
@@ -93,8 +73,6 @@ class StreamHandler(object):
     self.player.loading = False
 
   def start_acestream_session(self, pid):
-    """Handle acestream engine authentication"""
-
     product_key = 'n51LvQoTlJzNGaFxseRK-uvnvX-sD4Vm5Axwmc4UcoD-jruxmKsuJaH0eVgE'
     session = pexpect.spawn('telnet localhost 62062')
     self.notify('waiting')
@@ -127,60 +105,3 @@ class StreamHandler(object):
     except (pexpect.TIMEOUT, pexpect.EOF):
       self.notify('unavailable')
       self.stop_acestream()
-
-  def start_sopcast(self, url):
-    """Start sopcast engine"""
-
-    eng = '/usr/bin/sp-sc'
-    lpo = '3000'
-    ppo = '3001'
-
-    try:
-      self.sopcast = run_command([eng, url, lpo, ppo])
-      self.notify('running')
-      time.sleep(5)
-    except FileNotFoundError:
-      self.notify('error')
-      self.stop_sopcast()
-
-    self.start_sopcast_session(ppo)
-
-  def stop_sopcast(self):
-    """Stop sopcast engine"""
-
-    if not self.sopcast is None:
-      self.sopcast.kill()
-
-    if not self.session is None:
-      self.session.close()
-
-    kill_proccess('sp-sc')
-
-    self.player.loading = False
-
-  def start_sopcast_session(self, port):
-    """Handle sopcast channel availability"""
-
-    session = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    self.notify('waiting')
-
-    retries, timeout, success = [6, 5, False]
-
-    while success is False and retries > 0:
-      try:
-        session.connect(('localhost', int(port)))
-        session.send(b'HELLOBG')
-        session.recv(1024)
-        session.close()
-        success = True
-      except socket.error:
-        time.sleep(timeout)
-        retries = retries - 1
-
-    if success is True:
-      self.session = session
-      self.url     = "http://localhost:%s/sopcast.mp4" % port
-      self.notify('playing')
-    else:
-      self.notify('unavailable')
-      self.stop_sopcast()

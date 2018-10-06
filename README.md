@@ -1,16 +1,16 @@
 ## Kickoff Player
 
-GTK3 player with GStreamer backend, for streaming Acestream and Sopcast sports channels.
+GTK3 player with GStreamer backend, for streaming Acestream sports channels.
 
 * Browse through popular football competitions
-* Watch Acestream and Sopcast sports channels
+* Watch Acestream sports channels
 * Watch football games in the built-in player
-* Open Acestream and Sopcast links
+* Open Acestream links
 
 ![Screenshot](https://raw.githubusercontent.com/jonian/kickoff-player/master/screenshot.jpg)
 
 ## Dependencies
-    gtk3 gstreamer gst-plugins-bad python python-gobject python-dbus python-psutil python-pexpect python-peewee python-requests python-fuzzywuzzy python-levenshtein python-dateutil python-lxml acestream-engine sopcast
+    gtk3 gstreamer gst-plugins-bad python python-gobject python-dbus python-psutil python-pexpect python-peewee python-requests python-fuzzywuzzy python-levenshtein python-dateutil python-lxml acestream-engine
 
 ## Usage
     kickoff-player URL

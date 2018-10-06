@@ -36,7 +36,7 @@ class StreamsApi:
     items = []
 
     if data is not None:
-      for channel in data.xpath('//div[@id="system"]//table//a'):
+      for channel in data.xpath('//div[@id="system"]//table//a[contains(@href, "acestream")]'):
         items.append(channel.get('href'))
 
     return items
@@ -59,7 +59,7 @@ class StreamsApi:
       name = root.xpath('.//td[text()="Name"]//following-sibling::td[1]')[0]
       lang = root.xpath('.//td[text()="Language"]//following-sibling::td[1]')[0]
       rate = root.xpath('.//td[text()="Bitrate"]//following-sibling::td[1]')[0]
-      strm = root.xpath('.//a[starts-with(@href, "acestream:")]|.//a[starts-with(@href, "sop:")]')
+      strm = root.xpath('.//a[starts-with(@href, "acestream:")]')
 
       name = name.text_content().strip()
       lang = lang.text_content().strip()
@@ -71,24 +71,18 @@ class StreamsApi:
       rate = 0 if rate == '' else int(rate.replace('Kbps', ''))
 
       channel = { 'name': name, 'language': lang.title() }
-      stream  = { 'rate': rate, 'language': lang[:3].upper(), 'url': None, 'hd_url': None }
+      stream  = { 'rate': rate, 'language': lang[:3].upper(), 'url': None, 'hd_url': None, 'host': 'Acestream' }
 
       for link in strm:
         href = link.get('href')
-        host = href.split('://')[0]
         text = link.getparent().text_content()
-
-        if host == 'sop':
-          stream['host'] = 'Sopcast'
-        else:
-          stream['host'] = 'Acestream'
 
         if 'HD' in text:
           stream['hd_url'] = href
         else:
           stream['url'] = href
 
-      if stream['url'] is not None:
+      if stream['url'] is not None and lang != 'Unknown':
         items.append({ 'channel': channel, 'stream': stream })
     except (IndexError, ValueError):
       pass
@@ -216,7 +210,7 @@ class StreamsApi:
     return chann
 
   def parse_name(self, name):
-    find = ['Acestream', 'AceStream', 'Sopcast', 'SopCast']
+    find = ['Acestream', 'AceStream']
     name = replace_all(name, find, '').strip()
 
     return name
