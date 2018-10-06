@@ -41,6 +41,7 @@ class MpvBox(Gtk.Box):
     self.callback('STOPPED')
 
   def set_volume(self, volume):
+    volume = int(round(volume * 100))
     self.player._set_property('volume', volume)
 
   def on_canvas_realize(self, widget):
