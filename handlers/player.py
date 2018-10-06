@@ -7,7 +7,7 @@ gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, Gdk, GLib
 from handlers.stream import StreamHandler
-from widgets.gstbox import GstBox
+from widgets.gstbox import GstBox as VideoBox
 from helpers.gtk import toggle_cursor
 from helpers.utils import relative_path
 
@@ -43,7 +43,7 @@ class PlayerHandler(object):
     self.eventbox.connect('button-press-event', self.on_eventbox_button_press_event)
     self.eventbox.connect('motion-notify-event', self.on_eventbox_motion_notify_event)
 
-    self.playbin = GstBox(callback=self.update_status)
+    self.playbin = VideoBox(callback=self.update_status)
     self.eventbox.add(self.playbin)
 
     self.status = self.player.get_object('label_player_status')
