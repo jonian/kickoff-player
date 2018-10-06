@@ -16,6 +16,9 @@ class MpvBox(Gtk.Box):
   def __init__(self, *args, **kwargs):
     Gtk.Box.__init__(self, *args, **kwargs)
 
+    self.vid_url = None
+    self.stopped = False
+
     self.canvas = Gtk.DrawingArea()
     self.pack_start(self.canvas, True, True, 0)
 
@@ -26,10 +29,16 @@ class MpvBox(Gtk.Box):
     add_widget_class(self, 'player-video')
 
   def open(self, url):
+    self.vid_url = url
     self.player.play(url)
 
   def play(self):
-    self.player._set_property('pause', False)
+    if self.stopped:
+      self.stopped = False
+      self.player.play(self.vid_url)
+    else:
+      self.player._set_property('pause', False)
+
     self.callback('PLAYING')
 
   def pause(self):
@@ -37,6 +46,7 @@ class MpvBox(Gtk.Box):
     self.callback('PAUSED')
 
   def stop(self):
+    self.stopped = True
     self.player.command('stop')
     self.callback('STOPPED')
 
