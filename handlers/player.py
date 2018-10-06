@@ -39,10 +39,12 @@ class PlayerHandler(object):
     self.overlay = self.player.get_object('overlay_player')
     self.stack.add_named(self.overlay, 'player_video')
 
+    self.eventbox = self.player.get_object('eventbox_player')
+    self.eventbox.connect('button-press-event', self.on_eventbox_button_press_event)
+    self.eventbox.connect('motion-notify-event', self.on_eventbox_motion_notify_event)
+
     self.playbin = GstBox(callback=self.update_status)
-    self.overlay.add(self.playbin)
-    self.playbin.connect('button-press-event', self.on_videobox_button_press_event)
-    self.playbin.connect('motion-notify-event', self.on_videobox_motion_notify_event)
+    self.eventbox.add(self.playbin)
 
     self.status = self.player.get_object('label_player_status')
     self.status.set_text('Not playing')
@@ -224,11 +226,11 @@ class PlayerHandler(object):
   def on_button_unfullscreen_clicked(self, _event):
     self.toggle_fullscreen()
 
-  def on_videobox_button_press_event(self, _widget, event):
+  def on_eventbox_button_press_event(self, _widget, event):
     if event.type == Gdk.EventType._2BUTTON_PRESS:
       self.toggle_fullscreen()
 
-  def on_videobox_motion_notify_event(self, _widget, _event):
+  def on_eventbox_motion_notify_event(self, _widget, _event):
     self.toolbar_stick = False
 
     GLib.source_remove(self.toolbar_event)
