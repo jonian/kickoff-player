@@ -56,7 +56,7 @@ class PlayerHandler(object):
     self.status = self.player.get_object('label_player_status')
     self.status.set_text('Not playing')
 
-    self.toolbar        = self.player.get_object('toolbar_player')
+    self.toolbar        = self.player.get_object('toolbox_player')
     self.volume_button  = self.player.get_object('button_volume')
     self.full_button    = self.player.get_object('button_fullscreen')
     self.restore_button = self.player.get_object('button_unfullscreen')
