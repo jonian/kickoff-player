@@ -27,6 +27,8 @@ class VlcBox(Gtk.Box):
     self.player.video_set_scale(0)
     self.player.video_set_aspect_ratio('16:9')
     self.player.video_set_deinterlace('on')
+    self.player.video_set_mouse_input(False)
+    self.player.video_set_key_input(False)
 
     add_widget_class(self, 'player-video')
 
