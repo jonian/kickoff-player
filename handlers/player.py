@@ -12,10 +12,10 @@ from helpers.utils import relative_path
 
 try:
   from widgets.mpvbox import MpvBox as VideoBox
-except ModuleNotFoundError:
+except (ModuleNotFoundError, ImportError):
   try:
     from widgets.vlcbox import VlcBox as VideoBox
-  except ModuleNotFoundError:
+  except (ModuleNotFoundError, ImportError):
     from widgets.gstbox import GstBox as VideoBox
 
 
