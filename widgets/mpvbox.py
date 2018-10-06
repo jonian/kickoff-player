@@ -22,7 +22,7 @@ class MpvBox(Gtk.Box):
     self.canvas = Gtk.DrawingArea()
     self.pack_start(self.canvas, True, True, 0)
 
-    self.player = mpv.MPV(ytdl=True)
+    self.player = mpv.MPV(ytdl=True, input_cursor=False, cursor_autohide=False)
     self.canvas.connect('realize', self.on_canvas_realize)
     self.canvas.connect('draw', self.on_canvas_draw)
 
