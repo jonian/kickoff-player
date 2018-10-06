@@ -7,9 +7,16 @@ gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, Gdk, GLib
 from handlers.stream import StreamHandler
-from widgets.gstbox import GstBox as VideoBox
 from helpers.gtk import toggle_cursor
 from helpers.utils import relative_path
+
+try:
+  from widgets.mpvbox import MpvBox as VideoBox
+except ModuleNotFoundError:
+  try:
+    from widgets.vlcbox import VlcBox as VideoBox
+  except ModuleNotFoundError:
+    from widgets.gstbox import GstBox as VideoBox
 
 
 class PlayerHandler(object):
