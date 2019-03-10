@@ -1,3 +1,4 @@
+import os
 import gi
 import dbus
 
@@ -10,13 +11,19 @@ from handlers.stream import StreamHandler
 from helpers.gtk import toggle_cursor
 from helpers.utils import relative_path
 
-try:
-  from widgets.mpvbox import MpvBox as VideoBox
-except (ModuleNotFoundError, ImportError):
+display = os.environ.get('WAYLAND_DISPLAY')
+session = os.environ.get('XDG_SESSION_TYPE')
+
+if 'wayland' in (display or session):
+  from widgets.gstbox import GstBox as VideoBox
+else:
   try:
-    from widgets.vlcbox import VlcBox as VideoBox
+    from widgets.mpvbox import MpvBox as VideoBox
   except (ModuleNotFoundError, ImportError):
-    from widgets.gstbox import GstBox as VideoBox
+    try:
+      from widgets.vlcbox import VlcBox as VideoBox
+    except (ModuleNotFoundError, ImportError):
+      from widgets.gstbox import GstBox as VideoBox
 
 
 class PlayerHandler(object):
