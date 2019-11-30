@@ -1,6 +1,7 @@
 import os
 import time
 import socket
+import psutil
 import subprocess
 import threading
 
@@ -151,9 +152,12 @@ def active_processes():
 
 
 def kill_proccess(name):
-  for process in active_processes():
-    if name in process.name():
-      process.kill()
+  try:
+    for process in active_processes():
+      if name in process.name():
+        process.kill()
+  except (psutil.AccessDenied, psutil.NoSuchProcess):
+    pass
 
 
 def flatten_list(iterable):
