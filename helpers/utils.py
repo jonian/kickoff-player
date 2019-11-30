@@ -238,7 +238,7 @@ def cache_key_from_url(url, params=None, cache_key=None):
 
 
 def parse_url(url, base_url=None):
-  part = url.strip().split('://')
+  part = str(url).strip().split('://')
   host = part[0] if len(part) > 1 else 'http'
   path = part[-1].strip('/')
 
