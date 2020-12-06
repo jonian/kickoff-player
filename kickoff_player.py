@@ -23,7 +23,7 @@ from helpers.gtk import add_custom_css, relative_path
 
 class KickoffPlayer(object):
 
-  def __init__(self):
+  def __init__(self, cache, data):
     GLib.set_prgname('kickoff-player')
     GLib.set_application_name('Kickoff Player')
 
@@ -32,8 +32,8 @@ class KickoffPlayer(object):
     self.argparse = argparse.ArgumentParser(prog='kickoff-player')
     self.argparse.add_argument('url', metavar='URL', nargs='?', default=None)
 
-    self.cache = CacheHandler()
-    self.data  = DataHandler()
+    self.cache = cache
+    self.data  = data
 
     self.scores_api  = ScoresApi(self.data, self.cache)
     self.streams_api = StreamsApi(self.data, self.cache)
@@ -106,5 +106,8 @@ class KickoffPlayer(object):
 if __name__ == '__main__':
   signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-  player = KickoffPlayer()
+  cache = CacheHandler()
+  data  = DataHandler()
+
+  player = KickoffPlayer(cache, data)
   player.run()
