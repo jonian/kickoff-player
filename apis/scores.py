@@ -187,9 +187,7 @@ class ScoresApi:
 
   def section_name(self, codes, code):
     name = list(filter(lambda ccode: ccode['key'] == code, codes))
-    name = name[0]['title']
-
-    return name
+    return name[0]['title'] if len(name) else None
 
   def crest_url(self, team, size='56'):
     img = str(team['idInternal']) + '.png'

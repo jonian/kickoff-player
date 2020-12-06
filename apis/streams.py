@@ -114,8 +114,8 @@ class StreamsApi:
     page = None
 
     if data is not None:
-      link = data.xpath('//div[@id="system"]//a[starts-with(@href, "/live-football")]')[0]
-      page = link.get('href')
+      link = data.xpath('//div[@id="system"]//a[starts-with(@href, "/live-football")]')
+      page = link[0].get('href') if len(link) else None
 
     return page
 
