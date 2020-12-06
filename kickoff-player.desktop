@@ -9,5 +9,5 @@ TryExec=kickoff-player
 Icon=kickoff-player
 Terminal=false
 Type=Application
-MimeType=x-scheme-handler/acestream;x-scheme-handler/sop;
-X-KDE-Protocols=acestream;sop;
+MimeType=x-scheme-handler/acestream;
+X-KDE-Protocols=acestream;
